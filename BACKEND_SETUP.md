@@ -1,4 +1,4 @@
-# Connect FaithLink to a database (Supabase)
+# Connect Fellowship to a database (Supabase)
 
 Supabase is free to start and saves your data online.
 
@@ -9,7 +9,6 @@ Supabase is free to start and saves your data online.
 5. Upload the updated files to GitHub (or your host) and open the site.
 
 ## What is saved now
-- **Messages:** add sermons in **Table editor > sermons** (title, speaker, category, duration, video link). They appear on the Messages screen. Category must be Sermons, Teachings or Worship.
 - **Prayer wall:** people send requests from the app. They are saved as **pending**. In **Table editor > prayer_requests**, change `status` to `approved` to show one, or `removed` to hide it. The "I prayed" count is saved too.
 
 - **Accounts:** people can create an account and sign in with email and password. Their name then shows on Home and Me. Without Supabase, "Sign in" simply opens the app as a guest.

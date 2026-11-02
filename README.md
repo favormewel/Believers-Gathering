@@ -1,10 +1,9 @@
-# FaithLink
+# Fellowship
 
-A Christian chat app prototype: a home feed, chats, prayer wall, daily devotions, profile, and an admin panel.
+Fellowship: a Christian community app with groups, group chat, prayer requests, a Bible reader, a profile, and an admin panel.
 
 ## Files
 - `index.html` : the app (open on a phone or in a narrow browser window)
-- `templates.html` : post and event card templates to copy into the app
 - `admin.html` : the admin dashboard (protect it before going live)
 
 ## Save your data
@@ -19,7 +18,7 @@ Your site opens at `/` (the app) and `/admin.html` (the admin panel).
 
 ## Customize
 - Replace text in [square brackets] with your own content.
-- Change colors by editing the hex values: maroon `#7A1620`, gold `#E3B04B`.
+- Change colors by editing the hex values: gold `#E2B04E`, cream `#FDF3E3`, text `#222222`, blue `#2F5BD8`.
 
 ## Before a real launch
 This is a front-end prototype: messages, prayers and devotions are not saved and there are no accounts. Add a backend (for example Firebase or Supabase) for sign-in, saved chats, prayer requests and devotions, and put `admin.html` behind a login.
