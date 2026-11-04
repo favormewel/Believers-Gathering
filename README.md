@@ -1,6 +1,6 @@
-# Fellowship
+# CHRIST HUB
 
-Fellowship: a Christian community app with groups, group chat, prayer requests, a Bible reader, a profile, and an admin panel.
+CHRIST HUB: a Christian community app with groups, group chat, prayer requests, a Bible reader, a profile, and an admin panel.
 
 ## Files
 - `index.html` : the app (open on a phone or in a narrow browser window)
@@ -22,3 +22,16 @@ Your site opens at `/` (the app) and `/admin.html` (the admin panel).
 
 ## Before a real launch
 This is a front-end prototype: messages, prayers and devotions are not saved and there are no accounts. Add a backend (for example Firebase or Supabase) for sign-in, saved chats, prayer requests and devotions, and put `admin.html` behind a login.
+
+## The Bible
+The Bible tab has all 66 books and 1,189 chapters, verse by verse. You can search (for example "John 3:16" or "Romans 8"), switch translation (KJV, WEB, ASV, BBE or Darby), make the text bigger or smaller, highlight and bookmark verses, copy them, and share them into a group chat. Your highlights, bookmarks and last place are saved on each person's phone.
+
+By default the text is loaded one chapter at a time from the free service bible-api.com, and every chapter a person has opened is kept on their phone so it opens again instantly and offline. That service is run by one person, is limited to 15 requests per 30 seconds for each visitor, and can be slow or down. For a reliable church app, host the text yourself:
+
+1. On your computer, download an XML file from https://github.com/seven1m/open-bibles (for example `eng-kjv.osis.xml`, `eng-asv.zefania.xml` or `swa-swahili.osis.xml`). They are all public domain.
+2. Run: `python3 tools/build_bible.py eng-kjv.osis.xml kjv`. This makes a `bible/kjv/` folder with 66 small files.
+3. Upload the `bible` folder to your GitHub repository, at the top level next to `index.html`. (GitHub's web page takes up to 100 files at a time, so do one translation per upload.)
+4. In `config.js`, add this line inside the settings: `BIBLE_BASE_URL:"bible"`
+5. The folder name is the translation code. The app's list uses kjv, web, asv, bbe and darby, so use those codes for the files you add.
+
+I tested the converter on small sample files only, not on the full downloads. Run it, then open a few chapters to check them before you tell people.

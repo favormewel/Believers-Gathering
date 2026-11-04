@@ -1,4 +1,4 @@
-# Connect Fellowship to a database (Supabase)
+# Connect CHRIST HUB to a database (Supabase)
 
 Supabase is free to start and saves your data online.
 
