@@ -45,3 +45,9 @@ To turn it on:
 3. Open `admin.html`, sign in, and you can approve or remove prayer requests, see and delete groups, and see members.
 
 Anyone can open the `admin.html` page, but it only shows data to accounts marked as admin, and Supabase itself refuses admin actions from everyone else.
+
+## Opening the app
+- A short splash screen with the logo shows first.
+- New members then see three welcome slides (once only). They can skip them. People can see them again from Profile, "Show the welcome tour".
+- After that, anyone who is signed in stays signed in. The app opens on the screen they were last on: their tab, their Bible chapter, or their last group chat.
+- If a database is connected and nobody is signed in, the app opens on the sign-in screen.

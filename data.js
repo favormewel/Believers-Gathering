@@ -28,19 +28,19 @@ function applyUser(u){window.FL_USER=u;if(window.FL_ONAUTH)window.FL_ONAUTH(u);v
  var g=document.getElementById("greet-name"),m=document.getElementById("me-name"),a=document.getElementById("me-avatar");
  if(g)if(m)m.textContent=n;if(a)a.textContent=n.split(/\s+/).slice(0,2).map(function(w){return w[0]}).join("").toUpperCase()}
 window.FL_SAVE=function(n){if(db)db.auth.updateUser({data:{full_name:n}})};
-if(db){window.FL_DB=true;loadPrayers();db.auth.getSession().then(function(r){var s=r.data&&r.data.session;if(s)applyUser(s.user);else show("login")})}
+if(db){window.FL_DB=true;loadPrayers();db.auth.getSession().then(function(r){var s=r.data&&r.data.session;if(s)applyUser(s.user);if(window.FL_AUTHED)window.FL_AUTHED(!!s);else if(!s)show("login")})}
 document.addEventListener("click",function(e){
  var b=e.target.closest("[data-pray-id]");if(b&&db&&!b.dataset.sent){b.dataset.sent=1;db.rpc("pray_for",{request_id:b.dataset.prayId})}
  if(e.target.closest("#pr-post")&&db){var t=(document.getElementById("pr-text").value||"").trim();if(t.length<5)return;db.from("prayer_requests").insert({body:t.slice(0,500),author:userName||"Anonymous"}).then(function(r){alert(r.error?"Sorry, we could not send your request. Please try again.":"Thank you. Your request will appear after review.")})}});
 document.addEventListener("click",function(e){var id=(e.target.closest("button")||{}).id;
- if(id==="li-btn"){if(!db){show("home");return}var em=val("li-email"),pw=document.getElementById("li-pass").value;
+ if(id==="li-btn"){if(!db){show("groups");return}var em=val("li-email"),pw=document.getElementById("li-pass").value;
   if(!em||!pw){setMsg("li-msg","Enter your email and password.");return}
-  db.auth.signInWithPassword({email:em,password:pw}).then(function(r){if(r.error){setMsg("li-msg","Sign-in failed. Check your email and password.");return}applyUser(r.data.user);show("home")})}
- if(id==="su-btn"){if(!db){show("home");return}var pw2=document.getElementById("su-pass").value;
+  db.auth.signInWithPassword({email:em,password:pw}).then(function(r){if(r.error){setMsg("li-msg","Sign-in failed. Check your email and password.");return}applyUser(r.data.user);show("groups")})}
+ if(id==="su-btn"){if(!db){show("groups");return}var pw2=document.getElementById("su-pass").value;
   if(pw2.length<8){setMsg("su-msg","Use at least 8 characters.");return}
   db.auth.signUp({email:val("su-email"),password:pw2,options:{data:{full_name:val("su-name")}}}).then(function(r){
    if(r.error){setMsg("su-msg","Could not create the account. Please try again.");return}
-   if(r.data.session){applyUser(r.data.user);show("home")}else{setMsg("su-msg","Check your email to confirm your account, then sign in.",1)}})}
+   if(r.data.session){applyUser(r.data.user);show("groups")}else{setMsg("su-msg","Check your email to confirm your account, then sign in.",1)}})}
  if(id==="forgot"){if(!db){setMsg("li-msg","Add your Supabase details in config.js first.");return}var fe=val("li-email")||prompt("Enter your email");if(!fe)return;
   db.auth.resetPasswordForEmail(fe).then(function(){setMsg("li-msg","If that email has an account, a reset link is on its way.",1)})}
  if(id==="sign-out"){if(db)db.auth.signOut().then(function(){if(window.FL_ONAUTH)window.FL_ONAUTH(null);show("login")});else show("login")}});

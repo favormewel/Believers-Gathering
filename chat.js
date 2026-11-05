@@ -80,7 +80,7 @@ function loadGroups(){
     var a=0,b=0;
     r[0].data.forEach(function(g){var n=g.group_members&&g.group_members[0]?g.group_members[0].count:0;if(mine[g.id]){gl.appendChild(card(g,n,1));a++}else{nl.appendChild(card(g,n,0));b++}});
     if(!a)gl.appendChild(note("You have not joined a group yet. Open Nearby to join one, or tap + to create one."));
-    if(!b)nl.appendChild(note("No other groups to join right now."))})}
+    if(!b)nl.appendChild(note("No other groups to join right now."));if(window.FL_RESUME_GID){var rc=document.querySelector('[data-gid="'+window.FL_RESUME_GID+'"][data-group]');window.FL_RESUME_GID=null;if(rc)rc.click()}})}
 function loadMembers(id,total){
   db.from("group_members").select("role,user_id,profiles(full_name)").eq("group_id",id).order("joined_at").limit(5).then(function(r){
     var box=$("info-members");if(!box||r.error)return;box.innerHTML="";
@@ -92,7 +92,7 @@ function loadMembers(id,total){
       box.appendChild(d)});
     var more=total-(r.data||[]).length;if(more>0){var x=document.createElement("div");x.style.cssText="margin:0 0 18px 66px;font-weight:700;color:#2F5BD8";x.textContent=more+" more members";box.appendChild(x)}})}
 function openGroup(c){
-  gid=c.dataset.gid;seen={};var box=$("msgs");box.innerHTML="";
+  gid=c.dataset.gid;try{localStorage.setItem("fl-gid",JSON.stringify(gid))}catch(e){}seen={};var box=$("msgs");box.innerHTML="";
   var t=$("info-title"),s=$("info-sub"),a=$("info-about");if(t)t.textContent=c.dataset.title;if(s)s.textContent=c.dataset.members;if(a)a.textContent=c.dataset.desc||"No description yet.";
   loadMembers(gid,parseInt(c.dataset.members,10)||0);
   db.from("messages").select("*").eq("group_id",gid).order("created_at",{ascending:false}).limit(100).then(function(r){if(r.error){box.appendChild(note("Could not load messages."));return}(r.data||[]).reverse().forEach(addMsg);if(!(r.data||[]).length)box.appendChild(note("No messages yet. Say hello!"))});

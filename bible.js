@@ -98,5 +98,6 @@ document.addEventListener("keydown",function(e){if(e.key!=="Enter"||e.target.id!
   var r=parseRef(e.target.value);if(!r){$("bb-msg").textContent="I could not find that book. Try John 3:16 or Psalm 23.";return}
   if(r.ch>BOOKS[r.b].ch){$("bb-msg").textContent=BOOKS[r.b].name+" has only "+BOOKS[r.b].ch+" chapters.";return}
   if(r.ch){e.target.value="";renderList();openChapter(r.b,r.ch,r.v1)}else{e.target.value="";openBook(r.b)}});
+window.FLB.resume=function(){var l=ls("flb-last");if(l)openChapter(l.b,l.c);else show("bible")};
 setChips();setTabs();renderList();votd();cont();
 })();
