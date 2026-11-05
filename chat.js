@@ -59,6 +59,7 @@ document.addEventListener("click",function(e){
   else if(l==="Voice Note"||l.indexOf("Stop")===0){if(rec)rec.stop();else startRec(b)}
   else if(l==="Verse"&&b.closest("#chat")){var r=prompt("Which verse? (for example John 3:16)");if(!r)return;var t=prompt("Type the verse text");if(!t)return;post("verse",{body:t.trim(),file_name:r.trim()})}});
 // ---- groups (signed-in, backend only)
+var ar0=$("admin-row");if(!db&&ar0)ar0.hidden=false;
 if(!db)return;
 function rm(x){x.remove()}
 function card(g,n,mine){
@@ -106,5 +107,5 @@ window.FL_NEWGROUP=function(name,desc){
     if(r.error){alert("Could not create the group. Please try again.");return}
     db.from("group_members").insert({group_id:r.data.id,user_id:user.id,role:"admin"}).then(loadGroups)});
   return true};
-window.FL_ONAUTH=function(u){user=u;if(!u){gid=null;if(chan){db.removeChannel(chan);chan=null}return}loadGroups()};
+window.FL_ONAUTH=function(u){user=u;var ar=$("admin-row");if(ar)ar.hidden=true;if(!u){gid=null;if(chan){db.removeChannel(chan);chan=null}return}loadGroups();if(ar)db.from("profiles").select("is_admin").eq("id",u.id).single().then(function(r){ar.hidden=!(r.data&&r.data.is_admin)})};
 })();

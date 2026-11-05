@@ -37,3 +37,13 @@ The admin panel and the Bible and Nearby search.
 ## Safety
 - The **anon** key is meant to be public. Row Level Security in `schema.sql` controls what visitors can do.
 - Never put the **service_role** key in any file you upload.
+
+## Admin panel
+Open `admin.html` on your site (for example `https://YOUR-SITE/admin.html`). Inside the app, admins also see an **Admin panel** row at the bottom of the Profile tab.
+
+To turn it on:
+1. In Supabase run `supabase/admin.sql` once (SQL Editor). It adds an admin flag and the admin rules.
+2. Make yourself the first admin: in the SQL Editor run the commented line at the bottom of `admin.sql` with your email in it. Create your account in the app first.
+3. Open `admin.html`, sign in, and you can approve or remove prayer requests, see and delete groups, and see members.
+
+Anyone can open the `admin.html` page, but it only shows data to accounts marked as admin, and Supabase itself refuses admin actions from everyone else.

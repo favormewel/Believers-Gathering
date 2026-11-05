@@ -35,3 +35,13 @@ By default the text is loaded one chapter at a time from the free service bible-
 5. The folder name is the translation code. The app's list uses kjv, web, asv, bbe and darby, so use those codes for the files you add.
 
 I tested the converter on small sample files only, not on the full downloads. Run it, then open a few chapters to check them before you tell people.
+
+## Admin panel
+Open `admin.html` on your site (for example `https://YOUR-SITE/admin.html`). Inside the app, admins also see an **Admin panel** row at the bottom of the Profile tab.
+
+To turn it on:
+1. In Supabase run `supabase/admin.sql` once (SQL Editor). It adds an admin flag and the admin rules.
+2. Make yourself the first admin: in the SQL Editor run the commented line at the bottom of `admin.sql` with your email in it. Create your account in the app first.
+3. Open `admin.html`, sign in, and you can approve or remove prayer requests, see and delete groups, and see members.
+
+Anyone can open the `admin.html` page, but it only shows data to accounts marked as admin, and Supabase itself refuses admin actions from everyone else.
