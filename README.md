@@ -51,3 +51,10 @@ Anyone can open the `admin.html` page, but it only shows data to accounts marked
 - New members then see three welcome slides (once only). They can skip them. People can see them again from Profile, "Show the welcome tour".
 - After that, anyone who is signed in stays signed in. The app opens on the screen they were last on: their tab, their Bible chapter, or their last group chat.
 - If a database is connected and nobody is signed in, the app opens on the sign-in screen.
+
+## Install as an app
+CHRIST HUB can be installed on a phone like a normal app, with its own icon, opening full screen with no browser bar, and opening again without internet.
+- **Android (Chrome):** the app shows an "Install CHRIST HUB" bar, and there is an "Install the app" row in Profile. Tap Install.
+- **iPhone (Safari):** tap the Share button, then "Add to Home Screen". The same bar and Profile row show these steps.
+- It needs your site to be on https, which GitHub Pages is. Upload the `icons` folder, `manifest.webmanifest`, `sw.js` and `install.js` next to `index.html`.
+- The app checks for new files every time it opens online, so your updates still reach people. If someone still sees the old version, closing and reopening the app fixes it.
