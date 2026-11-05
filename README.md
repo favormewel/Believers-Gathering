@@ -58,3 +58,5 @@ CHRIST HUB can be installed on a phone like a normal app, with its own icon, ope
 - **iPhone (Safari):** tap the Share button, then "Add to Home Screen". The same bar and Profile row show these steps.
 - It needs your site to be on https, which GitHub Pages is. Upload the `icons` folder, `manifest.webmanifest`, `sw.js` and `install.js` next to `index.html`.
 - The app checks for new files every time it opens online, so your updates still reach people. If someone still sees the old version, closing and reopening the app fixes it.
+
+If installing does not work, open `install-check.html` on your site on the phone that fails. It tests each requirement and shows what is missing. You can delete it afterwards.

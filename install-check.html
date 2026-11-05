@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CHRIST HUB install check</title>
+<style>
+body{margin:0;padding:20px;background:#FDF3E3;color:#222;font:14px/1.45 system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif}
+main{max-width:520px;margin:0 auto}h1{font-size:19px;margin:0 0 4px}p{margin:0 0 14px;color:#6B6055}
+.r{display:flex;gap:10px;padding:10px 12px;margin-bottom:8px;background:#FFFAF2;border:1px solid #F0E2C8;border-radius:12px}
+.i{flex:none;width:22px;font-weight:700}.ok .i{color:#1B6B3A}.no .i{color:#B3261E}.wait .i{color:#6B6055}
+.h{display:block;color:#6B6055;font-size:13px;margin-top:2px}
+</style></head><body><main>
+<h1>CHRIST HUB install check</h1><p>This page tests what a phone needs before it can install the app. Open it on the same phone and browser that fails.</p>
+<div id="out"></div><p id="sum" style="margin-top:14px;font-weight:700"></p>
+<script>
+(function(){
+var out=document.getElementById("out"),fails=0;
+function add(state,title,hint){var d=document.createElement("div");d.className="r "+state;d.innerHTML='<span class="i">'+(state==="ok"?"\u2713":state==="no"?"\u2717":"\u2026")+'</span><div><b></b><span class="h"></span></div>';d.querySelector("b").textContent=title;d.querySelector(".h").textContent=hint||"";out.appendChild(d);if(state==="no")fails++;return d}
+function set(d,state,title,hint){d.className="r "+state;d.querySelector(".i").textContent=state==="ok"?"\u2713":"\u2717";d.querySelector("b").textContent=title;d.querySelector(".h").textContent=hint||"";if(state==="no")fails++}
+var base=location.href.replace(/[^\/]*$/,"");
+add(location.protocol==="https:"||location.hostname==="localhost"?"ok":"no","Site is on https",location.protocol==="https:"?"":"Installing needs a secure (https) address.");
+var ua=navigator.userAgent,ios=/iphone|ipad|ipod/i.test(ua);
+add("ok","Browser: "+(ios?"iPhone or iPad":/android/i.test(ua)?"Android":"Computer"),ios?"iPhone never shows an install button. Use Safari: Share, then Add to Home Screen.":"");
+var standalone=(window.matchMedia&&matchMedia("(display-mode: standalone)").matches)||navigator.standalone===true;
+add("ok",standalone?"Already opened as an installed app":"Opened in a browser tab","");
+var vi=add("wait","Checking index.html...","");
+fetch(base+"index.html?x="+Date.now(),{cache:"no-store"}).then(function(r){if(!r.ok)throw 0;return r.text()}).then(function(t){
+  var m=t.match(/version (\d+)/);
+  if(!m)set(vi,"no","index.html has no version label","This is an old index.html. Upload the new one from the zip, at the top level of your repository.");
+  else if(+m[1]<10)set(vi,"no","index.html is version "+m[1]+", not 10","Upload the new index.html from the latest zip.");
+  else set(vi,"ok","index.html is version "+m[1],"");
+  if(t.indexOf('rel="manifest"')<0)add("no","index.html does not link the manifest","Upload the new index.html.")
+}).catch(function(){set(vi,"no","Could not read index.html","Is index.html at the top level of your repository?")});
+var mi=add("wait","Checking manifest.webmanifest...","");
+fetch(base+"manifest.webmanifest?x="+Date.now(),{cache:"no-store"}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){
+  var s=(j.icons||[]).map(function(i){return i.sizes}).join(" ");
+  var bad=[];if(!j.name)bad.push("name");if(!j.start_url)bad.push("start_url");if(["standalone","fullscreen","minimal-ui"].indexOf(j.display)<0)bad.push("display");if(s.indexOf("192x192")<0)bad.push("192 icon");if(s.indexOf("512x512")<0)bad.push("512 icon");
+  if(bad.length)set(mi,"no","Manifest is missing: "+bad.join(", "),"Upload the manifest.webmanifest from the zip.");else set(mi,"ok","Manifest found and complete","");
+  (j.icons||[]).forEach(function(ic){var d=add("wait","Icon "+ic.sizes+"...","");var im=new Image();im.onload=function(){set(d,"ok","Icon "+ic.sizes+" loads","")};im.onerror=function(){set(d,"no","Icon "+ic.sizes+" is missing","Upload the icons folder (it holds 5 pictures) next to index.html.")};im.src=base+ic.src+"?x="+Date.now()})
+}).catch(function(){set(mi,"no","manifest.webmanifest not found","Upload manifest.webmanifest next to index.html.")});
+var sw=add("wait","Checking the offline helper (sw.js)...","");
+if(!("serviceWorker" in navigator))set(sw,"no","This browser has no service worker support","Try Chrome on Android, or Safari on iPhone.");
+else navigator.serviceWorker.register(base+"sw.js").then(function(r){set(sw,"ok","sw.js registered","")}).catch(function(){set(sw,"no","sw.js could not be registered","Upload sw.js next to index.html.")});
+var pi=add("wait","Waiting for the browser to offer install (5 seconds)...","");
+var got=false;window.addEventListener("beforeinstallprompt",function(e){got=true;set(pi,"ok","The browser is offering to install the app","Open the app and use the Install bar or the Profile row.")});
+setTimeout(function(){if(!got){set(pi,ios?"ok":"no",ios?"iPhone does not send an install offer (normal)":"The browser has not offered install",ios?"Use Safari, Share, Add to Home Screen.":"If everything above passes: the app may already be installed, you may have dismissed it earlier, or this browser (for example Firefox or an in-app browser) does not offer it. Try Chrome and its menu: Install app or Add to Home screen.")}
+  document.getElementById("sum").textContent=fails?"Fix the red items above, then reload this page.":"Everything needed is in place."},5500);
+})();
+</script></main></body></html>
