@@ -1,6 +1,5 @@
-// CHRIST HUB service worker: opens the app offline and keeps files fresh.
-var V="fl-v10";
-self.addEventListener("install",function(e){e.waitUntil(caches.open(V).then(function(c){return c.addAll(["./","index.html","manifest.webmanifest","icons/icon-192.png"])}).catch(function(){}));self.skipWaiting()});
+var V="fl-v11";
+self.addEventListener("install",function(e){self.skipWaiting()});
 self.addEventListener("activate",function(e){e.waitUntil(caches.keys().then(function(ks){return Promise.all(ks.filter(function(k){return k!==V}).map(function(k){return caches.delete(k)}))}).then(function(){return self.clients.claim()}))});
 self.addEventListener("fetch",function(e){
   var r=e.request;if(r.method!=="GET")return;
