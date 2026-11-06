@@ -1,11 +1,25 @@
 (function(){
+if(window.__flInstall||!document.getElementById("groups"))return;window.__flInstall=1;
 var SYS="system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif";
 function $(i){return document.getElementById(i)}
 function ls(k,v){try{if(v===undefined){var x=localStorage.getItem(k);return x?JSON.parse(x):null}localStorage.setItem(k,JSON.stringify(v))}catch(e){return null}}
+function tag(n,a){var e=document.createElement(n);for(var k in a)e.setAttribute(k,a[k]);document.head.appendChild(e);return e}
 var standalone=(window.matchMedia&&matchMedia("(display-mode: standalone)").matches)||navigator.standalone===true;
 var ios=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
 var deferred=null,banner=null,sheet=null;
-if("serviceWorker" in navigator&&(location.protocol==="https:"||location.hostname==="localhost")){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})})}
+function drawIcon(){var c=document.createElement("canvas");c.width=c.height=512;var x=c.getContext("2d");x.fillStyle="#E2B04E";x.fillRect(0,0,512,512);x.fillStyle="#fff";
+  var u=512/44*0.7,o=512*0.15;function r(a,b,e,f){x.beginPath();if(x.roundRect)x.roundRect(o+a*u,o+b*u,(e-a)*u,(f-b)*u,1.5*u);else x.rect(o+a*u,o+b*u,(e-a)*u,(f-b)*u);x.fill()}
+  r(19,9,25,35);r(12,16,32,22);return c.toDataURL("image/png")}
+var base=location.href.split("#")[0].split("?")[0].replace(/[^\/]*$/,"");
+var ico=drawIcon();
+if(!document.querySelector('link[rel="manifest"]')){
+  var man={id:base,name:"CHRIST HUB",short_name:"CHRIST HUB",description:"A Christian community app to connect, pray, and grow together.",start_url:base,scope:base,display:"standalone",orientation:"portrait",background_color:"#FDF3E3",theme_color:"#E2B04E",icons:[{src:ico,sizes:"512x512",type:"image/png",purpose:"any maskable"}]};
+  tag("link",{rel:"manifest",href:URL.createObjectURL(new Blob([JSON.stringify(man)],{type:"application/manifest+json"}))})}
+if(!document.querySelector('meta[name="theme-color"]'))tag("meta",{name:"theme-color",content:"#E2B04E"});
+tag("meta",{name:"mobile-web-app-capable",content:"yes"});tag("meta",{name:"apple-mobile-web-app-capable",content:"yes"});
+tag("meta",{name:"apple-mobile-web-app-title",content:"CHRIST HUB"});tag("meta",{name:"apple-mobile-web-app-status-bar-style",content:"default"});
+tag("link",{rel:"apple-touch-icon",href:ico});
+if("serviceWorker" in navigator&&(location.protocol==="https:"||location.hostname==="localhost"))navigator.serviceWorker.register("sw.js").catch(function(){});
 function btn(id,t,css,label){return '<button id="'+id+'"'+(label?' aria-label="'+label+'"':'')+' style="'+css+'">'+t+'</button>'}
 function mkBanner(){
   var b=document.createElement("div");b.id="install-banner";b.hidden=true;
@@ -26,14 +40,18 @@ function steps(){
 function install(){
   if(deferred){var d=deferred;deferred=null;d.prompt();if(d.userChoice)d.userChoice.then(hide,hide);return}
   if(!sheet)mkSheet();$("install-steps").innerHTML=steps();sheet.hidden=false}
-function hide(){if(banner)banner.hidden=true;var r=$("install-row");if(r&&(standalone||false))r.hidden=true}
+function hide(){if(banner)banner.hidden=true}
 window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();deferred=e});
-window.addEventListener("appinstalled",function(){standalone=true;if(banner)banner.hidden=true;var r=$("install-row");if(r)r.hidden=true});
+window.addEventListener("appinstalled",function(){standalone=true;hide();var r=$("install-row");if(r)r.hidden=true});
 document.addEventListener("click",function(e){var t=e.target;
   if(t.closest("#install-row")||t.closest("#install-go")){install();return}
   if(t.closest("#install-x")){banner.hidden=true;ls("fl-install-x",Date.now());return}
   if(t.closest("#install-close")||t.id==="install-sheet"){sheet.hidden=true}});
-var row=$("install-row");if(row&&!standalone)row.hidden=false;
+if(!standalone&&!$("install-row")){
+  var row=document.createElement("button");row.id="install-row";
+  row.style.cssText="display:flex;justify-content:space-between;align-items:center;width:100%;min-height:56px;padding:0 20px;border:0;border-bottom:1px solid #F0E2C8;background:#FFFAF2;font:600 15px "+SYS+";color:#222;text-align:left";
+  row.innerHTML='<span>Install the app</span><span style="color:#6B6055;font-size:20px">&rsaquo;</span>';
+  var so=$("sign-out");if(so&&so.parentNode)so.parentNode.insertBefore(row,so);else{var p=$("profile");if(p)p.appendChild(row)}}
 function mainVisible(){return["groups","prayer","bible","nearby","profile"].some(function(i){var s=$(i);return s&&!s.hidden})}
 if(!standalone){mkBanner();
   setTimeout(function tick(){var x=ls("fl-install-x");if(x&&Date.now()-x<7*864e5)return;
