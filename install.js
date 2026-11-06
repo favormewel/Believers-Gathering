@@ -12,7 +12,7 @@ function drawIcon(){var c=document.createElement("canvas");c.width=c.height=512;
   r(19,9,25,35);r(12,16,32,22);return c.toDataURL("image/png")}
 var base=location.href.split("#")[0].split("?")[0].replace(/[^\/]*$/,"");
 var ico=drawIcon();
-if(!document.querySelector('link[rel="manifest"]')){
+document.querySelectorAll('link[rel="manifest"]').forEach(function(l){l.remove()});{
   var man={id:base,name:"CHRIST HUB",short_name:"CHRIST HUB",description:"A Christian community app to connect, pray, and grow together.",start_url:base,scope:base,display:"standalone",orientation:"portrait",background_color:"#FDF3E3",theme_color:"#E2B04E",icons:[{src:ico,sizes:"512x512",type:"image/png",purpose:"any maskable"}]};
   tag("link",{rel:"manifest",href:URL.createObjectURL(new Blob([JSON.stringify(man)],{type:"application/manifest+json"}))})}
 if(!document.querySelector('meta[name="theme-color"]'))tag("meta",{name:"theme-color",content:"#E2B04E"});
