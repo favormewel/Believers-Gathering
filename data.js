@@ -24,10 +24,13 @@ function loadPrayers(){db.from("prayer_requests").select("*").eq("status","appro
 var userName="";
 function setMsg(id,t,ok){var m=document.getElementById(id);if(m){m.textContent=t;m.style.color=ok?"#1B6B3A":"#B3261E"}}
 function val(id){var e=document.getElementById(id);return e?e.value.trim():""}
-function applyUser(u){window.FL_USER=u;if(window.FL_ONAUTH)window.FL_ONAUTH(u);var n=u&&u.user_metadata&&u.user_metadata.full_name;if(!n)return;userName=n;
- var g=document.getElementById("greet-name"),m=document.getElementById("me-name"),a=document.getElementById("me-avatar");
- if(g)if(m)m.textContent=n;if(a)a.textContent=n.split(/\s+/).slice(0,2).map(function(w){return w[0]}).join("").toUpperCase()}
-window.FL_SAVE=function(n){if(db)db.auth.updateUser({data:{full_name:n}})};
+function applyUser(u){window.FL_USER=u;if(window.FL_ONAUTH)window.FL_ONAUTH(u);
+ var md=(u&&u.user_metadata)||{},n=md.full_name||(u&&u.email?u.email.split("@")[0]:"");if(!n)return;userName=n;
+ var m=document.getElementById("me-name"),a=document.getElementById("me-avatar"),b=document.getElementById("me-bio");
+ if(m)m.textContent=n;
+ if(a)a.textContent=n.split(/\s+/).slice(0,2).map(function(w){return w[0]}).join("").toUpperCase();
+ if(b)b.textContent=md.bio||"Tap Edit profile to add a short bio"}
+window.FL_SAVE=function(){};
 if(db){window.FL_DB=true;loadPrayers();db.auth.getSession().then(function(r){var s=r.data&&r.data.session;if(s)applyUser(s.user);if(window.FL_AUTHED)window.FL_AUTHED(!!s);else if(!s)show("login")})}
 document.addEventListener("click",function(e){
  var b=e.target.closest("[data-pray-id]");if(b&&db&&!b.dataset.sent){b.dataset.sent=1;db.rpc("pray_for",{request_id:b.dataset.prayId})}
@@ -36,7 +39,7 @@ document.addEventListener("click",function(e){var id=(e.target.closest("button")
  if(id==="li-btn"){if(!db){show("groups");return}var em=val("li-email"),pw=document.getElementById("li-pass").value;
   if(!em||!pw){setMsg("li-msg","Enter your email and password.");return}
   db.auth.signInWithPassword({email:em,password:pw}).then(function(r){if(r.error){setMsg("li-msg","Sign-in failed. Check your email and password.");return}applyUser(r.data.user);show("groups")})}
- if(id==="su-btn"){if(!db){show("groups");return}var pw2=document.getElementById("su-pass").value;
+ if(id==="su-btn"){if(!db){show("groups");return}var pw2=document.getElementById("su-pass").value;if(!val("su-name")){setMsg("su-msg","Please enter your name.");return}
   if(pw2.length<8){setMsg("su-msg","Use at least 8 characters.");return}
   db.auth.signUp({email:val("su-email"),password:pw2,options:{data:{full_name:val("su-name")}}}).then(function(r){
    if(r.error){setMsg("su-msg","Could not create the account. Please try again.");return}
@@ -44,4 +47,16 @@ document.addEventListener("click",function(e){var id=(e.target.closest("button")
  if(id==="forgot"){if(!db){setMsg("li-msg","Add your Supabase details in config.js first.");return}var fe=val("li-email")||prompt("Enter your email");if(!fe)return;
   db.auth.resetPasswordForEmail(fe).then(function(){setMsg("li-msg","If that email has an account, a reset link is on its way.",1)})}
  if(id==="sign-out"){if(db)db.auth.signOut().then(function(){if(window.FL_ONAUTH)window.FL_ONAUTH(null);show("login")});else show("login")}});
+
+(function(){
+ function $(i){return document.getElementById(i)}
+ var n=$("me-name");if(n&&n.textContent==="Favor Mewel")n.textContent="Guest";
+ var a=$("me-avatar");if(a&&a.textContent==="FM")a.textContent="G";
+ var b=$("me-bio");if(b&&b.textContent.charAt(0)==="[")b.textContent="Tap Edit profile to add a short bio";
+ document.addEventListener("click",function(e){
+  if(e.target.closest('[data-go="editprofile"]')){var m=$("me-name"),i=$("ep-name"),mb=$("me-bio"),bi=$("ep-bio");
+   if(i&&m)i.value=m.textContent==="Guest"?"":m.textContent;if(bi&&mb)bi.value=/^Tap Edit/.test(mb.textContent)?"":mb.textContent}
+  if(e.target.closest("#ep-save")&&db&&window.FL_USER){var nm=($("ep-name").value||"").trim(),bio=($("ep-bio").value||"").trim();
+   if(nm){db.auth.updateUser({data:{full_name:nm,bio:bio}});db.from("profiles").update({full_name:nm}).eq("id",window.FL_USER.id).then(function(){})}}});
+})();
 })();
