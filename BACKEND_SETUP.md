@@ -16,3 +16,6 @@ Groups and members, group chat (text, photos, files up to 10 MB, voice notes, sh
 - Voice notes need https (GitHub Pages is) and the microphone allowed.
 - Only members of a group can read its messages. Members cannot make themselves admin.
 - Free Supabase projects pause after about a week of no use. Move to the paid plan when the church depends on it.
+
+## Already ran setup.sql before? (chat list update)
+The groups list now works like WhatsApp: only your groups, newest chat first, the last message with its time, and unread counts. This needs one small database update. In Supabase open **SQL Editor**, paste everything from `supabase/update-groups.sql`, and tap **Run** (once). New installs already have it inside setup.sql. If you skip it, groups still show, but without the last message and unread counts.

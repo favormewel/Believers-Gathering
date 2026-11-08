@@ -9,7 +9,7 @@ window.FL_AUTHED=function(h){has=h;known=true;go()};
 if(window.FL_KNOWN){known=true;has=!!window.FL_HAS}
 function go(){if(done)return;var w=Date.now()-t0;if(w<1100){setTimeout(go,1100-w);return}if(!known&&w<4000){setTimeout(go,4000-w);return}done=true;route()}
 function restore(){var l=ls("fl-screen");
-  if(l==="chat"){if(dbmode){window.FL_RESUME_GID=ls("fl-gid");raw("groups")}else raw("chat")}
+  if(l==="chat"){if(dbmode){var g0=ls("fl-gid");raw("groups");if(window.FL_RESUME)window.FL_RESUME(g0);else window.FL_RESUME_GID=g0}else raw("chat")}
   else if(l==="reader"&&window.FLB&&window.FLB.resume)window.FLB.resume();
   else if(l&&["prayer","nearby","bible","profile"].indexOf(l)>=0)raw(l);
   else raw("groups")}
