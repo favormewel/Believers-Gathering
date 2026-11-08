@@ -1,62 +1,35 @@
 # CHRIST HUB
 
-CHRIST HUB: a Christian community app with groups, group chat, prayer requests, a Bible reader, a profile, and an admin panel.
+A Christian community app: groups and group chat (messages, photos, files, voice notes, shared verses), prayer requests, the whole Bible, profiles, an admin panel, and install-as-an-app.
 
-## Files
-- `index.html` : the app (open on a phone or in a narrow browser window)
-- `admin.html` : the admin dashboard (protect it before going live)
+## Put it on your site (GitHub)
+1. Unzip this package. Everything is at the top level, with no extra folder around it.
+2. In your GitHub repository choose **Add file**, then **Upload files**. Drag in ALL the files and the two folders `icons` and `supabase` (and `tools` if you like). Commit.
+3. **Keep your own `config.js`.** It holds your Supabase address and key, and this package does not contain one, so uploading will not erase it. Only if you have no config.js yet: copy `config-example.js` to a new file named `config.js` and fill in the two values.
+4. Wait two minutes and open your site in a private tab. Open Profile and scroll down: it should say "version 11".
 
-## Save your data
-See `BACKEND_SETUP.md` to connect a free Supabase database (files: `config.js`, `data.js`, `supabase/schema.sql`).
+## What is in the package
+- `index.html` the app, and `admin.html` the admin panel (open it at `/admin.html`)
+- `data.js`, `chat.js`, `bible.js`, `boot.js`, `install.js` the app code
+- `sw.js`, `manifest.webmanifest`, `icons/` make it installable on a phone
+- `supabase/setup.sql` the whole database in one script (see BACKEND_SETUP.md)
+- `install-check.html`, `app-check.html`, `backend-check.html` check pages. Open them on your site if something does not work. You can delete them later.
+- `tools/build_bible.py` optional, to host the Bible text yourself
 
-## Deploy (static hosting, no build step)
-1. **Netlify:** go to app.netlify.com/drop and drag this folder in.
-2. **GitHub Pages:** upload the files to a repository, then Settings > Pages > deploy from the main branch.
-3. **Vercel / any web host:** upload the folder as a static site.
-
-Your site opens at `/` (the app) and `/admin.html` (the admin panel).
-
-## Customize
-- Replace text in [square brackets] with your own content.
-- Change colors by editing the hex values: gold `#E2B04E`, cream `#FDF3E3`, text `#222222`, blue `#2F5BD8`.
-
-## Before a real launch
-This is a front-end prototype: messages, prayers and devotions are not saved and there are no accounts. Add a backend (for example Firebase or Supabase) for sign-in, saved chats, prayer requests and devotions, and put `admin.html` behind a login.
+## If something does not work
+- Opens but nothing happens, or stuck on the logo: open `/app-check.html`. It lists missing or broken files.
+- Cannot install on the phone: open `/install-check.html`.
+- Sign-in, groups or chat do not work: open `/backend-check.html`.
 
 ## The Bible
-The Bible tab has all 66 books and 1,189 chapters, verse by verse. You can search (for example "John 3:16" or "Romans 8"), switch translation (KJV, WEB, ASV, BBE or Darby), make the text bigger or smaller, highlight and bookmark verses, copy them, and share them into a group chat. Your highlights, bookmarks and last place are saved on each person's phone.
-
-By default the text is loaded one chapter at a time from the free service bible-api.com, and every chapter a person has opened is kept on their phone so it opens again instantly and offline. That service is run by one person, is limited to 15 requests per 30 seconds for each visitor, and can be slow or down. For a reliable church app, host the text yourself:
-
-1. On your computer, download an XML file from https://github.com/seven1m/open-bibles (for example `eng-kjv.osis.xml`, `eng-asv.zefania.xml` or `swa-swahili.osis.xml`). They are all public domain.
-2. Run: `python3 tools/build_bible.py eng-kjv.osis.xml kjv`. This makes a `bible/kjv/` folder with 66 small files.
-3. Upload the `bible` folder to your GitHub repository, at the top level next to `index.html`. (GitHub's web page takes up to 100 files at a time, so do one translation per upload.)
-4. In `config.js`, add this line inside the settings: `BIBLE_BASE_URL:"bible"`
-5. The folder name is the translation code. The app's list uses kjv, web, asv, bbe and darby, so use those codes for the files you add.
-
-I tested the converter on small sample files only, not on the full downloads. Run it, then open a few chapters to check them before you tell people.
+All 66 books and 1,189 chapters, verse by verse, with search ("John 3:16"), five translations, highlights, bookmarks, copy and share to a group. By default each chapter is loaded from the free service bible-api.com, and chapters you have read are kept on the phone. That service is run by one person and can be slow or limited. For a dependable app, host the text yourself:
+1. On your computer, download a file such as `eng-kjv.osis.xml` from https://github.com/seven1m/open-bibles (public domain).
+2. Run `python3 tools/build_bible.py eng-kjv.osis.xml kjv`. It makes a `bible/kjv/` folder of 66 small files.
+3. Upload the `bible` folder next to `index.html`, and add `BIBLE_BASE_URL:"bible"` inside your `config.js` settings.
+The converter was tested on small sample files only. Open a few chapters to check them first.
 
 ## Admin panel
-Open `admin.html` on your site (for example `https://YOUR-SITE/admin.html`). Inside the app, admins also see an **Admin panel** row at the bottom of the Profile tab.
+Open `/admin.html` and sign in with an account marked as admin (see BACKEND_SETUP.md). Admins can approve or remove prayer requests, see and delete groups, and see members. Admins also see an Admin panel row in Profile.
 
-To turn it on:
-1. In Supabase run `supabase/admin.sql` once (SQL Editor). It adds an admin flag and the admin rules.
-2. Make yourself the first admin: in the SQL Editor run the commented line at the bottom of `admin.sql` with your email in it. Create your account in the app first.
-3. Open `admin.html`, sign in, and you can approve or remove prayer requests, see and delete groups, and see members.
-
-Anyone can open the `admin.html` page, but it only shows data to accounts marked as admin, and Supabase itself refuses admin actions from everyone else.
-
-## Opening the app
-- A short splash screen with the logo shows first.
-- New members then see three welcome slides (once only). They can skip them. People can see them again from Profile, "Show the welcome tour".
-- After that, anyone who is signed in stays signed in. The app opens on the screen they were last on: their tab, their Bible chapter, or their last group chat.
-- If a database is connected and nobody is signed in, the app opens on the sign-in screen.
-
-## Install as an app
-CHRIST HUB can be installed on a phone like a normal app, with its own icon, opening full screen with no browser bar, and opening again without internet.
-- **Android (Chrome):** the app shows an "Install CHRIST HUB" bar, and there is an "Install the app" row in Profile. Tap Install.
-- **iPhone (Safari):** tap the Share button, then "Add to Home Screen". The same bar and Profile row show these steps.
-- It needs your site to be on https, which GitHub Pages is. Upload the `icons` folder, `manifest.webmanifest`, `sw.js` and `install.js` next to `index.html`.
-- The app checks for new files every time it opens online, so your updates still reach people. If someone still sees the old version, closing and reopening the app fixes it.
-
-If installing does not work, open `install-check.html` on your site on the phone that fails. It tests each requirement and shows what is missing. You can delete it afterwards.
+## Opening the app and installing
+A short logo screen, then three welcome slides for new members (replay from Profile). Signed-in members stay signed in and return to where they left off. On Android a bar offers Install; on iPhone use Safari, Share, Add to Home Screen.

@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CHRIST HUB backend check</title>
+<style>
+body{margin:0;padding:20px;background:#FDF3E3;color:#222;font:14px/1.45 system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif}
+main{max-width:560px;margin:0 auto}h1{font-size:19px;margin:0 0 4px}p{margin:0 0 14px;color:#6B6055}
+.r{display:flex;gap:10px;padding:10px 12px;margin-bottom:8px;background:#FFFAF2;border:1px solid #F0E2C8;border-radius:12px}
+.i{flex:none;width:22px;font-weight:700}.ok .i{color:#1B6B3A}.no .i{color:#B3261E}.wait .i{color:#6B6055}
+.h{display:block;color:#6B6055;font-size:13px;margin-top:2px}
+</style></head><body><main>
+<h1>CHRIST HUB backend check</h1><p>Open this after you set up Supabase. It checks each part and says what to fix. It never shows your key.</p>
+<div id="out"></div><p id="sum" style="margin-top:14px;font-weight:700"></p>
+<script src="config.js"></script>
+<script>
+(function(){
+var out=document.getElementById("out"),bad=0;
+function add(s,t,h){var d=document.createElement("div");d.className="r "+s;d.innerHTML='<span class="i"></span><div><b></b><span class="h"></span></div>';up(d,s,t,h);out.appendChild(d);return d}
+function up(d,s,t,h){d.className="r "+s;d.querySelector(".i").textContent=s==="ok"?"\u2713":s==="no"?"\u2717":"\u2026";d.querySelector("b").textContent=t;d.querySelector(".h").textContent=h||"";if(s==="no")bad++}
+var C=window.FAITHLINK_CONFIG||{},U=(C.SUPABASE_URL||"").replace(/\/$/,""),K=C.SUPABASE_ANON_KEY||"";
+if(!U||U.indexOf("YOUR_")===0||!K||K.indexOf("YOUR_")===0){add("no","config.js still has the placeholder words","Open config.js and replace YOUR_SUPABASE_URL and YOUR_SUPABASE_ANON_KEY with your own two values.");document.getElementById("sum").textContent="Fix the red item, then reload.";return}
+add("ok","config.js has a project address and a key","Key type: "+(K.indexOf("sb_publishable_")===0?"new publishable key":K.split(".").length===3?"older anon key":"unknown format"));
+var H={apikey:K};
+function api(path){return fetch(U+path,{headers:H}).then(function(r){return r.text().then(function(t){var j;try{j=JSON.parse(t)}catch(e){j=null}return{s:r.status,j:j,t:t}})})}
+var d1=add("wait","Reaching your database...","");
+api("/rest/v1/prayer_requests?select=id&limit=1").then(function(r){
+  if(r.s===200)up(d1,"ok","Database reachable, key accepted, prayer_requests exists","");
+  else if(r.s===401||r.s===403)up(d1,"no","The key was refused","Copy the key again from Supabase (Project Settings, API Keys). Use the publishable key, or the anon key under Legacy API keys. Do not use the secret or service_role key.");
+  else if(r.j&&(r.j.code==="PGRST205"||r.j.code==="42P01"))up(d1,"no","Tables are missing","Run setup.sql in Supabase, SQL Editor.");
+  else up(d1,"no","Unexpected answer ("+r.s+")",(r.j&&r.j.message)||"Check that the project address is right and the project is not paused.")
+}).catch(function(){up(d1,"no","Could not reach "+U,"Check the project address, your internet, and that the project is not paused (free projects pause after a week of no use).")});
+["groups","messages","group_members","profiles"].forEach(function(t){var d=add("wait","Table "+t+"...","");
+  api("/rest/v1/"+t+"?select=*&limit=1").then(function(r){
+    if(r.s===200||r.s===401||r.s===403)up(d,"ok","Table "+t+" exists","Members only: you must sign in to read it.");
+    else up(d,"no","Table "+t+" is missing","Run setup.sql in Supabase, SQL Editor.")}).catch(function(){up(d,"no","Could not check "+t,"")})});
+var d2=add("wait","Checking sign-in settings...","");
+api("/auth/v1/settings").then(function(r){
+  if(r.s!==200||!r.j){up(d2,"no","Could not read sign-in settings","Check the key.");return}
+  var ac=r.j.mailer_autoconfirm;
+  up(d2,"ok","Email sign-in is "+(r.j.external&&r.j.external.email===false?"OFF":"on"),ac?"Confirm email is OFF: new members can sign in straight away.":"Confirm email is ON: members must click a link in an email first. The free email service sends only a few emails an hour, so turn this off while testing (Authentication, Sign In / Providers, Email).")
+}).catch(function(){up(d2,"no","Could not read sign-in settings","")});
+var d3=add("wait","Checking file storage...","");
+api("/storage/v1/object/public/chat-files/check.txt").then(function(r){
+  var m=(r.j&&(r.j.message||r.j.error))||"";
+  if(/bucket not found/i.test(m))up(d3,"no","Storage bucket chat-files is missing","Run setup.sql in Supabase, SQL Editor.");else up(d3,"ok","Storage bucket chat-files exists","")
+}).catch(function(){up(d3,"no","Could not check storage","")});
+var d4=add("wait","Checking the app's Supabase library with your key...","");
+var s=document.createElement("script");s.src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.0/dist/umd/supabase.min.js";
+s.onload=function(){try{window.supabase.createClient(U,K).from("prayer_requests").select("id").limit(1).then(function(r){
+  if(r.error)up(d4,"no","The app's library cannot use this key ("+(r.error.message||"error")+")","Raw checks above passed but the app library failed. Use the anon key from Legacy API keys, or tell me and I will update the library link.");else up(d4,"ok","The app's library works with your key","")})}catch(e){up(d4,"no","Library error","")}};
+s.onerror=function(){up(d4,"no","Could not load the library","Check your internet.")};document.head.appendChild(s);
+setTimeout(function(){document.getElementById("sum").textContent=bad?"Fix the red items above, then reload this page.":"Everything checks out. Create an account in the app to test sign-up."},6000);
+})();
+</script></main></body></html>

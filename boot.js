@@ -6,6 +6,7 @@ var t0=Date.now(),known=!dbmode,has=false,done=false,SAVE=["groups","prayer","ne
 var raw=window.show;
 window.show=function(id){raw(id);if(done&&SAVE.indexOf(id)>=0)ls("fl-screen",id)};
 window.FL_AUTHED=function(h){has=h;known=true;go()};
+if(window.FL_KNOWN){known=true;has=!!window.FL_HAS}
 function go(){if(done)return;var w=Date.now()-t0;if(w<1100){setTimeout(go,1100-w);return}if(!known&&w<4000){setTimeout(go,4000-w);return}done=true;route()}
 function restore(){var l=ls("fl-screen");
   if(l==="chat"){if(dbmode){window.FL_RESUME_GID=ls("fl-gid");raw("groups")}else raw("chat")}

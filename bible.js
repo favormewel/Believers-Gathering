@@ -18,7 +18,7 @@ var cfg=window.FAITHLINK_CONFIG||{},base=(cfg.BIBLE_BASE_URL||"").replace(/\/$/,
 function $(i){return document.getElementById(i)}
 function ls(k,v){try{if(v===undefined){var s=localStorage.getItem(k);return s?JSON.parse(s):null}localStorage.setItem(k,JSON.stringify(v))}catch(e){return null}}
 function esc(t){var d=document.createElement("div");d.textContent=t==null?"":t;return d.innerHTML}
-var S={tr:ls("flb-tr")||"kjv",tab:"OT",b:0,c:1,sel:{},fs:ls("flb-fs")||15},HL=ls("flb-hl")||{},BM=ls("flb-bm")||[],mem={};
+var S={tr:ls("flb-tr")||"kjv",tab:"ALL",b:0,c:1,sel:{},fs:ls("flb-fs")||15},HL=ls("flb-hl")||{},BM=ls("flb-bm")||[],mem={};
 function trName(c){for(var i=0;i<TRS.length;i++)if(TRS[i][0]===c)return TRS[i]; return TRS[0]}
 function key(b,c,v){return BOOKS[b].id+"."+c+"."+v}
 function clean(t){return String(t).replace(/\s+/g," ").replace(/^\u00b6\s*/,"").trim()}
@@ -38,7 +38,7 @@ function renderList(){
     if(!BM.length){l.innerHTML='<div style="padding:24px 20px;color:#6B6055;font-size:13px">No saved verses yet. Open a chapter, tap a verse, then tap Bookmark.</div>';return}
     l.innerHTML=BM.map(function(m,i){return '<div style="display:flex;align-items:center;gap:8px;padding:10px 8px 10px 20px;background:#FFFAF2;border-bottom:1px solid #F0E2C8"><button data-bm="'+i+'" style="flex:1;min-width:0;border:0;background:none;text-align:left;font-family:'+SYS+';color:#222"><b style="font-size:13px">'+esc(m.ref)+'</b><div style="font-size:12px;color:#6B6055;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(m.t)+'</div></button><button data-bmdel="'+i+'" aria-label="Remove bookmark" style="width:44px;height:44px;border:0;background:none;font-size:15px;color:#6B6055">&times;</button></div>'}).join("");return}
   var f=/\d/.test(q)?"":norm(q);
-  BOOKS.forEach(function(b,i){var nt=i>=39;if((S.tab==="NT")!==nt&&!f)return;if(f&&norm(b.name).indexOf(f)<0)return;
+  BOOKS.forEach(function(b,i){var nt=i>=39;if(S.tab!=="ALL"&&(S.tab==="NT")!==nt&&!f)return;if(f&&norm(b.name).indexOf(f)<0)return;
     var g=(nt?"New Testament \u00b7 ":"Old Testament \u00b7 ")+b.grp;if(g!==last){h+=gh(g);last=g}h+=rowHTML(i)});
   l.innerHTML=h||'<div style="padding:24px 20px;color:#6B6055;font-size:13px">No book matches that. Try a name like John, or a reference like Romans 8:28.</div>'}
 function setTabs(){document.querySelectorAll("[data-bt]").forEach(function(b){var on=b.dataset.bt===S.tab;b.style.background=on?"#E2B04E":"#DAD3C8";b.style.color=on?"#222":"#6B6055"})}
@@ -98,6 +98,7 @@ document.addEventListener("keydown",function(e){if(e.key!=="Enter"||e.target.id!
   var r=parseRef(e.target.value);if(!r){$("bb-msg").textContent="I could not find that book. Try John 3:16 or Psalm 23.";return}
   if(r.ch>BOOKS[r.b].ch){$("bb-msg").textContent=BOOKS[r.b].name+" has only "+BOOKS[r.b].ch+" chapters.";return}
   if(r.ch){e.target.value="";renderList();openChapter(r.b,r.ch,r.v1)}else{e.target.value="";openBook(r.b)}});
+(function(){var t0=document.querySelector('[data-bt="OT"]');if(t0&&!document.querySelector('[data-bt="ALL"]')){var c=t0.cloneNode(true);c.setAttribute("data-bt","ALL");c.textContent="All 66";t0.parentNode.insertBefore(c,t0)}})();
 window.FLB.resume=function(){var l=ls("flb-last");if(l)openChapter(l.b,l.c);else show("bible")};
 setChips();setTabs();renderList();votd();cont();
 })();

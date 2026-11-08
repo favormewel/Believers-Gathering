@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CHRIST HUB file check</title>
+<style>body{margin:0;padding:20px;background:#FDF3E3;color:#222;font:14px/1.45 system-ui,sans-serif}main{max-width:520px;margin:0 auto}h1{font-size:19px;margin:0 0 4px}p{margin:0 0 14px;color:#6B6055}.r{display:flex;gap:10px;padding:10px 12px;margin-bottom:8px;background:#FFFAF2;border:1px solid #F0E2C8;border-radius:12px}.i{flex:none;width:22px;font-weight:700}.ok .i{color:#1B6B3A}.no .i{color:#B3261E}.h{display:block;color:#6B6055;font-size:13px}</style></head><body><main>
+<h1>CHRIST HUB file check</h1><p>Finds missing or broken files. Open it on the phone where the app does not open.</p>
+<div id="out"></div>
+<script>
+(function(){
+var out=document.getElementById("out"),base=location.href.replace(/[^\/]*$/,"");
+function add(ok,t,h){var d=document.createElement("div");d.className="r "+(ok?"ok":"no");d.innerHTML='<span class="i">'+(ok?"\u2713":"\u2717")+'</span><div><b></b><span class="h"></span></div>';d.querySelector("b").textContent=t;d.querySelector(".h").textContent=h||"";out.appendChild(d)}
+fetch(base+"index.html?x="+Date.now(),{cache:"no-store"}).then(function(r){return r.text()}).then(function(t){
+  add(t.indexOf('id="splash"')>0,"index.html is the new version",t.indexOf('id="splash"')>0?"":"Old index.html. Upload the newest one.");
+  ["config.js","data.js","chat.js","bible.js","boot.js","install.js"].forEach(function(f){
+    add(t.indexOf(f)>0,"index.html loads "+f,t.indexOf(f)>0?"":"index.html does not mention "+f)})
+}).catch(function(){add(false,"Could not read index.html","Is it at the top level of the repository?")});
+["config.js","data.js","chat.js","bible.js","boot.js","install.js","sw.js"].forEach(function(f){
+  fetch(base+f+"?x="+Date.now(),{cache:"no-store"}).then(function(r){
+    if(!r.ok){add(false,f+" is missing (error "+r.status+")","Upload "+f+" next to index.html.");return}
+    return r.text().then(function(t){
+      if(t.length<40){add(false,f+" is empty","Paste the code into it again.");return}
+      try{new Function(t);add(true,f+" is fine ("+t.length+" characters)","")}
+      catch(e){add(false,f+" has a mistake: "+e.message,"The file was probably pasted wrongly or cut off. Paste it again in full.")}})
+  }).catch(function(){add(false,"Could not check "+f,"")})});
+})();
+</script></main></body></html>

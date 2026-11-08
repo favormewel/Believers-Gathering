@@ -1,49 +1,18 @@
 # Connect CHRIST HUB to a database (Supabase)
 
-Supabase is free to start and saves your data online.
+1. Go to supabase.com, sign up, and create a **New project** (name it christ-hub, save the database password, pick the nearest region, Free plan). Wait until it is ready.
+2. Open **SQL Editor**, then **New query**. Paste everything from `supabase/setup.sql` and tap **Run**. It is safe to run again.
+3. Open **Authentication**, then **Sign In / Providers**, then **Email**, and turn **Confirm email** off while testing (the free email service sends only a few emails an hour). Open **URL Configuration** and set **Site URL** to your site address.
+4. Open **Project Settings**, then **API Keys**. Copy the **Project URL** and the **Publishable key** (starts with sb_publishable_). If you only see Legacy API keys, copy the **anon** key. Never use the secret or service_role key.
+5. Edit `config.js` in your repository and replace the two placeholder values.
+6. Open `/backend-check.html` on your site. It tests the connection, tables, sign-in settings and file storage.
+7. Create your own account in the app. Then in the SQL Editor run the last line of `setup.sql` (remove the two dashes, put your email in). The Admin panel row now shows in Profile.
 
-1. Go to supabase.com, create an account and a **New project**. Save the database password.
-2. Open **SQL Editor > New query**, paste everything from `supabase/schema.sql`, and tap **Run**.
-3. Open **Project Settings > API**. Copy the **Project URL** and the **anon public** key.
-4. Open `config.js` and replace `YOUR_SUPABASE_URL` and `YOUR_SUPABASE_ANON_KEY` with those two values.
-5. Upload the updated files to GitHub (or your host) and open the site.
+## What is saved
+Groups and members, group chat (text, photos, files up to 10 MB, voice notes, shared verses, live), prayer requests (they appear after an admin approves them) and member names.
 
-## What is saved now
-- **Prayer wall:** people send requests from the app. They are saved as **pending**. In **Table editor > prayer_requests**, change `status` to `approved` to show one, or `removed` to hide it. The "I prayed" count is saved too.
-
-- **Accounts:** people can create an account and sign in with email and password. Their name then shows on Home and Me. Without Supabase, "Sign in" simply opens the app as a guest.
-
-## Sign-in settings (Supabase)
-- **Authentication > Providers > Email** is on by default. If "Confirm email" is on, new members get a confirmation email first.
-- **Authentication > URL Configuration:** set **Site URL** to your live website address so email links come back to your app.
-
-## Chat, photos and voice notes
-1. In Supabase open **SQL Editor > New query**, paste everything from `supabase/chat.sql`, and tap **Run**. Run it once only.
-2. Upload `chat.js` and the updated `index.html` and `data.js` to your site.
-3. Sign in. You will see a group called **Welcome Fellowship** under Nearby. Tap **Join**, open it, and chat.
-
-What is saved and shared live between members:
-- Text messages, shared verses, photos, files (up to 10 MB) and voice notes.
-- Groups people create, and who has joined them.
-
-Notes:
-- Only members of a group can read or send its messages.
-- Photos, files and voice notes are stored in a public bucket. Anyone who has the exact link can open the file, but the links cannot be guessed. Do not use this for private documents.
-- Voice notes need the site to be on https (GitHub Pages is) and the person must allow the microphone.
-
-## Not yet connected
-The admin panel and the Bible and Nearby search.
-
-## Safety
-- The **anon** key is meant to be public. Row Level Security in `schema.sql` controls what visitors can do.
-- Never put the **service_role** key in any file you upload.
-
-## Admin panel
-Open `admin.html` on your site (for example `https://YOUR-SITE/admin.html`). Inside the app, admins also see an **Admin panel** row at the bottom of the Profile tab.
-
-To turn it on:
-1. In Supabase run `supabase/admin.sql` once (SQL Editor). It adds an admin flag and the admin rules.
-2. Make yourself the first admin: in the SQL Editor run the commented line at the bottom of `admin.sql` with your email in it. Create your account in the app first.
-3. Open `admin.html`, sign in, and you can approve or remove prayer requests, see and delete groups, and see members.
-
-Anyone can open the `admin.html` page, but it only shows data to accounts marked as admin, and Supabase itself refuses admin actions from everyone else.
+## Notes
+- Chat files are stored where anyone with the exact link can open them. The links cannot be guessed, but do not use this for private documents.
+- Voice notes need https (GitHub Pages is) and the microphone allowed.
+- Only members of a group can read its messages. Members cannot make themselves admin.
+- Free Supabase projects pause after about a week of no use. Move to the paid plan when the church depends on it.

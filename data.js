@@ -31,7 +31,7 @@ function applyUser(u){window.FL_USER=u;if(window.FL_ONAUTH)window.FL_ONAUTH(u);
  if(a)a.textContent=n.split(/\s+/).slice(0,2).map(function(w){return w[0]}).join("").toUpperCase();
  if(b)b.textContent=md.bio||"Tap Edit profile to add a short bio"}
 window.FL_SAVE=function(){};
-if(db){window.FL_DB=true;loadPrayers();db.auth.getSession().then(function(r){var s=r.data&&r.data.session;if(s)applyUser(s.user);if(window.FL_AUTHED)window.FL_AUTHED(!!s);else if(!s)show("login")})}
+if(db){window.FL_DB=true;loadPrayers();db.auth.getSession().then(function(r){var s=r.data&&r.data.session;if(s)applyUser(s.user);window.FL_HAS=!!s;window.FL_KNOWN=true;if(window.FL_AUTHED)window.FL_AUTHED(!!s)}).catch(function(){window.FL_HAS=false;window.FL_KNOWN=true;if(window.FL_AUTHED)window.FL_AUTHED(false)})}
 document.addEventListener("click",function(e){
  var b=e.target.closest("[data-pray-id]");if(b&&db&&!b.dataset.sent){b.dataset.sent=1;db.rpc("pray_for",{request_id:b.dataset.prayId})}
  if(e.target.closest("#pr-post")&&db){var t=(document.getElementById("pr-text").value||"").trim();if(t.length<5)return;db.from("prayer_requests").insert({body:t.slice(0,500),author:userName||"Anonymous"}).then(function(r){alert(r.error?"Sorry, we could not send your request. Please try again.":"Thank you. Your request will appear after review.")})}});
