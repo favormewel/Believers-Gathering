@@ -23,6 +23,7 @@ h2{margin:0;font-size:19px}.sub{color:#6B6055;font-size:12px}
 .badge{padding:2px 10px;border-radius:10px;background:#FBE3C2;color:#A06A0E;font-size:12px;font-weight:700}
 #gate{max-width:380px;margin:12vh auto;padding:20px}
 #gate .panel{padding:20px}label{display:block;margin-bottom:12px;font-weight:700}
+textarea{width:100%;margin-top:4px;padding:10px 14px;border:1px solid #F0E2C8;border-radius:12px;background:#fff;font:16px system-ui,sans-serif}
 input{width:100%;height:44px;margin-top:4px;padding:0 14px;border:1px solid #F0E2C8;border-radius:12px;background:#fff;font:16px system-ui,sans-serif}
 .note{padding:10px 14px;border-radius:12px;background:#F8E19B;font-size:13px}
 .err{color:#B3261E;font-weight:700;min-height:20px;margin:6px 0}
@@ -33,13 +34,16 @@ input{width:100%;height:44px;margin-top:4px;padding:0 14px;border:1px solid #F0E
 <div id="a-msg" class="err" role="alert"></div><button class="btn" id="a-btn" style="width:100%">Sign in</button></div></div>
 <div id="wrap" hidden>
 <aside><h1>CHRIST HUB <span>Admin</span></h1>
-<button class="on" data-p="dash">Dashboard</button><button data-p="groups">Groups</button><button data-p="members">Members</button><a href="index.html">Back to the app</a><button id="out" hidden>Sign out</button></aside>
+<button class="on" data-p="dash">Dashboard</button><button data-p="groups">Groups</button><button data-p="members">Members</button><button data-p="reports">Reports <span id="rp-n" class="badge" hidden></span></button><button data-p="ann">Announcements</button><button data-p="events">Events</button><a href="index.html">Back to the app</a><button id="out" hidden>Sign out</button></aside>
 <main>
 <div id="sample" class="note" hidden>Sample data. Add your Supabase details in config.js to manage real data.</div>
 <section id="p-dash"><h2>Dashboard</h2><div class="stats" style="margin:12px 0 20px"><div class="stat"><span class="sub">Members</span><b id="s-mem">0</b></div><div class="stat"><span class="sub">Groups</span><b id="s-grp">0</b></div><div class="stat"><span class="sub">Prayer requests to review</span><b id="s-pr">0</b></div></div>
 <div class="panel"><h3>Prayer requests to review</h3><div id="l-pr"></div></div></section>
 <section id="p-groups" hidden><h2>Groups</h2><div class="panel" style="margin-top:12px"><div id="l-grp"></div></div></section>
 <section id="p-members" hidden><h2>Members</h2><div class="panel" style="margin-top:12px"><div id="l-mem"></div></div></section>
+<section id="p-reports" hidden><h2>Reported messages</h2><div class="panel" style="margin-top:12px"><div id="l-rp"></div></div></section>
+<section id="p-ann" hidden><h2>Announcements</h2><div class="panel" style="margin-top:12px"><label>Title<input id="an-title" maxlength="120"></label><label>Message<textarea id="an-body" rows="3" maxlength="2000"></textarea></label><button class="btn" id="an-post">Post announcement</button></div><div class="panel" style="margin-top:12px"><div id="l-an"></div></div></section>
+<section id="p-events" hidden><h2>Events</h2><div class="panel" style="margin-top:12px"><label>Title<input id="ev-title" maxlength="120"></label><label>Date and time<input id="ev-when" type="datetime-local"></label><label>Where<input id="ev-where"></label><label>Details<textarea id="ev-desc" rows="3" maxlength="2000"></textarea></label><button class="btn" id="ev-post">Add event</button></div><div class="panel" style="margin-top:12px"><div id="l-ev"></div></div></section>
 </main></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.0/dist/umd/supabase.min.js"></script>
 <script src="config.js"></script>
@@ -60,22 +64,54 @@ function setGroups(list){var el=$("l-grp");el.innerHTML="";$("s-grp").textConten
   list.forEach(function(g){var wrap=document.createElement("div");
     wrap.appendChild(row(g.name,(g.members||0)+" member"+(g.members===1?"":"s")+(g.description?" \u00b7 "+g.description:""),[btn("Delete","out",function(){if(!confirm("Delete "+g.name+" and all its messages?"))return;
       if(!db){wrap.remove();return}db.from("groups").delete().eq("id",g.id).then(function(x){if(x.error)alert("Could not delete.");else wrap.remove()})})]));el.appendChild(wrap)})}
+function fmt(d){return new Date(d).toLocaleString([],{day:"numeric",month:"short",hour:"numeric",minute:"2-digit"})}
 function setMembers(list){var el=$("l-mem");el.innerHTML="";$("s-mem").textContent=list.length;if(!list.length){empty(el,"No members yet.");return}
-  list.forEach(function(m){var r=row(m.full_name||"Member","",m.is_admin?[Object.assign(document.createElement("span"),{className:"badge",textContent:"Admin"})]:[]);el.appendChild(r)})}
+  list.forEach(function(m){var b=[];
+    if(m.is_admin)b.push(Object.assign(document.createElement("span"),{className:"badge",textContent:"Admin"}));
+    else if(m.id!==undefined)b.push(btn(m.banned?"Unban":"Ban",m.banned?"":"out",function(e){var nb=!m.banned,t=e.target;
+      if(nb&&!confirm("Stop "+(m.full_name||"this member")+" from sending messages?"))return;
+      if(!db){m.banned=nb;t.textContent=nb?"Unban":"Ban";t.className="btn "+(nb?"":"out");return}
+      db.rpc("admin_set_ban",{p_user:m.id,p_banned:nb}).then(function(x){if(x.error){alert("Could not save.");return}m.banned=nb;t.textContent=nb?"Unban":"Ban";t.className="btn "+(nb?"":"out")})}));
+    el.appendChild(row(m.full_name||"Member",m.banned?"Banned: cannot send messages":"",b))})}
+function setReports(list){var el=$("l-rp"),n=$("rp-n");el.innerHTML="";n.textContent=list.length;n.hidden=!list.length;if(!list.length){empty(el,"No open reports.");return}
+  list.forEach(function(r){var w=document.createElement("div");
+    function after(){w.remove();var left=el.querySelectorAll(".row").length;n.textContent=left;n.hidden=!left;if(!left)empty(el,"No open reports.")}
+    function act(a){if(!db){after();return}db.rpc("admin_report_action",{p_report:r.report_id,p_action:a}).then(function(x){if(x.error){alert("Could not do that.");return}after()})}
+    var what=(r.kind==="text"||r.kind==="verse")?r.body:"["+r.kind+"]";
+    w.appendChild(row((r.author_name||"Member")+" in "+(r.group_name||"a group"),"\u201c"+what+"\u201d \u00b7 reported by "+(r.reporter_name||"a member")+": "+(r.reason||"no reason"),[btn("Delete message","",function(){act("delete")}),btn("Delete and ban","out",function(){if(confirm("Delete this message and ban its author?"))act("ban")}),btn("Dismiss","",function(){act("dismiss")})]));el.appendChild(w)})}
+function setAnn(list){var el=$("l-an");el.innerHTML="";if(!list.length){empty(el,"No announcements yet.");return}
+  list.forEach(function(a){var w=document.createElement("div");w.appendChild(row(a.title,(a.body||"")+" ("+fmt(a.created_at)+")",[btn("Delete","out",function(){if(!confirm("Delete this announcement?"))return;if(!db){w.remove();return}db.from("announcements").delete().eq("id",a.id).then(function(x){if(x.error)alert("Could not delete.");else w.remove()})})]));el.appendChild(w)})}
+function setEvents(list){var el=$("l-ev");el.innerHTML="";if(!list.length){empty(el,"No events yet.");return}
+  list.forEach(function(e){var w=document.createElement("div");w.appendChild(row(e.title,fmt(e.starts_at)+(e.location?" \u00b7 "+e.location:""),[btn("Delete","out",function(){if(!confirm("Delete this event?"))return;if(!db){w.remove();return}db.from("events").delete().eq("id",e.id).then(function(x){if(x.error)alert("Could not delete.");else w.remove()})})]));el.appendChild(w)})}
+var annL=[],evL=[];
+function loadAnn(){db.from("announcements").select("*").order("created_at",{ascending:false}).limit(100).then(function(r){setAnn(r.data||[])})}
+function loadEv(){db.from("events").select("*").order("starts_at",{ascending:false}).limit(100).then(function(r){setEvents(r.data||[])})}
 function sample(){$("sample").hidden=false;$("wrap").hidden=false;
   setPr([{id:1,author:"Grace",group_name:"Anonymous",body:"Pray for a job opening. I have been searching for months."},{id:2,author:"Ruth",group_name:"Hope Group",body:"Our family is moving cities. Pray for peace and a new church home."}]);
   setGroups([{id:1,name:"Bukoto Youth Bible Study",members:34,description:"Thursday study"},{id:2,name:"Makerere CU Prayer Warriors",members:42}]);
-  setMembers([{full_name:"Favor Mewel",is_admin:true},{full_name:"Grace N."},{full_name:"David K."}])}
+  setMembers([{full_name:"Favor Mewel",is_admin:true},{id:"a",full_name:"Grace N."},{id:"b",full_name:"David K."}]);
+  setReports([{report_id:1,author_name:"David K.",group_name:"Hope Group",kind:"text",body:"Sample reported message",reporter_name:"Grace N.",reason:"Spam or scam"}]);
+  annL=[{id:1,title:"Sunday service moved to 10am",body:"Please arrive early.",created_at:new Date().toISOString()}];setAnn(annL);
+  evL=[{id:1,title:"Friday Fellowship",starts_at:new Date(Date.now()+864e5).toISOString(),location:"Online"}];setEvents(evL)}
 function load(){
   db.from("prayer_requests").select("id,author,group_name,body").eq("status","pending").order("created_at",{ascending:false}).limit(50).then(function(r){setPr(r.data||[])});
   db.from("groups").select("id,name,description,group_members(count)").order("created_at").then(function(r){setGroups((r.data||[]).map(function(g){return{id:g.id,name:g.name,description:g.description,members:g.group_members&&g.group_members[0]?g.group_members[0].count:0}}))});
-  db.from("profiles").select("full_name,is_admin").order("full_name").then(function(r){setMembers(r.data||[])})}
+  db.from("profiles").select("id,full_name,is_admin,banned").order("full_name").then(function(r){setMembers(r.data||[])});
+  db.rpc("admin_reports").then(function(r){setReports(r.data||[])});loadAnn();loadEv()}
 function enter(user){db.from("profiles").select("is_admin").eq("id",user.id).single().then(function(r){
   if(r.data&&r.data.is_admin){$("gate").hidden=true;$("wrap").hidden=false;$("out").hidden=false;load()}
   else{$("gate").hidden=false;$("wrap").hidden=true;$("a-msg").textContent="This account is not an admin.";db.auth.signOut()}})}
-document.addEventListener("click",function(e){var p=e.target.closest("[data-p]");if(p){document.querySelectorAll("[data-p]").forEach(function(b){b.className=b===p?"on":""});["dash","groups","members"].forEach(function(k){$("p-"+k).hidden=k!==p.dataset.p})}
+document.addEventListener("click",function(e){var p=e.target.closest("[data-p]");if(p){document.querySelectorAll("[data-p]").forEach(function(b){b.className=b===p?"on":""});["dash","groups","members","reports","ann","events"].forEach(function(k){$("p-"+k).hidden=k!==p.dataset.p})}
   if(e.target.id==="a-btn"){var em=$("a-email").value.trim(),pw=$("a-pass").value;if(!em||!pw){$("a-msg").textContent="Enter your email and password.";return}
     db.auth.signInWithPassword({email:em,password:pw}).then(function(r){if(r.error){$("a-msg").textContent="Sign-in failed. Check your email and password.";return}$("a-msg").textContent="";enter(r.data.user)})}
+
+  if(e.target.id==="an-post"){var ti=$("an-title").value.trim(),bo=$("an-body").value.trim();if(ti.length<2){alert("Please type a title.");return}
+    if(!db){annL.unshift({id:Date.now(),title:ti,body:bo,created_at:new Date().toISOString()});setAnn(annL);$("an-title").value="";$("an-body").value="";return}
+    db.from("announcements").insert({title:ti,body:bo}).then(function(x){if(x.error){alert("Could not post. "+(x.error.message||""));return}$("an-title").value="";$("an-body").value="";loadAnn()})}
+  if(e.target.id==="ev-post"){var et=$("ev-title").value.trim(),ew=$("ev-when").value;if(et.length<2||!ew){alert("Please type a title and pick a date and time.");return}
+    var row2={title:et,starts_at:new Date(ew).toISOString(),location:$("ev-where").value.trim()||null,description:$("ev-desc").value.trim()||null};
+    if(!db){evL.push(Object.assign({id:Date.now()},row2));setEvents(evL);$("ev-title").value="";return}
+    db.from("events").insert(row2).then(function(x){if(x.error){alert("Could not add. "+(x.error.message||""));return}$("ev-title").value="";$("ev-where").value="";$("ev-desc").value="";loadEv()})}
   if(e.target.id==="out")db.auth.signOut().then(function(){location.reload()})});
 if(!db)sample();else db.auth.getSession().then(function(r){var s=r.data&&r.data.session;if(s)enter(s.user);else $("gate").hidden=false});
 })();
