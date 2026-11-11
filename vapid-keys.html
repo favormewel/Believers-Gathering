@@ -14,8 +14,8 @@ button.o{background:none;border:1.5px solid #222}.box{padding:12px;margin-top:8p
 <p>This page makes the keys and the one database snippet you need for notifications. It works in your browser only: nothing is sent anywhere.</p>
 <div class="warn">The private key and secret are passwords. Do not post them or put them in your website files. They go only into Supabase (step 3 below).</div>
 <h2>Your details</h2>
-<label class="l">Your Supabase project address</label><input id="url" placeholder="https://abcd.supabase.co">
-<label class="l">Your email (for push services to contact you)</label><input id="mail" placeholder="you@example.com" type="email">
+<label class="l">https://gycicxcjrlkowgyhubmv.supabase.co</label><input id="url" placeholder="https://abcd.supabase.co">
+<label class="l">favormewel@gmail.com (for push services to contact you)</label><input id="mail" placeholder="you@example.com" type="email">
 <button id="make">Make my keys</button><button class="o" id="forget">Forget keys on this device</button>
 <div id="out" hidden>
 <h2>Step 1. Add the public key to config.js</h2>
@@ -43,12 +43,12 @@ function sqlFor(ref,secret){return "create extension if not exists pg_net with s
 <script>
 (function(){
 var $=function(i){return document.getElementById(i)},KEY="fl-push-keys";
-var C=window.FAITHLINK_CONFIG||{};if(C.SUPABASE_URL&&C.SUPABASE_URL.indexOf("YOUR_")!==0)$("url").value=C.SUPABASE_URL;
+var C=window.FAITHLINK_CONFIG||{};if(C.SUPABASE_URL&&C.SUPABASE_URL.indexOf("https://gycicxcjrlkowgyhubmv.supabase.co")!==0)$("url").value=C.SUPABASE_URL;
 function show(k){var ref=refOf($("url").value),mail=$("mail").value.trim();
   $("o1").value=',VAPID_PUBLIC_KEY:"'+k.pub+'"';$("o2").value=sqlFor(ref,k.secret);
   $("s1").value=k.pub;$("s2").value=k.priv;$("s3").value="mailto:"+mail;$("s4").value=k.secret;$("out").hidden=false}
 function ok(){var ref=refOf($("url").value);if(!ref){alert("Type your Supabase project address first, like https://abcd.supabase.co");return false}
-  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test($("mail").value.trim())){alert("Type your email address.");return false}return true}
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test($("mail").value.("favormewel@gmail.com");return false}return true}
 $("make").onclick=async function(){if(!ok())return;var old=null;try{old=JSON.parse(localStorage.getItem(KEY))}catch(e){}
   if(old&&!confirm("You already made keys on this device. Making new ones means anyone who already turned on notifications must turn them on again. Make new keys?")){show(old);return}
   var k=await makeKeys();try{localStorage.setItem(KEY,JSON.stringify(k))}catch(e){}show(k)};
