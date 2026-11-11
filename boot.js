@@ -13,7 +13,7 @@ function restore(){var l=ls("fl-screen");
   else if(l==="reader"&&window.FLB&&window.FLB.resume)window.FLB.resume();
   else if(l&&["prayer","nearby","bible","profile"].indexOf(l)>=0)raw(l);
   else raw("groups")}
-function route(){
+function route(){window.FL_BOOTED=true;
   if(!ls("fl-welcomed")){raw("welcome1");return}
   if(dbmode&&!has){raw("login");return}
   restore()}

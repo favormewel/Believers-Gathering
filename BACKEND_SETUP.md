@@ -27,3 +27,12 @@ What it adds:
 - **Group admin tools that are saved:** rename a group, change its description, pin a verse, make or remove admins, remove members, approve join requests, "Only admins can send messages", "Approve new members", mute notifications, an invite link, and delete a group. Every action is checked by the database, so only group admins can do them.
 - **Safety:** members can report a message, block a member, and delete their own messages. Group admins can delete any message in their group. App admins see reported messages in the admin panel (Reports) and can delete the message, delete it and ban the author, or dismiss the report. Banned members can no longer send messages.
 - **Announcements and events:** app admins post them from the admin panel. Members see them under the bell (Updates), with a red dot for new ones, and can mark Going or Maybe on events.
+
+## Easiest way to update an existing database: update-all.sql
+If you already ran setup.sql earlier, run `supabase/update-all.sql` ONCE instead of the smaller update files. It contains the chat-list update and update 2 together and works whatever you ran before.
+- Open **SQL Editor**, then **New query**. Paste the whole script. Make sure no text is selected, because Supabase runs only the selected part.
+- Tap **Run**. If a box asks you to confirm because the script changes rules, tap **Run this query**.
+- A green "Success. No rows returned" means it worked. A red message means it failed: send me that exact message.
+
+## Push notifications
+See `PUSH_SETUP.md`. It needs `supabase/push.sql`, the `send-push` function and four secrets.

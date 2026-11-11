@@ -140,13 +140,17 @@ document.addEventListener("click",function(e){
     q.then(function(r){if(r.error){alert("Could not save.");return}upd.rs=upd.rs.filter(function(z){return!(z.event_id===eid&&z.user_id===U().id)});if(!(mine&&mine.status===s))upd.rs.push({event_id:eid,user_id:U().id,status:s});renderUpdates()});return}
 },true);
 window.FLC_ON_OPEN=function(c,id){gd=null;role="member";curMember=null;var pb=$("pin-banner");if(pb)pb.hidden=true;applyRole();loadGroupData(id)};
-window.FLS={deleteGroup:deleteGroup,refreshRole:applyRole,
+function whenBooted(fn){if(window.FL_BOOTED)fn();else setTimeout(function(){whenBooted(fn)},200)}
+function openById(id){var r=C().rowOf(id);if(r)r.click();else C().loadGroups(function(){var r2=C().rowOf(id);if(r2)r2.click()})}
+window.FLS={openById:openById,deleteGroup:deleteGroup,refreshRole:applyRole,
   onAuth:function(u){
     if(!u){if(updChan){db.removeChannel(updChan);updChan=null}Object.keys(blocked).forEach(function(k){delete blocked[k]});upd.ann=[];upd.ev=[];upd.rs=[];dot(false);return}
     var h1=document.querySelector("#notifications h1");if(h1)h1.textContent="Updates";
     mkBlocked();loadBlocks();loadUpdates();
     if(!updChan)updChan=db.channel("fl-updates").on("postgres_changes",{event:"INSERT",schema:"public",table:"announcements"},function(){loadUpdates()}).on("postgres_changes",{event:"INSERT",schema:"public",table:"events"},function(){loadUpdates()}).subscribe();
-    var j=new URLSearchParams(location.search).get("join");
-    if(j&&!inited){inited=true;history.replaceState(null,"",location.pathname);db.rpc("request_join",{p_group:j}).then(function(r){if(r.error){alert("Could not join that group.");return}if(r.data==="requested")alert("Your request to join was sent. An admin will approve it.");C().loadGroups(function(){var row=C().rowOf(j);if(row)row.click()})})}}};
+    var q=new URLSearchParams(location.search),j=q.get("join"),o=q.get("open");
+    if((j||o)&&!inited){inited=true;history.replaceState(null,"",location.pathname);
+      if(o)whenBooted(function(){openById(o)});
+      if(j)db.rpc("request_join",{p_group:j}).then(function(r){if(r.error){alert("Could not join that group.");return}if(r.data==="requested")alert("Your request to join was sent. An admin will approve it.");whenBooted(function(){openById(j)})})}}};
 if(window.FL_USER)window.FLS.onAuth(window.FL_USER);
 })();

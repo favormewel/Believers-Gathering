@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CHRIST HUB push setup</title>
+<style>
+body{margin:0;padding:20px;background:#FDF3E3;color:#222;font:14px/1.45 system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif}
+main{max-width:640px;margin:0 auto}h1{font-size:19px;margin:0 0 4px}h2{font-size:15px;margin:22px 0 4px}p{margin:0 0 10px;color:#6B6055}
+textarea,input{width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid #F0E2C8;border-radius:12px;background:#fff;font:13px ui-monospace,Menlo,Consolas,monospace;color:#222}
+textarea{min-height:64px;resize:vertical}input{font-family:system-ui,sans-serif;font-size:16px;margin-bottom:8px}
+button{min-height:44px;padding:0 16px;border:0;border-radius:22px;background:#E2B04E;color:#222;font:700 14px system-ui,sans-serif;margin:6px 8px 0 0;cursor:pointer}
+button.o{background:none;border:1.5px solid #222}.box{padding:12px;margin-top:8px;background:#FFFAF2;border:1px solid #F0E2C8;border-radius:12px}
+.warn{background:#F8E19B;padding:10px 12px;border-radius:12px;color:#222}.l{font-weight:700;margin:8px 0 2px}
+</style></head><body><main>
+<h1>CHRIST HUB push setup</h1>
+<p>This page makes the keys and the one database snippet you need for notifications. It works in your browser only: nothing is sent anywhere.</p>
+<div class="warn">The private key and secret are passwords. Do not post them or put them in your website files. They go only into Supabase (step 3 below).</div>
+<h2>Your details</h2>
+<label class="l">Your Supabase project address</label><input id="url" placeholder="https://abcd.supabase.co">
+<label class="l">Your email (for push services to contact you)</label><input id="mail" placeholder="you@example.com" type="email">
+<button id="make">Make my keys</button><button class="o" id="forget">Forget keys on this device</button>
+<div id="out" hidden>
+<h2>Step 1. Add the public key to config.js</h2>
+<p>Open config.js in GitHub. Inside the settings, right before the closing <b>}</b>, paste this (it starts with a comma):</p>
+<textarea id="o1" readonly></textarea><button class="o" data-c="o1">Copy</button>
+<h2>Step 2. Run this in Supabase, SQL Editor</h2>
+<p>First run <b>PART 1</b> of <b>push.sql</b> from the package. Then paste and run this snippet (your project address and secret are already filled in):</p>
+<textarea id="o2" readonly style="min-height:160px"></textarea><button class="o" data-c="o2">Copy</button>
+<h2>Step 3. Add four secrets in Supabase</h2>
+<p>Edge Functions, then Secrets. Add each name and value exactly:</p>
+<div class="box"><div class="l">VAPID_PUBLIC_KEY</div><textarea id="s1" readonly></textarea><button class="o" data-c="s1">Copy</button>
+<div class="l">VAPID_PRIVATE_KEY</div><textarea id="s2" readonly></textarea><button class="o" data-c="s2">Copy</button>
+<div class="l">VAPID_SUBJECT</div><textarea id="s3" readonly></textarea><button class="o" data-c="s3">Copy</button>
+<div class="l">PUSH_SECRET</div><textarea id="s4" readonly></textarea><button class="o" data-c="s4">Copy</button></div>
+</div>
+<script>
+function b64u(b){var s="";for(var i=0;i<b.length;i++)s+=String.fromCharCode(b[i]);return btoa(s).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"")}
+async function makeKeys(){var kp=await crypto.subtle.generateKey({name:"ECDSA",namedCurve:"P-256"},true,["sign","verify"]);
+  var pub=new Uint8Array(await crypto.subtle.exportKey("raw",kp.publicKey)),jwk=await crypto.subtle.exportKey("jwk",kp.privateKey);
+  var sec=crypto.getRandomValues(new Uint8Array(24));return{pub:b64u(pub),priv:jwk.d,secret:b64u(sec)}}
+function refOf(u){var m=String(u).trim().match(/^https?:\/\/([a-z0-9-]+)\.supabase\.co/i);return m?m[1]:""}
+function sqlFor(ref,secret){return "create extension if not exists pg_net with schema extensions;\ncreate or replace function notify_push() returns trigger\nlanguage plpgsql security definer set search_path = public, extensions as $$\nbegin\n  perform net.http_post(\n    url := 'https://"+ref+".supabase.co/functions/v1/send-push',\n    headers := jsonb_build_object('Content-Type', 'application/json', 'x-push-secret', '"+secret+"'),\n    body := jsonb_build_object('table', TG_TABLE_NAME, 'record', to_jsonb(NEW)));\n  return NEW;\nexception when others then\n  return NEW;\nend $$;\ndrop trigger if exists push_on_message on messages;\ncreate trigger push_on_message after insert on messages for each row execute function notify_push();\ndrop trigger if exists push_on_announcement on announcements;\ncreate trigger push_on_announcement after insert on announcements for each row execute function notify_push();\ndrop trigger if exists push_on_event on events;\ncreate trigger push_on_event after insert on events for each row execute function notify_push();\n"}
+</script>
+<script src="config.js"></script>
+<script>
+(function(){
+var $=function(i){return document.getElementById(i)},KEY="fl-push-keys";
+var C=window.FAITHLINK_CONFIG||{};if(C.SUPABASE_URL&&C.SUPABASE_URL.indexOf("YOUR_")!==0)$("url").value=C.SUPABASE_URL;
+function show(k){var ref=refOf($("url").value),mail=$("mail").value.trim();
+  $("o1").value=',VAPID_PUBLIC_KEY:"'+k.pub+'"';$("o2").value=sqlFor(ref,k.secret);
+  $("s1").value=k.pub;$("s2").value=k.priv;$("s3").value="mailto:"+mail;$("s4").value=k.secret;$("out").hidden=false}
+function ok(){var ref=refOf($("url").value);if(!ref){alert("Type your Supabase project address first, like https://abcd.supabase.co");return false}
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test($("mail").value.trim())){alert("Type your email address.");return false}return true}
+$("make").onclick=async function(){if(!ok())return;var old=null;try{old=JSON.parse(localStorage.getItem(KEY))}catch(e){}
+  if(old&&!confirm("You already made keys on this device. Making new ones means anyone who already turned on notifications must turn them on again. Make new keys?")){show(old);return}
+  var k=await makeKeys();try{localStorage.setItem(KEY,JSON.stringify(k))}catch(e){}show(k)};
+$("forget").onclick=function(){try{localStorage.removeItem(KEY)}catch(e){}$("out").hidden=true;["o1","o2","s1","s2","s3","s4"].forEach(function(i){$(i).value=""});alert("Forgotten from this device. Make sure you saved the keys in Supabase first.")};
+document.addEventListener("click",function(e){var b=e.target.closest("[data-c]");if(!b)return;var t=$(b.dataset.c);t.select();try{navigator.clipboard.writeText(t.value)}catch(x){document.execCommand("copy")}b.textContent="Copied";setTimeout(function(){b.textContent="Copy"},1500)});
+try{var old=JSON.parse(localStorage.getItem(KEY));if(old&&$("url").value&&$("mail").value)show(old)}catch(e){}
+})();
+</script></main></body></html>

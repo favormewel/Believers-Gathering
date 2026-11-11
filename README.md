@@ -6,7 +6,7 @@ A Christian community app: groups and group chat (messages, photos, files, voice
 1. Unzip this package. Everything is at the top level, with no extra folder around it.
 2. In your GitHub repository choose **Add file**, then **Upload files**. Drag in ALL the files and the two folders `icons` and `supabase` (and `tools` if you like). Commit.
 3. **Keep your own `config.js`.** It holds your Supabase address and key, and this package does not contain one, so uploading will not erase it. Only if you have no config.js yet: copy `config-example.js` to a new file named `config.js` and fill in the two values.
-4. Wait two minutes and open your site in a private tab. Open Profile and scroll down: it should say "version 13".
+4. Wait two minutes and open your site in a private tab. Open Profile and scroll down: it should say "version 14".
 
 ## What is in the package
 - `index.html` the app, and `admin.html` the admin panel (open it at `/admin.html`)
@@ -30,6 +30,9 @@ Only your own groups are listed, newest conversation first, with the last messag
 - **Announcements and events:** posted by app admins in `/admin.html` (Announcements and Events). Members see them under the bell, now called Updates, and can mark Going or Maybe.
 - **Reports:** in `/admin.html`, Reports lists reported messages. Delete the message, delete and ban the author, or dismiss.
 Needs `supabase/update-2.sql` run once if you installed before this version.
+
+## Push notifications
+Phone notifications for new group messages, announcements and events. Muted groups and blocked members are skipped, and tapping a notification opens the group. People turn it on in Profile. Setup is in `PUSH_SETUP.md` (about 20 minutes, once): `vapid-keys.html` makes your keys, `supabase/push.sql` adds the table and trigger, and `supabase/functions/send-push/index.ts` is the sender you deploy in Supabase. Until you finish that setup, the app works exactly as before and shows no notification option.
 
 ## The Bible
 All 66 books and 1,189 chapters, verse by verse, with search ("John 3:16"), five translations, highlights, bookmarks, copy and share to a group. By default each chapter is loaded from the free service bible-api.com, and chapters you have read are kept on the phone. That service is run by one person and can be slow or limited. For a dependable app, host the text yourself:
