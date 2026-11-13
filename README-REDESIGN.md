@@ -1,19 +1,16 @@
-# CHRIST HUB v17 — Events, Community posts, Followers
+# CHEN NETWORK v18 — new name and logo
 
-## Step 1 (do first): Supabase
-Open Supabase > SQL Editor, paste all of `supabase-events-posts.sql`, and run it once.
-It only adds 4 new tables (events, event_rsvps, posts, follows). Nothing existing is changed.
+## Upload to GitHub
+1. Back up your repo.
+2. Upload every file and folder from this zip, replacing when asked (this includes the new `icons` folder).
+3. Keep your own `config.js`. Do not upload `config-example.js` as `config.js`.
+4. Commit, wait a minute, then close and reopen the app.
 
-## Step 2: GitHub
-Back up your repo, then upload every file here and replace when asked.
-Keep your own `config.js` and `icons` folder untouched. Wait for GitHub Pages, then close and reopen the app.
+## Phone home-screen icon
+Phones keep the old icon and name until the app is removed from the home screen and added again.
+Delete the old shortcut, open the site, then use Add to Home Screen.
 
-## What's new
-- Explore > Events: upcoming events, "I'm going" with a count, Create Event form, delete your own events
-- Home > Community: share updates, see others' updates, Follow / Following
-- Profile: stats now show Groups, Posts, Followers; new "My posts" screen with delete
-- People you have blocked are hidden from the feed
-
-## Files
-NEW: christ-hub-v3.js, christ-hub-v3.css, supabase-events-posts.sql
-CHANGED: index.html, sw.js (cache fl-v17)
+## What changed
+- Name: CHRIST HUB is now CHEN NETWORK (header, welcome, install text, notifications, manifest)
+- New logo on splash and welcome; new app icons in `icons/` (192, 512, maskable, Apple, favicon)
+- christ-hub-logo.svg is no longer used

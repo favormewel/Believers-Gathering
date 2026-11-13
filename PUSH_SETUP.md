@@ -1,4 +1,4 @@
-# Push notifications (CHRIST HUB)
+# Push notifications (Chen Network)
 
 Members get a phone notification when someone posts in one of their groups, and when an admin posts an announcement or an event. Muted groups and blocked members are skipped. People turn it on themselves under Profile, Turn on notifications.
 

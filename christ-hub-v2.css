@@ -10,7 +10,7 @@
 #app .hx-top{display:flex;align-items:center;justify-content:space-between;padding:12px 18px 10px;gap:10px}
 #app .hx-top h1{margin:0;font-size:22px;font-weight:800;letter-spacing:.2px}
 #app .hx-brand{display:flex;align-items:center;gap:8px;font-weight:800;font-size:17px;letter-spacing:.3px}
-#app .hx-brand img{width:30px;height:30px}
+#app .hx-brand img{width:32px;height:32px;border-radius:9px}
 #app .hx-brand b{color:var(--hx-gold)!important}
 #app .hx-icon{position:relative;width:44px;height:44px;border:0;border-radius:22px;background:transparent;display:flex;align-items:center;justify-content:center;color:var(--hx-text);padding:0}
 #app .hx-icon svg{width:24px;height:24px}
@@ -137,3 +137,7 @@
 #app #chat [style*="background:#F8EBD6"] *,#app #chat [style*="background:#FCF3EA"] *{color:var(--hx-text)!important}
 #app #info [style*="background:#F8D9A8"],#app [style*="background:#FBE3C2"]{background:rgba(146,119,245,.22)!important;color:var(--hx-gold)!important}
 #app [style*="background: rgb(218, 211, 200)"]{background:rgba(255,255,255,.06)!important;color:var(--hx-muted)!important;border:1px solid var(--hx-line)!important}
+
+/* Chen Network wide logo on splash / welcome */
+#app .hx-splash img.wide{width:min(84%,360px);height:auto;border-radius:22px;filter:none;box-shadow:0 14px 40px rgba(0,0,0,.45),0 0 0 1px rgba(255,200,61,.25)}
+#app .hx-welcome .logo img.wide{width:min(78%,310px);height:auto;border-radius:20px;filter:none;box-shadow:0 12px 34px rgba(0,0,0,.45),0 0 0 1px rgba(255,200,61,.25)}

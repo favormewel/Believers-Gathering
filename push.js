@@ -25,7 +25,7 @@ function mk(){
   r.innerHTML='<span></span><span class="st" style="font-size:13px;font-weight:700"></span>';so.parentNode.insertBefore(r,so);label(false)}
 document.addEventListener("click",function(e){
   if(!e.target.closest("#push-row"))return;
-  if(!ok){alert(ios?"On iPhone, first install the app: tap Share in Safari, then Add to Home Screen. Open CHRIST HUB from your home screen and turn on notifications there.":"This browser does not support notifications.");return}
+  if(!ok){alert(ios?"On iPhone, first install the app: tap Share in Safari, then Add to Home Screen. Open Chen Network from your home screen and turn on notifications there.":"This browser does not support notifications.");return}
   cur().then(function(o){return o.sub?disable():enable()}).catch(function(){alert("Could not change notifications. Please try again.")})});
 if(ok)navigator.serviceWorker.addEventListener("message",function(e){if(e.data&&e.data.open&&window.FLS&&window.FLS.openById)window.FLS.openById(e.data.open)});
 mk();refresh();
