@@ -1,0 +1,139 @@
+/* CHRIST HUB v2 — showcase layout: tab bar, Home, Messages, Explore, Settings, Welcome */
+:root{
+  --hx-bg:#0B1026;--hx-card:#151B38;--hx-card2:#1C2348;--hx-line:rgba(210,204,255,.14);
+  --hx-purple:#7657D6;--hx-purple2:#9277F5;--hx-gold:#FFC83D;--hx-gold2:#F2C56B;
+  --hx-text:#F7F5FF;--hx-muted:#A9A7C8;--hx-green:#2FBF71;--hx-orange:#F28A1F;--hx-blue:#3B7BF0;--hx-red:#F0476B;
+}
+
+/* ---------- shared screen shell ---------- */
+#app .hx-screen{width:100%;height:100%;box-sizing:border-box;display:flex;flex-direction:column;position:relative;color:var(--hx-text);font-family:Inter,system-ui,-apple-system,sans-serif}
+#app .hx-top{display:flex;align-items:center;justify-content:space-between;padding:12px 18px 10px;gap:10px}
+#app .hx-top h1{margin:0;font-size:22px;font-weight:800;letter-spacing:.2px}
+#app .hx-brand{display:flex;align-items:center;gap:8px;font-weight:800;font-size:17px;letter-spacing:.3px}
+#app .hx-brand img{width:30px;height:30px}
+#app .hx-brand b{color:var(--hx-gold)!important}
+#app .hx-icon{position:relative;width:44px;height:44px;border:0;border-radius:22px;background:transparent;display:flex;align-items:center;justify-content:center;color:var(--hx-text);padding:0}
+#app .hx-icon svg{width:24px;height:24px}
+#app .hx-icon .dot{position:absolute;top:10px;right:11px;width:9px;height:9px;border-radius:5px;background:var(--hx-red);border:2px solid #0D1430}
+#app .hx-avatar{width:40px;height:40px;border-radius:20px;border:2px solid var(--hx-gold);background:linear-gradient(135deg,#9277F5,#7657D6);color:#fff;font:800 13px Inter,sans-serif;display:flex;align-items:center;justify-content:center;padding:0}
+#app .hx-scroll{flex:1;overflow-y:auto;padding:4px 18px 18px;-webkit-overflow-scrolling:touch}
+#app .hx-sec{display:flex;align-items:center;justify-content:space-between;margin:20px 0 10px}
+#app .hx-sec h2{margin:0;font-size:17px;font-weight:800}
+#app .hx-sec button{border:0;background:none;color:var(--hx-purple2);font:700 13px Inter,sans-serif;min-height:36px;padding:0 2px}
+#app .hx-search{position:relative;display:block;margin:0 18px 12px}
+#app .hx-search svg{position:absolute;left:14px;top:11px;width:20px;height:20px;color:var(--hx-muted);pointer-events:none}
+#app .hx-search input{width:100%;box-sizing:border-box;height:42px;padding:0 14px 0 42px;font:15px Inter,sans-serif}
+#app .hx-empty{padding:26px 16px;text-align:center;color:var(--hx-muted);font-size:13px;line-height:1.5;border:1px dashed var(--hx-line);border-radius:16px}
+
+/* ---------- bottom tab bar ---------- */
+#app nav.hx-nav{display:flex;flex:none;background:rgba(11,16,38,.96)!important;border-top:1px solid var(--hx-line)!important;padding:6px 4px calc(env(safe-area-inset-bottom,0px) + 6px)!important;backdrop-filter:blur(14px)}
+#app nav.hx-nav button{flex:1;min-height:52px;border:0;background:none!important;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font:600 10.5px Inter,sans-serif!important;color:var(--hx-muted)!important;position:relative;padding:0;box-shadow:none!important}
+#app nav.hx-nav button svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+#app nav.hx-nav button.on{color:var(--hx-purple2)!important;font-weight:800!important}
+#app nav.hx-nav button.on::before{content:"";position:absolute;top:-7px;width:26px;height:3px;border-radius:2px;background:var(--hx-purple2)}
+#app nav.hx-nav button.on svg{stroke-width:2.2}
+
+/* ---------- Home ---------- */
+#app .hx-hero{position:relative;overflow:hidden;border-radius:20px;padding:20px 18px;min-height:112px;margin-top:4px;
+  background:radial-gradient(ellipse at 100% 20%,rgba(255,200,61,.55),transparent 46%),linear-gradient(120deg,#2B2252 0%,#4A3590 58%,#7657D6 100%);
+  border:1px solid rgba(255,255,255,.12)}
+#app .hx-hero h2{margin:0 0 4px;font-size:21px;font-weight:800;line-height:1.2;max-width:70%}
+#app .hx-hero p{margin:0;font-size:13px;color:#E4DEFF!important;max-width:62%}
+#app .hx-hero svg{position:absolute;right:-6px;bottom:-4px;width:150px;height:110px;opacity:.95}
+#app .hx-quick{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:16px}
+#app .hx-quick button{border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:7px;font:700 12px Inter,sans-serif;color:var(--hx-text);padding:0;min-height:44px}
+#app .hx-quick i{width:58px;height:58px;border-radius:18px;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 20px rgba(0,0,0,.28)}
+#app .hx-quick i svg{width:28px;height:28px;fill:none;stroke:#fff;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+#app .hx-verse{margin-top:6px;padding:16px 18px;border-radius:18px;background:linear-gradient(145deg,rgba(31,38,77,.96),rgba(21,27,56,.98));border:1px solid var(--hx-line)}
+#app .hx-verse q{display:block;quotes:none;font-size:15px;line-height:1.5;font-style:italic;color:var(--hx-text)}
+#app .hx-verse span{display:block;margin-top:8px;font-size:12px;font-weight:800;color:var(--hx-gold)}
+
+/* list rows used by Home / Messages / Explore */
+#app .hx-row{display:flex;align-items:center;gap:12px;padding:11px 12px;margin-bottom:10px;border-radius:16px;background:linear-gradient(145deg,rgba(31,38,77,.96),rgba(21,27,56,.98));border:1px solid var(--hx-line);width:100%;box-sizing:border-box;text-align:left;color:var(--hx-text);font-family:Inter,sans-serif;cursor:pointer}
+#app .hx-row .av{width:48px;height:48px;border-radius:14px;color:#fff;display:flex;align-items:center;justify-content:center;font:800 14px Inter,sans-serif;flex:none}
+#app .hx-row.round .av{border-radius:24px}
+#app .hx-row .tx{flex:1;min-width:0}
+#app .hx-row .tx b{display:block;font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#app .hx-row .tx small{display:block;margin-top:2px;font-size:12px;color:var(--hx-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#app .hx-row .bd{min-width:24px;height:24px;padding:0 7px;box-sizing:border-box;border-radius:12px;background:var(--hx-red);color:#fff;font:800 12px Inter,sans-serif;display:flex;align-items:center;justify-content:center;flex:none}
+#app .hx-row .go{display:inline-flex;align-items:center;min-height:34px;padding:0 16px;border:0;border-radius:17px;background:linear-gradient(110deg,#7657D6,#9277F5);color:#fff;font:700 12.5px Inter,sans-serif;flex:none}
+
+/* ---------- Explore ---------- */
+#app .hx-tabs{display:flex;gap:8px;padding:0 18px 12px}
+#app .hx-tabs button{min-height:38px;padding:0 18px;border:1px solid var(--hx-line);border-radius:19px;background:rgba(255,255,255,.04);color:var(--hx-muted);font:700 13px Inter,sans-serif}
+#app .hx-tabs button.on{background:linear-gradient(110deg,#7657D6,#9277F5);color:#fff;border-color:transparent}
+#app .hx-map{position:relative;height:170px;border-radius:20px;overflow:hidden;border:1px solid var(--hx-line);background:#1A2250}
+#app .hx-map svg{width:100%;height:100%;display:block}
+#app .hx-map .tag{position:absolute;left:50%;top:22px;transform:translateX(-50%);padding:7px 14px;border-radius:14px;background:rgba(11,16,38,.9);border:1px solid var(--hx-line);font:700 12px Inter,sans-serif;white-space:nowrap}
+
+/* ---------- App settings ---------- */
+#app .hx-set{display:flex;align-items:center;gap:14px;width:100%;box-sizing:border-box;padding:14px 14px;margin-bottom:10px;border-radius:16px;border:1px solid var(--hx-line);background:linear-gradient(145deg,rgba(31,38,77,.96),rgba(21,27,56,.98));color:var(--hx-text);font-family:Inter,sans-serif;text-align:left;min-height:62px}
+#app .hx-set .ic{width:38px;height:38px;border-radius:12px;background:rgba(146,119,245,.18);display:flex;align-items:center;justify-content:center;flex:none;color:var(--hx-purple2)}
+#app .hx-set .ic svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+#app .hx-set b{display:block;font-size:14.5px;font-weight:700}
+#app .hx-set small{display:block;font-size:12px;color:var(--hx-muted);margin-top:2px}
+#app .hx-set .ch{margin-left:auto;color:var(--hx-muted);font-size:20px}
+#app .hx-logout{width:100%;min-height:52px;margin-top:10px;border:0;border-radius:26px;background:linear-gradient(110deg,#F0476B,#FF6B8B);color:#fff;font:800 15px Inter,sans-serif;box-shadow:0 10px 24px rgba(240,71,107,.25)}
+
+/* ---------- Prayer hero ("Need Prayer?") ---------- */
+#app .hx-pray{margin:6px 20px 14px;padding:18px;border-radius:20px;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.12);
+  background:radial-gradient(ellipse at 100% 0%,rgba(242,138,31,.6),transparent 55%),linear-gradient(130deg,#3A2A66,#5B3FA8)}
+#app .hx-pray h2{margin:0 0 4px;font-size:21px;font-weight:800}
+#app .hx-pray p{margin:0 0 14px;font-size:13px;line-height:1.45;color:#EDE8FF!important;max-width:78%}
+#app .hx-pray button{min-height:44px;padding:0 24px;border:0;border-radius:22px;background:linear-gradient(110deg,#FFD35C,#F2B22E);color:#1B1330;font:800 14px Inter,sans-serif;box-shadow:0 8px 20px rgba(242,178,46,.3)}
+
+/* ---------- Welcome (screen 1) ---------- */
+#app .hx-welcome{width:100%;height:100%;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;color:var(--hx-text);font-family:Inter,sans-serif;position:relative;overflow:hidden;
+  background:linear-gradient(180deg,#14143F 0%,#3A1F6B 24%,#B4531F 50%,#0B1026 100%)}
+#app .hx-welcome .logo{margin-top:calc(env(safe-area-inset-top,0px) + 34px);text-align:center}
+#app .hx-welcome .logo img{width:92px;height:92px;filter:drop-shadow(0 10px 28px rgba(146,119,245,.5))}
+#app .hx-welcome .word{font-size:30px;font-weight:800;letter-spacing:.5px;margin-top:6px}
+#app .hx-welcome .word b{color:var(--hx-gold)!important}
+#app .hx-welcome .tag{font-size:12.5px;color:#E8E2FF;margin-top:4px;letter-spacing:.3px}
+#app .hx-welcome .scene{position:absolute;left:0;right:0;top:170px;bottom:0;background:linear-gradient(to bottom,transparent 289px,#120E2B 289px)}
+#app .hx-welcome .scene svg{width:100%;height:290px;display:block}
+#app .hx-welcome .bottom{margin-top:auto;width:100%;box-sizing:border-box;padding:0 26px calc(env(safe-area-inset-bottom,0px) + 26px);text-align:center;position:relative}
+#app .hx-welcome h1{margin:0;font-size:22px;font-weight:800;line-height:1.2}
+#app .hx-welcome .sub{margin:6px 0 18px;font-size:14px;color:#D9D4F2}
+#app .hx-welcome .gold{width:100%;min-height:52px;border:0;border-radius:14px;background:linear-gradient(110deg,#FFD35C,#F2B22E);color:#1B1330;font:800 16px Inter,sans-serif;box-shadow:0 10px 24px rgba(242,178,46,.28)}
+#app .hx-welcome .ghost{width:100%;min-height:52px;margin-top:12px;border:1.5px solid var(--hx-gold);border-radius:14px;background:rgba(11,16,38,.55);color:var(--hx-gold);font:800 16px Inter,sans-serif}
+#app .hx-welcome .guest{margin-top:8px;min-height:46px;border:0;background:none;color:#E8E2FF;font:600 14px Inter,sans-serif}
+
+/* Splash */
+#app .hx-splash{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:radial-gradient(ellipse at 50% 38%,#3A2A78,#0B1026 70%)}
+#app .hx-splash img{width:116px;height:116px;filter:drop-shadow(0 12px 30px rgba(146,119,245,.55))}
+#app .hx-splash .word{font-size:30px;font-weight:800;letter-spacing:.5px;color:#fff}
+#app .hx-splash .word b{color:var(--hx-gold)!important}
+#app .hx-splash .tag{font-size:13px;color:#CFC9EE}
+#app .hx-splash .dots{display:flex;gap:8px;margin-top:26px}
+#app .hx-splash .dots span{width:8px;height:8px;border-radius:4px;background:var(--hx-gold)}
+
+/* ---------- restyle existing screens toward the showcase ---------- */
+#app #notifications [style*="border-radius:6px"]{width:40px!important;height:40px!important;border-radius:20px!important;background:linear-gradient(135deg,#9277F5,#7657D6)!important}
+#app #notifications [data-scroll]>div{border-radius:0}
+#app #profile #me-avatar{border:3px solid var(--hx-purple2);box-shadow:0 0 0 4px rgba(146,119,245,.18)!important;background:linear-gradient(135deg,#9277F5,#7657D6)!important;color:#fff!important}
+
+@media (prefers-reduced-motion:no-preference){
+  #app .hx-quick button:active i,#app .hx-row:active{transform:scale(.97);transition:transform .12s}
+}
+#app .hx-row:focus-visible,#app .hx-quick button:focus-visible,#app nav.hx-nav button:focus-visible{outline:3px solid var(--hx-gold);outline-offset:2px}
+
+/* icon strokes for new header/search icons */
+#app .hx-icon svg,#app .hx-search svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#app .hx-row .av svg{fill:none}
+
+/* old beige tab pills on Groups / Prayer / Nearby -> dark pills, gold underline for the active tab */
+#app [style*="background:#DAD3C8"]{background:rgba(255,255,255,.06)!important;color:var(--hx-muted)!important;border:1px solid var(--hx-line)!important;min-height:38px!important;padding:0 18px!important;border-radius:19px!important}
+#app [style*="border-bottom:3px solid #E2B04E"]{border:0!important;background:linear-gradient(110deg,#7657D6,#9277F5)!important;color:#fff!important;min-height:38px!important;padding:0 18px!important;border-radius:19px!important}
+#app #group-list>div:first-child,#app #prayer-list>div:first-child,#app #nearby-list>div:first-child{gap:8px!important;align-items:center!important;padding-top:4px!important}
+#app #profile #me-avatar{margin-top:10px}
+
+/* leftover light surfaces */
+#app #bible [style*="background:#F8E19B"],#app #pinned [style*="background:#F8E19B"]{background:linear-gradient(135deg,rgba(255,200,61,.16),rgba(146,119,245,.18))!important;border:1px solid rgba(255,200,61,.35)!important;box-shadow:none!important}
+#app #bible [style*="background:#F8E19B"] *,#app #pinned [style*="background:#F8E19B"] *{color:var(--hx-text)!important}
+#app #bible [style*="background:#F8E19B"] svg,#app #pinned [style*="background:#F8E19B"] svg{stroke:var(--hx-gold)!important}
+#app #bible [style*="background:#F8E19B"] button,#app #bible [style*="background:#F8E19B"] [role=button]{color:var(--hx-gold)!important}
+#app #chat [style*="background:#FCF3EA"],#app #chat [style*="background:#F8EBD6"],#app #chat [style*="background:#F3EEE6"]{background:rgba(255,255,255,.07)!important;color:var(--hx-text)!important;border-color:rgba(255,200,61,.4)!important}
+#app #chat [style*="background:#F8EBD6"] *,#app #chat [style*="background:#FCF3EA"] *{color:var(--hx-text)!important}
+#app #info [style*="background:#F8D9A8"],#app [style*="background:#FBE3C2"]{background:rgba(146,119,245,.22)!important;color:var(--hx-gold)!important}
+#app [style*="background: rgb(218, 211, 200)"]{background:rgba(255,255,255,.06)!important;color:var(--hx-muted)!important;border:1px solid var(--hx-line)!important}

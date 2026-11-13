@@ -1,29 +1,25 @@
-# CHRIST HUB — Midnight Fellowship redesign
+# CHRIST HUB — Showcase layout (v16)
 
-## What's changed
-- New navy / royal-purple / gold visual theme, optimized for mobile.
-- New CHRIST HUB emblem (`christ-hub-logo.svg`) and generated PWA icons.
-- Updated PWA theme colors and service-worker cache version.
-- Existing app features and JavaScript logic are preserved.
+## What's new
+- Splash + Welcome screen (Create Account / Sign In / Continue as Guest)
+- Bottom tab bar on every main screen: Home, Groups, Prayer, Bible, Profile
+- Home dashboard: greeting, quick actions, your groups, verse of the day, Explore link
+- Messages list (reads your existing groups; tapping opens the real chat)
+- Explore: Nearby / Trending / Events tabs
+- Settings screen (gear on Profile): Account, Notifications, Blocked People, Log Out
+- "Need Prayer?" card on Prayer; restyled tabs, Bible, Chat, Notifications, Profile
 
-## Important: preserve your live Supabase configuration
-This package intentionally does **not** include `config.js`, because the supplied `config-example.js` contains placeholders only.
+## Files changed or added
+NEW: christ-hub-v2.css, christ-hub-v2.js
+CHANGED: index.html, boot.js (app now opens on Home), data.js (login/sign-up land on Home), sw.js (cache fl-v16)
+UNCHANGED: chat.js, social.js, bible.js, push.js, install.js, manifest, theme css
 
-If your GitHub repository already has a working `config.js`, keep it unchanged. Do not replace it with `config-example.js`.
-If you do not have a real `config.js`, copy `config-example.js` to `config.js` and add your Supabase Project URL and anon/public key. Never put a Supabase service-role key or private secret in browser code.
-
-## Upload to GitHub Pages
-1. Make a backup of the current GitHub repository first.
-2. Extract this ZIP.
-3. Upload the contents of the extracted `christ_hub_redesign` folder into the root of your existing repository, keeping the `icons` folder.
-4. Replace the existing files when GitHub asks. Keep your existing `config.js` untouched.
-5. Commit the changes and wait for GitHub Pages to publish.
-6. Open the site and refresh it. If an older version remains cached, close the app/browser tab and reopen the site.
-
-## Included files
-The package includes `index.html`, `christ-hub-theme.css`, `christ-hub-logo.svg`, `icons/`, the app JavaScript files, `sw.js`, the web manifest, and the existing install/push setup helper files.
+## Upload to GitHub
+1. Back up your repository.
+2. Upload every file from this folder to the repo root and replace when asked.
+3. Do NOT upload config-example.js as config.js. Keep your existing config.js and your icons folder untouched.
+4. Commit, wait for GitHub Pages, then close and reopen the app once so the new version loads.
 
 ## Notes
-- No database schema or Supabase policies were changed.
-- No credentials were added or modified.
-- The package does not deploy itself; it is ready for you to upload to your GitHub repository.
+- No Supabase tables, policies or keys were changed.
+- Events and Trending are simple for now: Events shows an empty state until you add an events feature.
