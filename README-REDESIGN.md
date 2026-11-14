@@ -1,16 +1,18 @@
-# CHEN NETWORK v19 — logo drawn in code (no image)
+# CHEN NETWORK v20 — app icon fix
 
 ## Upload to GitHub
 1. Back up your repo.
-2. Upload every file and folder from this zip, replacing when asked (including the `icons` folder).
-3. Keep your own `config.js`. Do not upload `config-example.js` as `config.js`.
-4. Commit, wait a minute, then close and reopen the app.
-5. You can delete `chen-network-logo.png` from the repo if you uploaded v18. It is no longer used.
+2. Upload every file and folder from this zip, replacing when asked (including `icons`).
+3. Keep your own `config.js`.
+4. Commit, wait a minute.
 
-## Home-screen icon
-Phones keep the old icon until you remove the shortcut and use Add to Home Screen again.
+## Get the new icon on your phone
+Phones keep the old icon until you re-add it:
+1. Delete the old Chen Network / CHRIST HUB shortcut from your home screen.
+2. Open the site in your browser and refresh twice.
+3. Use Add to Home Screen (iPhone: Share > Add to Home Screen; Android: menu > Install app).
 
 ## What changed
-- The Chen Network logo is now drawn as vector artwork inside index.html (gold CHEN with swooshes, white NETWORK, purple background), so it stays sharp at any size.
-- A compact "C" mark is used in the header and on sign-in screens.
-- App icons in `icons/` are rebuilt from the same design.
+- install.js no longer draws the old gold cross icon. It was overriding the real icon on iPhone and as the fallback on Android.
+- The install banner now shows the Chen Network "C" mark.
+- Icon links carry ?v=20 so browsers fetch the new files.

@@ -7,26 +7,23 @@ function tag(n,a){var e=document.createElement(n);for(var k in a)e.setAttribute(
 var standalone=(window.matchMedia&&matchMedia("(display-mode: standalone)").matches)||navigator.standalone===true;
 var ios=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
 var deferred=null,banner=null,sheet=null;
-function drawIcon(){var c=document.createElement("canvas");c.width=c.height=512;var x=c.getContext("2d");x.fillStyle="#E2B04E";x.fillRect(0,0,512,512);x.fillStyle="#fff";
-  var u=512/44*0.7,o=512*0.15;function r(a,b,e,f){x.beginPath();if(x.roundRect)x.roundRect(o+a*u,o+b*u,(e-a)*u,(f-b)*u,1.5*u);else x.rect(o+a*u,o+b*u,(e-a)*u,(f-b)*u);x.fill()}
-  r(19,9,25,35);r(12,16,32,22);return c.toDataURL("image/png")}
 var base=location.href.split("#")[0].split("?")[0].replace(/[^\/]*$/,"");
-var ico=drawIcon();
+var IV="?v=20",ico=base+"icons/apple-touch-icon.png"+IV;
 function dyn(){
-  var man={id:base,name:"Chen Network",short_name:"Chen Network",description:"A Christian community app to connect, pray, and grow together.",start_url:base,scope:base,display:"standalone",orientation:"portrait",background_color:"#FDF3E3",theme_color:"#E2B04E",icons:[{src:ico,sizes:"512x512",type:"image/png",purpose:"any maskable"}]};
+  var man={id:base,name:"Chen Network",short_name:"Chen Network",description:"A Christian community app to connect, pray, and grow together.",start_url:base,scope:base,display:"standalone",orientation:"portrait",background_color:"#0B1026",theme_color:"#0B1026",icons:[{src:base+"icons/icon-192.png"+IV,sizes:"192x192",type:"image/png",purpose:"any"},{src:base+"icons/icon-512.png"+IV,sizes:"512x512",type:"image/png",purpose:"any"},{src:base+"icons/icon-maskable-512.png"+IV,sizes:"512x512",type:"image/png",purpose:"maskable"}]};
   tag("link",{rel:"manifest",href:URL.createObjectURL(new Blob([JSON.stringify(man)],{type:"application/manifest+json"}))})}
 var ml=document.querySelector('link[rel="manifest"]');
 if(!ml)dyn();else fetch(ml.href,{cache:"no-store"}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){return fetch(new URL(j.icons[0].src,ml.href).href,{cache:"no-store"}).then(function(r){if(!r.ok)throw 0})}).catch(function(){ml.remove();dyn()});
-if(!document.querySelector('meta[name="theme-color"]'))tag("meta",{name:"theme-color",content:"#E2B04E"});
+if(!document.querySelector('meta[name="theme-color"]'))tag("meta",{name:"theme-color",content:"#0B1026"});
 tag("meta",{name:"mobile-web-app-capable",content:"yes"});tag("meta",{name:"apple-mobile-web-app-capable",content:"yes"});
 tag("meta",{name:"apple-mobile-web-app-title",content:"Chen Network"});tag("meta",{name:"apple-mobile-web-app-status-bar-style",content:"default"});
-tag("link",{rel:"apple-touch-icon",href:ico});
+if(!document.querySelector('link[rel="apple-touch-icon"]'))tag("link",{rel:"apple-touch-icon",href:ico});
 if("serviceWorker" in navigator&&(location.protocol==="https:"||location.hostname==="localhost"))navigator.serviceWorker.register("sw.js").catch(function(){});
 function btn(id,t,css,label){return '<button id="'+id+'"'+(label?' aria-label="'+label+'"':'')+' style="'+css+'">'+t+'</button>'}
 function mkBanner(){
   var b=document.createElement("div");b.id="install-banner";b.hidden=true;
   b.style.cssText="position:fixed;left:12px;right:12px;bottom:72px;max-width:406px;margin:0 auto;padding:10px 6px 10px 12px;border-radius:16px;background:#2B2118;color:#fff;display:flex;gap:10px;align-items:center;box-shadow:0 6px 20px rgba(43,33,24,.35);z-index:40;font-family:"+SYS;
-  b.innerHTML='<svg width="36" height="36" viewBox="0 0 44 44" aria-hidden="true" style="flex:none"><rect width="44" height="44" rx="12" fill="#E2B04E"/><rect x="19" y="9" width="6" height="26" rx="1.5" fill="#fff"/><rect x="12" y="16" width="20" height="6" rx="1.5" fill="#fff"/></svg><div style="flex:1;min-width:0"><b style="font-size:13px">Install Chen Network</b><div style="font-size:12px;color:#E4D9CC">Open it like an app from your home screen.</div></div>'
+  b.innerHTML='<svg width="36" height="36" viewBox="0 0 100 100" aria-hidden="true" style="flex:none;border-radius:10px"><use href="#chen-mark"/></svg><div style="flex:1;min-width:0"><b style="font-size:13px">Install Chen Network</b><div style="font-size:12px;color:#E4D9CC">Open it like an app from your home screen.</div></div>'
    +btn("install-go","Install","min-height:44px;padding:0 16px;border:0;border-radius:22px;background:#E2B04E;color:#222;font:700 13px "+SYS)
    +btn("install-x","&times;","width:44px;height:44px;border:0;background:none;color:#fff;font-size:20px","Dismiss");
   document.body.appendChild(b);banner=b}
