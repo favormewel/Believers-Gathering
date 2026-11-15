@@ -1,6 +1,6 @@
 (function(){
 function $(i){return document.getElementById(i)}
-function esc(t){var d=document.createElement("div");d.textContent=t==null?"":t;return d.innerHTML}
+function esc(t){var d=document.createElement("div");d.textContent=t==null?"":t;return d.innerHTML.replace(/"/g,"&quot;").replace(/'/g,"&#39;")}
 function ls(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 var COL=["#3F5FB0","#7657D6","#2F8F6B","#C2641F","#3F8279","#B8636F","#7A7637"];
 function col(s){var n=0;s=s||"";for(var i=0;i<s.length;i++)n+=s.charCodeAt(i);return COL[n%COL.length]}
