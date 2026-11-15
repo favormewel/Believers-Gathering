@@ -20,6 +20,7 @@ function sec(id,title,back,body){
   s.innerHTML='<div class="hx-screen"><header class="hx-top" style="padding-left:8px"><div style="display:flex;align-items:center;gap:2px"><button class="hx-icon" aria-label="Back" data-go="'+back+'">'+SVGBACK+'</button><h1 style="font-size:20px">'+title+'</h1></div></header><div class="hx-scroll" data-scroll>'+body+'</div></div>';
   $("app").appendChild(s)}
 function build(){
+  buildUpdates();
   if($("newevent"))return;
   sec("newevent","Create Event","explore",
    '<label class="hx-f"><span>Event name</span><input id="ne-title" maxlength="120" placeholder="Sunday Worship Service"></label>'+
@@ -43,6 +44,38 @@ function build(){
   var ep=document.querySelector('#profile button[data-go="editprofile"]');
   if(ep&&!$("hx-myposts-row")){var r=ep.cloneNode(true);r.id="hx-myposts-row";r.setAttribute("data-go","myposts");r.querySelector("span").textContent="My posts";ep.parentNode.insertBefore(r,ep.nextSibling)}
 }
+
+/* ---------- UPDATES TAB ---------- */
+var UM="all";
+function buildUpdates(){
+  if($("updates"))return;
+  var s=document.createElement("section");s.id="updates";s.hidden=true;
+  s.innerHTML='<div class="hx-screen"><header class="hx-top"><h1>Updates</h1><button class="hx-icon" aria-label="Share an update" data-go="newpost"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button></header>'+
+   '<div class="hx-tabs"><button data-go="groups">My Groups</button><button class="on" data-go="updates">Updates</button><button data-go="nearby">Nearby</button></div>'+
+   '<div class="hx-scroll" data-scroll style="padding-top:0"><div class="hx-umode" role="tablist"><button class="on" data-umode="all" role="tab">Everyone</button><button data-umode="following" role="tab">Following</button></div><div class="hx-ustats" id="hx-ustats"></div><div id="hx-ppl"></div><div id="hx-updates-feed"></div></div></div>';
+  var nv=document.querySelector("#groups nav.hx-nav");if(nv)s.firstChild.appendChild(nv.cloneNode(true));
+  $("app").appendChild(s)}
+function loadUpdates(){
+  var box=$("hx-updates-feed"),ppl=$("hx-ppl"),st=$("hx-ustats");if(!box)return;
+  document.querySelectorAll("[data-umode]").forEach(function(b){var on=b.dataset.umode===UM;b.classList.toggle("on",on);b.setAttribute("aria-selected",on?"true":"false")});
+  if(!db()||!me()){box.innerHTML=note("Sign in to see updates from people.");ppl.innerHTML="";st.innerHTML="";return}
+  var uid=me().id;
+  db().from("follows").select("following_id").eq("follower_id",uid).then(function(f){
+    following={};(f.data||[]).forEach(function(x){following[x.following_id]=1});
+    var ids=Object.keys(following);
+    db().from("follows").select("follower_id",{count:"exact",head:true}).eq("following_id",uid).then(function(fc){
+      st.innerHTML='<span><b>'+ids.length+'</b> Following</span><span><b>'+((fc&&fc.count)||0)+'</b> Followers</span>';
+      if(UM==="following"&&!ids.length){ppl.innerHTML="";box.innerHTML=note("You are not following anyone yet. Tap Follow on a post under Everyone and their updates will show here.");return}
+      var q=db().from("posts").select("*").order("created_at",{ascending:false}).limit(40);
+      if(UM==="following")q=q.in("user_id",ids);
+      q.then(function(r){
+        if(r.error){box.innerHTML=note("Updates are not set up yet. Run the posts SQL in Supabase first.");return}
+        var rows=(r.data||[]).filter(function(p){return !blocked(p.user_id)});
+        if(UM==="following"){
+          var names={};rows.forEach(function(p){if(!names[p.user_id])names[p.user_id]=p.author_name});
+          ppl.innerHTML='<div class="hx-sec" style="margin:6px 0 8px"><h2 style="font-size:15px">People you follow</h2></div><div class="hx-chips">'+ids.map(function(i){var n=names[i]||"Member";return '<div class="chip"><span class="av" style="background:'+col(i)+'">'+esc(ini(n))+'</span><b>'+esc(n)+'</b><button type="button" class="fol on" data-follow="'+esc(i)+'">Following</button></div>'}).join("")+'</div>'
+        }else ppl.innerHTML="";
+        enrich(rows,function(){box.innerHTML=rows.length?rows.map(function(p){return postHTML(p,uid)}).join(""):note(UM==="following"?"The people you follow have not posted yet.":"No updates yet. Be the first to share one.")})})})})}
 
 /* ---------- EVENTS ---------- */
 function loadEvents(){
@@ -171,7 +204,8 @@ document.addEventListener("click",function(e){
   var T=e.target,b;
   if((b=T.closest("[data-rsvp]")))return toggleRsvp(b);
   if((b=T.closest("[data-evdel]"))){if(confirm("Delete this event?"))db().from("events").delete().eq("id",b.dataset.evdel).then(loadEvents);return}
-  if((b=T.closest("[data-follow]")))return toggleFollow(b);
+  if((b=T.closest("[data-umode]"))){UM=b.dataset.umode;return loadUpdates()}
+  if((b=T.closest("[data-follow]"))){toggleFollow(b);if(visible("updates"))setTimeout(loadUpdates,400);return}
   if((b=T.closest("[data-like]")))return toggleLike(b);
   if((b=T.closest("[data-cm]"))){var bx=$("cm-"+b.dataset.cm);if(bx){bx.hidden=!bx.hidden;if(!bx.hidden)loadComments(b.dataset.cm,b.dataset.owner)}return}
   if((b=T.closest("[data-cmsend]")))return sendComment(b);
@@ -186,6 +220,7 @@ document.addEventListener("input",function(e){if(e.target.id==="np-text")$("np-n
 
 var t=null;function soon(){clearTimeout(t);t=setTimeout(function(){
   if(visible("home"))loadFeed();
+  if(visible("updates"))loadUpdates();
   if(visible("profile"))loadStats();
   if(visible("myposts"))loadMyPosts();
   if(visible("explore")&&!$("hx-ex-events").hidden)loadEvents()},120)}

@@ -125,7 +125,7 @@
 /* old beige tab pills on Groups / Prayer / Nearby -> dark pills, gold underline for the active tab */
 #app [style*="background:#DAD3C8"]{background:rgba(255,255,255,.06)!important;color:var(--hx-muted)!important;border:1px solid var(--hx-line)!important;min-height:38px!important;padding:0 18px!important;border-radius:19px!important}
 #app [style*="border-bottom:3px solid #E2B04E"]{border:0!important;background:linear-gradient(110deg,#7657D6,#9277F5)!important;color:#fff!important;min-height:38px!important;padding:0 18px!important;border-radius:19px!important}
-#app #group-list>div:first-child,#app #prayer-list>div:first-child,#app #nearby-list>div:first-child{gap:8px!important;align-items:center!important;padding-top:4px!important}
+#app #group-list>div:first-child,#app #nearby-list>div:first-child{gap:8px!important;align-items:center!important;padding-top:4px!important}
 #app #profile #me-avatar{margin-top:10px}
 
 /* leftover light surfaces */

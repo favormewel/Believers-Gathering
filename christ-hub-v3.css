@@ -48,3 +48,15 @@
 #app .hx-post .cmform{display:flex;gap:8px;margin-top:8px}
 #app .hx-post .cmform input{flex:1;min-width:0;min-height:42px;padding:0 12px;font:15px Inter,sans-serif}
 #app .hx-post .cmform button{min-height:42px;padding:0 16px;border:0;border-radius:21px;background:linear-gradient(110deg,#7657D6,#9277F5);color:#fff;font:700 13px Inter,sans-serif}
+
+/* updates tab */
+#app .hx-umode{display:flex;gap:6px;padding:4px;border-radius:22px;background:rgba(255,255,255,.06);border:1px solid var(--hx-line);margin:2px 0 12px}
+#app .hx-umode button{flex:1;min-height:40px;border:0;border-radius:18px;background:none;color:var(--hx-muted);font:700 13.5px Inter,sans-serif}
+#app .hx-umode button.on{background:linear-gradient(110deg,#7657D6,#9277F5);color:#fff}
+#app .hx-ustats{display:flex;gap:18px;margin:0 2px 12px;font-size:13px;color:var(--hx-muted)}
+#app .hx-ustats b{color:var(--hx-text);font-size:15px}
+#app .hx-chips{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+#app .hx-chips .chip{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:14px;background:rgba(255,255,255,.05);border:1px solid var(--hx-line)}
+#app .hx-chips .av{width:34px;height:34px;border-radius:17px;color:#fff;display:flex;align-items:center;justify-content:center;font:800 12px Inter,sans-serif;flex:none}
+#app .hx-chips b{flex:1;min-width:0;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#app .hx-chips .fol{margin-left:auto;min-height:32px;padding:0 14px;border:1px solid var(--hx-purple2);border-radius:16px;background:rgba(146,119,245,.2);color:#fff;font:700 12px Inter,sans-serif}
