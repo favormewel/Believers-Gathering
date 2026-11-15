@@ -29,6 +29,7 @@ function build(){
    '<label class="hx-f"><span>Details (optional)</span><textarea id="ne-desc" maxlength="600" rows="4" placeholder="What should people know?"></textarea></label>'+
    '<div id="ne-msg" class="hx-msg" role="alert"></div><button class="hx-cta" id="ne-btn" type="button">Publish Event</button>');
   sec("newpost","Share an Update","home",
+   '<div class="hx-f"><span>Choose a template (optional)</span><div class="hx-tpls" id="np-tpls">'+tplChips("")+'</div></div>'+
    '<label class="hx-f"><span>What is on your heart?</span><textarea id="np-text" maxlength="500" rows="6" placeholder="Share a testimony, a verse, or encouragement..."></textarea></label>'+
    '<div class="hx-count"><span id="np-n">0</span>/500</div><div id="np-msg" class="hx-msg" role="alert"></div><button class="hx-cta" id="np-btn" type="button">Post</button>');
   sec("myposts","My Posts","profile",'<div id="hx-myposts"></div>');
@@ -51,9 +52,8 @@ function buildUpdates(){
   if($("updates"))return;
   var s=document.createElement("section");s.id="updates";s.hidden=true;
   s.innerHTML='<div class="hx-screen"><header class="hx-top"><h1>Updates</h1><button class="hx-icon" aria-label="Share an update" data-go="newpost"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button></header>'+
-   '<div class="hx-tabs"><button data-go="groups">My Groups</button><button class="on" data-go="updates">Updates</button><button data-go="nearby">Nearby</button></div>'+
-   '<div class="hx-scroll" data-scroll style="padding-top:0"><div class="hx-umode" role="tablist"><button class="on" data-umode="all" role="tab">Everyone</button><button data-umode="following" role="tab">Following</button></div><div class="hx-ustats" id="hx-ustats"></div><div id="hx-ppl"></div><div id="hx-updates-feed"></div></div></div>';
-  var nv=document.querySelector("#groups nav.hx-nav");if(nv)s.firstChild.appendChild(nv.cloneNode(true));
+   '<div class="hx-scroll" data-scroll style="padding-top:0"><div class="hx-sec" style="margin:4px 0 8px"><h2 style="font-size:15px">Share something</h2></div><div class="hx-tpls scroll">'+tplChips("")+'</div><div class="hx-umode" role="tablist"><button class="on" data-umode="all" role="tab">Everyone</button><button data-umode="following" role="tab">Following</button></div><div class="hx-ustats" id="hx-ustats"></div><div id="hx-ppl"></div><div id="hx-updates-feed"></div></div></div>';
+  var nv=document.querySelector("#groups nav.hx-nav");if(nv){var cn=nv.cloneNode(true);cn.querySelectorAll("button").forEach(function(b){var on=b.dataset.tab==="updates";b.classList.toggle("on",on);if(on)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current")});s.firstChild.appendChild(cn)}
   $("app").appendChild(s)}
 function loadUpdates(){
   var box=$("hx-updates-feed"),ppl=$("hx-ppl"),st=$("hx-ustats");if(!box)return;
@@ -68,14 +68,20 @@ function loadUpdates(){
       if(UM==="following"&&!ids.length){ppl.innerHTML="";box.innerHTML=note("You are not following anyone yet. Tap Follow on a post under Everyone and their updates will show here.");return}
       var q=db().from("posts").select("*").order("created_at",{ascending:false}).limit(40);
       if(UM==="following")q=q.in("user_id",ids);
+      var aq=db().from("activities").select("*").order("created_at",{ascending:false}).limit(25);
+      if(UM==="following")aq=aq.in("user_id",ids);
       q.then(function(r){
         if(r.error){box.innerHTML=note("Updates are not set up yet. Run the posts SQL in Supabase first.");return}
+        aq.then(function(ar){
         var rows=(r.data||[]).filter(function(p){return !blocked(p.user_id)});
+        var acts=(ar&&!ar.error?ar.data||[]:[]).filter(function(a){return !blocked(a.user_id)});
         if(UM==="following"){
-          var names={};rows.forEach(function(p){if(!names[p.user_id])names[p.user_id]=p.author_name});
+          var names={};rows.forEach(function(p){if(!names[p.user_id])names[p.user_id]=p.author_name});acts.forEach(function(a){if(!names[a.user_id])names[a.user_id]=a.actor_name});
           ppl.innerHTML='<div class="hx-sec" style="margin:6px 0 8px"><h2 style="font-size:15px">People you follow</h2></div><div class="hx-chips">'+ids.map(function(i){var n=names[i]||"Member";return '<div class="chip"><span class="av" style="background:'+col(i)+'">'+esc(ini(n))+'</span><b>'+esc(n)+'</b><button type="button" class="fol on" data-follow="'+esc(i)+'">Following</button></div>'}).join("")+'</div>'
         }else ppl.innerHTML="";
-        enrich(rows,function(){box.innerHTML=rows.length?rows.map(function(p){return postHTML(p,uid)}).join(""):note(UM==="following"?"The people you follow have not posted yet.":"No updates yet. Be the first to share one.")})})})})}
+        var items=rows.map(function(p){return{k:"p",d:p,t:p.created_at}}).concat(acts.map(function(a){return{k:"a",d:a,t:a.created_at}}));
+        items.sort(function(x,y){return new Date(y.t)-new Date(x.t)});items=items.slice(0,45);
+        enrich(rows,function(){box.innerHTML=items.length?items.map(function(it){return it.k==="p"?postHTML(it.d,uid):actHTML(it.d)}).join(""):note(UM==="following"?"The people you follow have not posted yet.":"No updates yet. Be the first to share one.")})})})})})}
 
 /* ---------- EVENTS ---------- */
 function loadEvents(){
@@ -95,7 +101,8 @@ function loadEvents(){
 function toggleRsvp(btn){
   var id=btn.dataset.rsvp,on=btn.classList.contains("on"),uid=me()&&me().id;if(!uid||btn.dataset.busy)return;btn.dataset.busy=1;
   var q=on?db().from("event_rsvps").delete().eq("event_id",id).eq("user_id",uid):db().from("event_rsvps").insert({event_id:id,user_id:uid});
-  q.then(function(r){delete btn.dataset.busy;if(r.error){alert("Could not update. Please try again.");return}loadEvents()})
+  q.then(function(r){delete btn.dataset.busy;if(r.error){alert("Could not update. Please try again.");return}
+    if(!on){var h=btn.closest(".hx-ev"),t=h&&h.querySelector("h3");logAct("rsvp","is going to "+(t?t.textContent:"an event"),id)}loadEvents()})
 }
 function createEvent(){
   var m=$("ne-msg"),t=$("ne-title").value.trim(),w=$("ne-when").value;m.textContent="";
@@ -106,19 +113,35 @@ function createEvent(){
   db().from("events").insert({title:t,description:$("ne-desc").value.trim()||null,location:$("ne-where").value.trim()||null,starts_at:new Date(w).toISOString(),creator_name:myName()}).then(function(r){
     btn.disabled=false;if(r.error){m.textContent="Could not publish the event. Please try again.";return}
     ["ne-title","ne-when","ne-where","ne-desc"].forEach(function(i){$(i).value=""});
+    logAct("event","created an event: "+t);
     window.show("explore");var tab=document.querySelector('[data-extab="events"]');if(tab)tab.click();loadEvents()})
 }
 
 /* ---------- POSTS + FOLLOWS ---------- */
 var following={};
 function blocked(id){return window.FLC_BLOCKED&&window.FLC_BLOCKED[id]}
+var TPL=[
+ {k:"prayer",l:"Prayer request",t:"Please pray for "},
+ {k:"testimony",l:"Testimony",t:"God did something wonderful: "},
+ {k:"verse",l:"Verse of the day",t:"Today\u2019s verse:\n\u2014 "},
+ {k:"encourage",l:"Encouragement",t:"Be encouraged! "},
+ {k:"thanks",l:"Gratitude",t:"I thank God for "},
+ {k:"question",l:"Question",t:"I would love your thoughts: "}];
+var KIND="",KL={};TPL.forEach(function(x){KL[x.k]=x.l});
+function tplChips(sel){return TPL.map(function(x){return '<button type="button" class="tp k-'+x.k+(sel===x.k?" on":"")+'" data-tpl="'+x.k+'">'+esc(x.l)+'</button>'}).join("")}
+function logAct(type,text,ref){
+  if(!db()||!me())return;
+  db().from("activities").insert({type:type,text:String(text).slice(0,160),actor_name:myName(),ref_id:ref||null}).then(function(){},function(){})}
+var AICON={follow:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/>',rsvp:'<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18M9 15l2 2 4-4"/>',event:'<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/>'};
+function actHTML(a){
+  return '<article class="hx-act"><span class="ai"><svg viewBox="0 0 24 24" aria-hidden="true">'+(AICON[a.type]||AICON.event)+'</svg></span><p><b>'+esc(a.actor_name||"Member")+'</b> '+esc(a.text)+'</p><small>'+esc(ago(a.created_at))+'</small></article>'}
 var S={like:{},mine:{},cm:{},off:false};
 var HEART='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-8-5.2-8-11a4.6 4.6 0 0 1 8-3 4.6 4.6 0 0 1 8 3c0 5.8-8 11-8 11z"/></svg>';
 var BUBBLE='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>';
 function actions(p){
   if(S.off)return "";
   var on=S.mine[p.id],l=S.like[p.id]||0,c=S.cm[p.id]||0;
-  return '<div class="pf"><button type="button" class="lk'+(on?" on":"")+'" data-like="'+esc(p.id)+'" aria-pressed="'+(on?"true":"false")+'" aria-label="Like">'+HEART+'<span>'+l+'</span></button><button type="button" class="cmb" data-cm="'+esc(p.id)+'" data-owner="'+esc(p.user_id)+'" aria-label="Comments">'+BUBBLE+'<span>'+c+'</span></button></div><div class="cmbox" id="cm-'+esc(p.id)+'" hidden></div>'}
+  return '<div class="pf"><button type="button" class="lk'+(on?" on":"")+'" data-like="'+esc(p.id)+'" aria-pressed="'+(on?"true":"false")+'" aria-label="Like">'+HEART+'<span>'+l+'</span>'+(p.kind==="prayer"?'<em>Praying</em>':"")+'</button><button type="button" class="cmb" data-cm="'+esc(p.id)+'" data-owner="'+esc(p.user_id)+'" aria-label="Comments">'+BUBBLE+'<span>'+c+'</span></button></div><div class="cmbox" id="cm-'+esc(p.id)+'" hidden></div>'}
 function enrich(rows,done){
   var ids=rows.map(function(p){return p.id});S.like={};S.mine={};S.cm={};S.off=false;
   if(!ids.length||!db()||!me())return done();
@@ -153,7 +176,7 @@ function postHTML(p,uid,opts){
   var mine=p.user_id===uid;
   return '<article class="hx-post"><span class="av" style="background:'+col(p.user_id)+'">'+esc(ini(p.author_name))+'</span><div class="tx"><div class="hd"><b>'+esc(p.author_name||"Member")+'</b><small>'+esc(ago(p.created_at))+'</small>'+
    (mine?(opts&&opts.del?'<button type="button" class="fol" data-postdel="'+esc(p.id)+'">Delete</button>':""):'<button type="button" class="fol'+(following[p.user_id]?" on":"")+'" data-follow="'+esc(p.user_id)+'">'+(following[p.user_id]?"Following":"Follow")+'</button>')+
-   '</div><p>'+esc(p.body)+'</p>'+actions(p)+'</div></article>'}
+   '</div>'+(p.kind&&KL[p.kind]?'<span class="kd k-'+esc(p.kind)+'">'+esc(KL[p.kind])+'</span>':"")+'<p>'+esc(p.body)+'</p>'+actions(p)+'</div></article>'}
 function loadFeed(){
   var box=$("hx-feed");if(!box)return;
   if(!db()||!me()){box.innerHTML=note("Sign in to see updates from the community.");return}
@@ -186,7 +209,7 @@ function toggleFollow(btn){
   var id=btn.dataset.follow,uid=me()&&me().id;if(!uid||btn.dataset.busy)return;btn.dataset.busy=1;
   var on=!!following[id];
   var q=on?db().from("follows").delete().eq("follower_id",uid).eq("following_id",id):db().from("follows").insert({follower_id:uid,following_id:id});
-  q.then(function(r){delete btn.dataset.busy;if(r.error)return;if(on)delete following[id];else following[id]=1;
+  q.then(function(r){delete btn.dataset.busy;if(r.error)return;if(on)delete following[id];else{following[id]=1;var nb=btn.closest(".chip")||btn.closest(".hx-post"),nm=nb&&nb.querySelector("b");logAct("follow","started following "+(nm?nm.textContent:"someone"),id)}
     document.querySelectorAll('[data-follow="'+id+'"]').forEach(function(b){b.classList.toggle("on",!on);b.textContent=on?"Follow":"Following"})})
 }
 function createPost(){
@@ -194,9 +217,12 @@ function createPost(){
   if(!db()||!me()){m.textContent="Please sign in to post.";return}
   if(!t){m.textContent="Write something first.";return}
   var btn=$("np-btn");btn.disabled=true;
-  db().from("posts").insert({body:t.slice(0,500),author_name:myName()}).then(function(r){
-    btn.disabled=false;if(r.error){m.textContent="Could not post. Please try again.";return}
-    $("np-text").value="";$("np-n").textContent="0";window.show("home");loadFeed()})
+  var row={body:t.slice(0,500),author_name:myName()};if(KIND)row.kind=KIND;
+  function done(r){btn.disabled=false;if(r.error){m.textContent="Could not post. Please try again.";return}
+    $("np-text").value="";$("np-n").textContent="0";KIND="";$("np-tpls").innerHTML=tplChips("");window.show("updates");loadUpdates()}
+  db().from("posts").insert(row).then(function(r){
+    if(r.error&&row.kind){delete row.kind;return db().from("posts").insert(row).then(done)}
+    done(r)})
 }
 
 /* ---------- wiring ---------- */
@@ -204,8 +230,15 @@ document.addEventListener("click",function(e){
   var T=e.target,b;
   if((b=T.closest("[data-rsvp]")))return toggleRsvp(b);
   if((b=T.closest("[data-evdel]"))){if(confirm("Delete this event?"))db().from("events").delete().eq("id",b.dataset.evdel).then(loadEvents);return}
+  if((b=T.closest("[data-tpl]"))){
+    var k=b.dataset.tpl,tx=TPL.filter(function(x){return x.k===k})[0],inComposer=!!b.closest("#newpost");
+    if(inComposer&&KIND===k){KIND="";$("np-tpls").innerHTML=tplChips("");return}
+    var ta=$("np-text"),cur=ta?ta.value.trim():"",isTpl=!cur||TPL.some(function(x){return x.t.trim()===cur});
+    KIND=k;if(!inComposer)window.show("newpost");
+    ta=$("np-text");if(isTpl){ta.value=tx.t;$("np-n").textContent=ta.value.length}
+    $("np-tpls").innerHTML=tplChips(k);ta.focus();try{ta.setSelectionRange(ta.value.length,ta.value.length)}catch(e){}return}
   if((b=T.closest("[data-umode]"))){UM=b.dataset.umode;return loadUpdates()}
-  if((b=T.closest("[data-follow]"))){toggleFollow(b);if(visible("updates"))setTimeout(loadUpdates,400);return}
+  if((b=T.closest("[data-follow]"))){toggleFollow(b);if(visible("updates"))setTimeout(loadUpdates,600);return}
   if((b=T.closest("[data-like]")))return toggleLike(b);
   if((b=T.closest("[data-cm]"))){var bx=$("cm-"+b.dataset.cm);if(bx){bx.hidden=!bx.hidden;if(!bx.hidden)loadComments(b.dataset.cm,b.dataset.owner)}return}
   if((b=T.closest("[data-cmsend]")))return sendComment(b);

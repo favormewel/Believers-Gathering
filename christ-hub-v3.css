@@ -60,3 +60,22 @@
 #app .hx-chips .av{width:34px;height:34px;border-radius:17px;color:#fff;display:flex;align-items:center;justify-content:center;font:800 12px Inter,sans-serif;flex:none}
 #app .hx-chips b{flex:1;min-width:0;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #app .hx-chips .fol{margin-left:auto;min-height:32px;padding:0 14px;border:1px solid var(--hx-purple2);border-radius:16px;background:rgba(146,119,245,.2);color:#fff;font:700 12px Inter,sans-serif}
+
+/* templates, badges, activities */
+#app .hx-tpls{display:flex;flex-wrap:wrap;gap:8px}
+#app .hx-tpls.scroll{flex-wrap:nowrap;overflow-x:auto;padding-bottom:10px;margin-bottom:6px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+#app .hx-tpls.scroll::-webkit-scrollbar{display:none}
+#app .tp{flex:none;min-height:40px;padding:0 14px;border-radius:20px;border:1px solid var(--hx-line);background:rgba(255,255,255,.05);color:var(--hx-text);font:700 12.5px Inter,sans-serif}
+#app .tp.on{background:linear-gradient(110deg,#7657D6,#9277F5);border-color:transparent;color:#fff}
+#app .kd{display:inline-block;margin-top:6px;padding:3px 10px;border-radius:12px;font:800 11px Inter,sans-serif;letter-spacing:.2px;background:rgba(146,119,245,.22);color:#C9BBFF}
+#app .kd.k-testimony{background:rgba(255,200,61,.18);color:#FFD35C}
+#app .kd.k-verse{background:rgba(47,191,113,.18);color:#5BE59B}
+#app .kd.k-encourage{background:rgba(59,123,240,.2);color:#8DB6FF}
+#app .kd.k-thanks{background:rgba(242,138,31,.2);color:#FFB466}
+#app .kd.k-question{background:rgba(240,71,107,.18);color:#FF9DB3}
+#app .hx-post .pf .lk em{font:700 12px Inter,sans-serif;font-style:normal}
+#app .hx-act{display:flex;align-items:center;gap:10px;padding:10px 12px;margin-bottom:10px;border-radius:14px;background:rgba(255,255,255,.04);border:1px dashed var(--hx-line)}
+#app .hx-act .ai{width:34px;height:34px;border-radius:17px;background:rgba(146,119,245,.2);color:var(--hx-purple2);display:flex;align-items:center;justify-content:center;flex:none}
+#app .hx-act .ai svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#app .hx-act p{flex:1;min-width:0;margin:0;font-size:13px;line-height:1.4}
+#app .hx-act small{font-size:11px;color:var(--hx-muted);flex:none}
