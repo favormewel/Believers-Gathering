@@ -31,3 +31,20 @@
 #app .hx-post p{margin:5px 0 0;font-size:14px;line-height:1.5;word-wrap:break-word;white-space:pre-wrap}
 #app .hx-post .fol{margin-left:auto;min-height:32px;padding:0 14px;border:1px solid var(--hx-purple2);border-radius:16px;background:none;color:var(--hx-purple2);font:700 12px Inter,sans-serif;flex:none}
 #app .hx-post .fol.on{background:rgba(146,119,245,.2);color:#fff}
+
+/* likes + comments */
+#app .hx-post .pf{display:flex;gap:6px;margin:8px 0 0 -8px}
+#app .hx-post .pf button{display:inline-flex;align-items:center;gap:6px;min-height:40px;min-width:48px;padding:0 10px;border:0;border-radius:20px;background:none;color:var(--hx-muted);font:700 13px Inter,sans-serif}
+#app .hx-post .pf svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+#app .hx-post .pf .lk.on{color:var(--hx-red)}
+#app .hx-post .pf .lk.on svg{fill:var(--hx-red)}
+#app .hx-post .cmbox{margin-top:4px;padding-top:8px;border-top:1px solid var(--hx-line)}
+#app .hx-post .cmrow{padding:6px 0;font-size:13px}
+#app .hx-post .cmrow b{font-size:13px}
+#app .hx-post .cmrow small{font-size:11px;color:var(--hx-muted);margin-left:4px}
+#app .hx-post .cmrow p{margin:2px 0 0;font-size:13.5px}
+#app .hx-post .cmrow.note{color:var(--hx-muted)}
+#app .hx-post .cmdel{float:right;border:0;background:none;color:#FF8FA6;font:700 11.5px Inter,sans-serif;min-height:32px}
+#app .hx-post .cmform{display:flex;gap:8px;margin-top:8px}
+#app .hx-post .cmform input{flex:1;min-width:0;min-height:42px;padding:0 12px;font:15px Inter,sans-serif}
+#app .hx-post .cmform button{min-height:42px;padding:0 16px;border:0;border-radius:21px;background:linear-gradient(110deg,#7657D6,#9277F5);color:#fff;font:700 13px Inter,sans-serif}

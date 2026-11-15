@@ -79,11 +79,48 @@ function createEvent(){
 /* ---------- POSTS + FOLLOWS ---------- */
 var following={};
 function blocked(id){return window.FLC_BLOCKED&&window.FLC_BLOCKED[id]}
+var S={like:{},mine:{},cm:{},off:false};
+var HEART='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-8-5.2-8-11a4.6 4.6 0 0 1 8-3 4.6 4.6 0 0 1 8 3c0 5.8-8 11-8 11z"/></svg>';
+var BUBBLE='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>';
+function actions(p){
+  if(S.off)return "";
+  var on=S.mine[p.id],l=S.like[p.id]||0,c=S.cm[p.id]||0;
+  return '<div class="pf"><button type="button" class="lk'+(on?" on":"")+'" data-like="'+esc(p.id)+'" aria-pressed="'+(on?"true":"false")+'" aria-label="Like">'+HEART+'<span>'+l+'</span></button><button type="button" class="cmb" data-cm="'+esc(p.id)+'" data-owner="'+esc(p.user_id)+'" aria-label="Comments">'+BUBBLE+'<span>'+c+'</span></button></div><div class="cmbox" id="cm-'+esc(p.id)+'" hidden></div>'}
+function enrich(rows,done){
+  var ids=rows.map(function(p){return p.id});S.like={};S.mine={};S.cm={};S.off=false;
+  if(!ids.length||!db()||!me())return done();
+  var uid=me().id;
+  db().from("post_likes").select("post_id,user_id").in("post_id",ids).then(function(l){
+    if(l.error){S.off=true;return done()}
+    (l.data||[]).forEach(function(x){S.like[x.post_id]=(S.like[x.post_id]||0)+1;if(x.user_id===uid)S.mine[x.post_id]=1});
+    db().from("post_comments").select("post_id,user_id").in("post_id",ids).then(function(c){
+      if(c.error){S.off=true;return done()}
+      (c.data||[]).forEach(function(x){if(!blocked(x.user_id))S.cm[x.post_id]=(S.cm[x.post_id]||0)+1});done()})})}
+function toggleLike(btn){
+  var id=btn.dataset.like,uid=me()&&me().id;if(!uid||btn.dataset.busy)return;btn.dataset.busy=1;
+  var on=btn.classList.contains("on"),n=(S.like[id]||0)+(on?-1:1);
+  btn.classList.toggle("on",!on);btn.setAttribute("aria-pressed",on?"false":"true");btn.querySelector("span").textContent=n;S.like[id]=n;S.mine[id]=on?0:1;
+  var q=on?db().from("post_likes").delete().eq("post_id",id).eq("user_id",uid):db().from("post_likes").insert({post_id:id,user_id:uid});
+  q.then(function(r){delete btn.dataset.busy;if(r.error){btn.classList.toggle("on",on);S.like[id]=n+(on?1:-1);btn.querySelector("span").textContent=S.like[id];S.mine[id]=on?1:0}})}
+function loadComments(id,owner){
+  var box=$("cm-"+id);if(!box)return;
+  box.innerHTML='<div class="cmrow note">Loading...</div>';
+  db().from("post_comments").select("*").eq("post_id",id).order("created_at",{ascending:true}).limit(50).then(function(r){
+    var uid=me().id,rows=(r.data||[]).filter(function(c){return !blocked(c.user_id)});
+    box.innerHTML=(r.error?'<div class="cmrow note">Comments could not load.</div>':rows.length?rows.map(function(c){
+      return '<div class="cmrow"><b>'+esc(c.author_name||"Member")+'</b> <small>'+esc(ago(c.created_at))+'</small>'+((c.user_id===uid||owner===uid)?'<button type="button" class="cmdel" data-cmdel="'+esc(c.id)+'" data-post="'+esc(id)+'" data-owner="'+esc(owner)+'">Delete</button>':'')+'<p>'+esc(c.body)+'</p></div>'}).join(""):'<div class="cmrow note">No comments yet.</div>')+
+      '<div class="cmform"><input maxlength="300" placeholder="Write a comment..." aria-label="Write a comment"><button type="button" data-cmsend="'+esc(id)+'" data-owner="'+esc(owner)+'">Send</button></div>'})}
+function sendComment(btn){
+  var id=btn.dataset.cmsend,inp=btn.parentNode.querySelector("input"),t=inp.value.trim();
+  if(!t||btn.disabled)return;btn.disabled=true;
+  db().from("post_comments").insert({post_id:id,body:t.slice(0,300),author_name:myName()}).then(function(r){
+    btn.disabled=false;if(r.error){alert("Could not post your comment. Please try again.");return}
+    S.cm[id]=(S.cm[id]||0)+1;var c=document.querySelector('[data-cm="'+id+'"] span');if(c)c.textContent=S.cm[id];loadComments(id,btn.dataset.owner)})}
 function postHTML(p,uid,opts){
   var mine=p.user_id===uid;
   return '<article class="hx-post"><span class="av" style="background:'+col(p.user_id)+'">'+esc(ini(p.author_name))+'</span><div class="tx"><div class="hd"><b>'+esc(p.author_name||"Member")+'</b><small>'+esc(ago(p.created_at))+'</small>'+
    (mine?(opts&&opts.del?'<button type="button" class="fol" data-postdel="'+esc(p.id)+'">Delete</button>':""):'<button type="button" class="fol'+(following[p.user_id]?" on":"")+'" data-follow="'+esc(p.user_id)+'">'+(following[p.user_id]?"Following":"Follow")+'</button>')+
-   '</div><p>'+esc(p.body)+'</p></div></article>'}
+   '</div><p>'+esc(p.body)+'</p>'+actions(p)+'</div></article>'}
 function loadFeed(){
   var box=$("hx-feed");if(!box)return;
   if(!db()||!me()){box.innerHTML=note("Sign in to see updates from the community.");return}
@@ -93,14 +130,14 @@ function loadFeed(){
     db().from("posts").select("*").order("created_at",{ascending:false}).limit(15).then(function(r){
       if(r.error){box.innerHTML=note("Community updates are not set up yet. Run the posts SQL in Supabase first.");return}
       var rows=(r.data||[]).filter(function(p){return !blocked(p.user_id)});
-      box.innerHTML=rows.length?rows.map(function(p){return postHTML(p,uid)}).join(""):note("No updates yet. Be the first to share one.")})})
+      enrich(rows,function(){box.innerHTML=rows.length?rows.map(function(p){return postHTML(p,uid)}).join(""):note("No updates yet. Be the first to share one.")})})})
 }
 function loadMyPosts(){
   var box=$("hx-myposts");if(!box)return;
   if(!db()||!me()){box.innerHTML=note(NEED);return}
   db().from("posts").select("*").eq("user_id",me().id).order("created_at",{ascending:false}).limit(50).then(function(r){
     if(r.error){box.innerHTML=note("Posts are not set up yet.");return}
-    box.innerHTML=(r.data||[]).length?r.data.map(function(p){return postHTML(p,me().id,{del:true})}).join(""):note("You have not posted yet. Share an update from Home.")})
+    var rows=r.data||[];enrich(rows,function(){box.innerHTML=rows.length?rows.map(function(p){return postHTML(p,me().id,{del:true})}).join(""):note("You have not posted yet. Share an update from Home.")})})
 }
 function setStat(label,val){
   document.querySelectorAll("#profile div").forEach(function(d){
@@ -135,11 +172,16 @@ document.addEventListener("click",function(e){
   if((b=T.closest("[data-rsvp]")))return toggleRsvp(b);
   if((b=T.closest("[data-evdel]"))){if(confirm("Delete this event?"))db().from("events").delete().eq("id",b.dataset.evdel).then(loadEvents);return}
   if((b=T.closest("[data-follow]")))return toggleFollow(b);
+  if((b=T.closest("[data-like]")))return toggleLike(b);
+  if((b=T.closest("[data-cm]"))){var bx=$("cm-"+b.dataset.cm);if(bx){bx.hidden=!bx.hidden;if(!bx.hidden)loadComments(b.dataset.cm,b.dataset.owner)}return}
+  if((b=T.closest("[data-cmsend]")))return sendComment(b);
+  if((b=T.closest("[data-cmdel]"))){if(confirm("Delete this comment?"))db().from("post_comments").delete().eq("id",b.dataset.cmdel).then(function(){var id=b.dataset.post,c=document.querySelector('[data-cm="'+id+'"] span');if(c)c.textContent=Math.max(0,(S.cm[id]||1)-1),S.cm[id]=Math.max(0,(S.cm[id]||1)-1);loadComments(id,b.dataset.owner)});return}
   if((b=T.closest("[data-postdel]"))){if(confirm("Delete this post?"))db().from("posts").delete().eq("id",b.dataset.postdel).then(function(){loadMyPosts();loadStats()});return}
   if(T.closest("#ne-btn"))return createEvent();
   if(T.closest("#np-btn"))return createPost();
   if(T.closest('[data-extab="events"]'))setTimeout(loadEvents,30)
 });
+document.addEventListener("keydown",function(e){if(e.key==="Enter"&&e.target.closest&&e.target.closest(".cmform")){var sb=e.target.parentNode.querySelector("[data-cmsend]");if(sb)sb.click()}});
 document.addEventListener("input",function(e){if(e.target.id==="np-text")$("np-n").textContent=e.target.value.length});
 
 var t=null;function soon(){clearTimeout(t);t=setTimeout(function(){
@@ -148,7 +190,7 @@ var t=null;function soon(){clearTimeout(t);t=setTimeout(function(){
   if(visible("myposts"))loadMyPosts();
   if(visible("explore")&&!$("hx-ex-events").hidden)loadEvents()},120)}
 function init(){build();
-  if(window.MutationObserver)new MutationObserver(soon).observe($("app"),{attributes:true,attributeFilter:["hidden"],subtree:true});
+  if(window.MutationObserver)new MutationObserver(function(ms){if(ms.some(function(m){return m.target.tagName==="SECTION"}))soon()}).observe($("app"),{attributes:true,attributeFilter:["hidden"],subtree:true});
   soon()}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
 })();
