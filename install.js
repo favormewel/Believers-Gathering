@@ -8,9 +8,9 @@ var standalone=(window.matchMedia&&matchMedia("(display-mode: standalone)").matc
 var ios=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
 var deferred=null,banner=null,sheet=null;
 var base=location.href.split("#")[0].split("?")[0].replace(/[^\/]*$/,"");
-var IV="?v=20",ico=base+"icons/apple-touch-icon.png"+IV;
+var IV="?v=21",ico=base+"apple-touch-icon.png"+IV;
 function dyn(){
-  var man={id:base,name:"Chen Network",short_name:"Chen Network",description:"A Christian community app to connect, pray, and grow together.",start_url:base,scope:base,display:"standalone",orientation:"portrait",background_color:"#0B1026",theme_color:"#0B1026",icons:[{src:base+"icons/icon-192.png"+IV,sizes:"192x192",type:"image/png",purpose:"any"},{src:base+"icons/icon-512.png"+IV,sizes:"512x512",type:"image/png",purpose:"any"},{src:base+"icons/icon-maskable-512.png"+IV,sizes:"512x512",type:"image/png",purpose:"maskable"}]};
+  var man={id:base,name:"Chen Network",short_name:"Chen Network",description:"A Christian community app to connect, pray, and grow together.",start_url:base,scope:base,display:"standalone",orientation:"portrait",background_color:"#0B1026",theme_color:"#0B1026",icons:[{src:base+"icon-192.png"+IV,sizes:"192x192",type:"image/png",purpose:"any"},{src:base+"icon-512.png"+IV,sizes:"512x512",type:"image/png",purpose:"any"},{src:base+"icon-maskable-512.png"+IV,sizes:"512x512",type:"image/png",purpose:"maskable"}]};
   tag("link",{rel:"manifest",href:URL.createObjectURL(new Blob([JSON.stringify(man)],{type:"application/manifest+json"}))})}
 var ml=document.querySelector('link[rel="manifest"]');
 if(!ml)dyn();else fetch(ml.href,{cache:"no-store"}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){return fetch(new URL(j.icons[0].src,ml.href).href,{cache:"no-store"}).then(function(r){if(!r.ok)throw 0})}).catch(function(){ml.remove();dyn()});
