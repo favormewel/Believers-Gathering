@@ -19,7 +19,7 @@ body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,
  background:radial-gradient(ellipse at 88% 0%,rgba(118,87,214,.23),transparent 36%),linear-gradient(160deg,#0D1430 0%,#111632 54%,#171638 100%)!important;
  color:var(--ch-text)!important;
 }
-#app section header{background:rgba(10,15,38,.74)!important;border-bottom:1px solid var(--ch-line)!important;backdrop-filter:blur(16px)}
+#app section header{background:rgba(10,15,38,.74)!important;border-bottom:1px solid var(--ch-line)!important}
 #app h1,#app h2,#app h3,#app b,#app strong{color:var(--ch-text)!important}
 #app p{color:#D5D2E8!important}
 #app [style*="color:#222"],#app [style*="color: #222"],

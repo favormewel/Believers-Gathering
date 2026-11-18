@@ -14,7 +14,7 @@ function note(msg){return '<div class="hx-empty">'+esc(msg)+'</div>'}
 var NEED="Sign in to see this. Guests can browse groups and the Bible.";
 function safeUrl(u){var b=((window.FAITHLINK_CONFIG||{}).SUPABASE_URL||"").replace(/\/$/,"")+"/storage/v1/object/public/";return(typeof u==="string"&&b.length>40&&u.indexOf(b)===0)?u:""}
 var AV={},mineDone="";
-function avInner(uid,name){var u=safeUrl(AV[uid]);return u?'<img src="'+esc(u)+'" alt="">':esc(ini(name))}
+function avInner(uid,name){var u=safeUrl(AV[uid]);return u?'<img src="'+esc(u)+'" alt="" decoding="async">':esc(ini(name))}
 function loadAvatars(ids,cb){
   ids=ids.filter(function(i,k){return i&&ids.indexOf(i)===k&&AV[i]===undefined});
   if(!ids.length||!db())return cb();
@@ -38,6 +38,11 @@ function shrink(file,max,square,cb){
     var c=document.createElement("canvas");c.width=cw;c.height=ch;var x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,cw,ch);x.drawImage(img,sx,sy,sw,sh,0,0,cw,ch);
     URL.revokeObjectURL(url);c.toBlob(function(b){cb(b)},"image/jpeg",.82)};
   img.onerror=function(){URL.revokeObjectURL(url);cb(null)};img.src=url}
+var STAMP={};function fresh(k,ms){return Date.now()-(STAMP[k]||0)<ms}
+function snapKey(n){var u=me();return u?"fl-snap-"+n+"-"+u.id:""}
+function snapGet(n){try{var k=snapKey(n);return k?(localStorage.getItem(k)||""):""}catch(e){return ""}}
+function snapSet(n,h){try{var k=snapKey(n);if(!k)return;if(h.length<60000)localStorage.setItem(k,h);else localStorage.removeItem(k)}catch(e){}}
+function skel(n){var s="";for(var i=0;i<(n||3);i++)s+='<div class="hx-skel"><i class="a"></i><div><i class="l1"></i><i class="l2"></i><i class="l3"></i></div></div>';return '<div role="status" aria-label="Loading updates">'+s+'</div>'}
 var PH=[],VID=null,MAXV=50*1048576;
 function renderVID(){
   var b=$("np-video");if(!b)return;
@@ -70,7 +75,7 @@ function uploadVid(cb){
     var vurl=db().storage.from("post-videos").getPublicUrl(path).data.publicUrl;
     if(!VID.poster)return cb(null,vurl,"");
     var pp=uid+"/"+Date.now()+"-poster.jpg";
-    db().storage.from("post-images").upload(pp,VID.poster,{contentType:"image/jpeg",upsert:false}).then(function(r){cb(null,vurl,r.error?"":db().storage.from("post-images").getPublicUrl(pp).data.publicUrl)},function(){cb(null,vurl,"")})})}
+    db().storage.from("post-images").upload(pp,VID.poster,{contentType:"image/jpeg",upsert:false,cacheControl:"31536000"}).then(function(r){cb(null,vurl,r.error?"":db().storage.from("post-images").getPublicUrl(pp).data.publicUrl)},function(){cb(null,vurl,"")})})}
 function vidHTML(p){
   var u=safeUrl(p.video_url);if(!u)return "";var po=safeUrl(p.video_poster);
   return '<div class="hx-vid"><video controls playsinline preload="'+(po?"none":"metadata")+'"'+(po?' poster="'+esc(po)+'"':"")+' src="'+esc(u)+(po?"":"#t=0.1")+'" aria-label="Video shared by '+esc(p.author_name||"a member")+'"></video></div>'}
@@ -83,7 +88,7 @@ function uploadPhotos(cb){
     if(i>=PH.length)return cb(null,urls);
     m.className="hx-msg ok";m.textContent="Uploading photo "+(i+1)+" of "+PH.length+"...";
     var path=uid+"/"+Date.now()+"-"+i+".jpg";
-    db().storage.from("post-images").upload(path,PH[i].blob,{contentType:"image/jpeg",upsert:false}).then(function(r){
+    db().storage.from("post-images").upload(path,PH[i].blob,{contentType:"image/jpeg",upsert:false,cacheControl:"31536000"}).then(function(r){
       if(r.error)return cb(r.error);
       urls.push(db().storage.from("post-images").getPublicUrl(path).data.publicUrl);i++;next()},function(e){cb(e||true)})})()}
 function lightbox(url){
@@ -144,32 +149,39 @@ function buildUpdates(){
 function loadUpdates(){
   var box=$("hx-updates-feed"),ppl=$("hx-ppl"),st=$("hx-ustats");if(!box)return;
   document.querySelectorAll("[data-umode]").forEach(function(b){var on=b.dataset.umode===UM;b.classList.toggle("on",on);b.setAttribute("aria-selected",on?"true":"false")});
-  if(!db()||!me()){box.innerHTML=note("Sign in to see updates from people.");ppl.innerHTML="";st.innerHTML="";return}
-  var uid=me().id;
-  db().from("follows").select("following_id").eq("follower_id",uid).then(function(f){
-    following={};(f.data||[]).forEach(function(x){following[x.following_id]=1});
+  if(!db()||!me()){if(db()&&!window.FL_KNOWN){if(!box.dataset.loaded)box.innerHTML=skel(3);return}box.innerHTML=note("Sign in to see updates from people.");ppl.innerHTML="";st.innerHTML="";return}
+  STAMP.upd=Date.now();
+  if(!box.dataset.loaded)box.innerHTML=snapGet("upd-"+UM)||skel(3);
+  var uid=me().id,mode=UM;
+  function postsQ(ids){var q=db().from("posts").select("*").order("created_at",{ascending:false}).limit(40);return ids?q.in("user_id",ids):q}
+  function actsQ(ids){var q=db().from("activities").select("*").order("created_at",{ascending:false}).limit(25);return ids?q.in("user_id",ids):q}
+  var first=[db().from("follows").select("following_id").eq("follower_id",uid),db().from("follows").select("follower_id",{count:"exact",head:true}).eq("following_id",uid)];
+  if(mode==="all"){first.push(postsQ(null));first.push(actsQ(null))}
+  Promise.all(first).then(function(a){
+    if(mode!==UM)return;
+    var f=a[0],fc=a[1];following={};(f.data||[]).forEach(function(x){following[x.following_id]=1});
     var ids=Object.keys(following);
-    db().from("follows").select("follower_id",{count:"exact",head:true}).eq("following_id",uid).then(function(fc){
-      st.innerHTML='<span><b>'+ids.length+'</b> Following</span><span><b>'+((fc&&fc.count)||0)+'</b> Followers</span>';
-      if(UM==="following"&&!ids.length){ppl.innerHTML="";box.innerHTML=note("You are not following anyone yet. Tap Follow on a post under Everyone and their updates will show here.");return}
-      var q=db().from("posts").select("*").order("created_at",{ascending:false}).limit(40);
-      if(UM==="following")q=q.in("user_id",ids);
-      var aq=db().from("activities").select("*").order("created_at",{ascending:false}).limit(25);
-      if(UM==="following")aq=aq.in("user_id",ids);
-      q.then(function(r){
-        if(r.error){box.innerHTML=note("Updates are not set up yet. Run the posts SQL in Supabase first.");return}
-        aq.then(function(ar){
-        var rows=(r.data||[]).filter(function(p){return !blocked(p.user_id)});
-        var acts=(ar&&!ar.error?ar.data||[]:[]).filter(function(a){return !blocked(a.user_id)});
-        var names={};
-        if(UM==="following"){rows.forEach(function(p){if(!names[p.user_id])names[p.user_id]=p.author_name});acts.forEach(function(a){if(!names[a.user_id])names[a.user_id]=a.actor_name})}
-        var items=rows.map(function(p){return{k:"p",d:p,t:p.created_at}}).concat(acts.map(function(a){return{k:"a",d:a,t:a.created_at}}));
-        items.sort(function(x,y){return new Date(y.t)-new Date(x.t)});items=items.slice(0,45);
-        var extra=(UM==="following"?ids:[]).concat(acts.map(function(a){return a.user_id}));
-        enrich(rows,function(){
-          ppl.innerHTML=UM==="following"?'<div class="hx-sec" style="margin:6px 0 8px"><h2 style="font-size:15px">People you follow</h2></div><div class="hx-chips">'+ids.map(function(i){var n=names[i]||"Member";return '<div class="chip"><span class="av" style="background:'+col(i)+'">'+avInner(i,n)+'</span><b>'+esc(n)+'</b><button type="button" class="fol on" data-follow="'+esc(i)+'">Following</button></div>'}).join("")+'</div>':"";
-          box.innerHTML=items.length?items.map(function(it){return it.k==="p"?postHTML(it.d,uid):actHTML(it.d)}).join(""):note(UM==="following"?"The people you follow have not posted yet.":"No updates yet. Be the first to share one.");
-          showFocus(uid)},extra)})})})})}
+    st.innerHTML='<span><b>'+ids.length+'</b> Following</span><span><b>'+((fc&&fc.count)||0)+'</b> Followers</span>';
+    if(mode==="following"){
+      if(!ids.length){ppl.innerHTML="";box.innerHTML=note("You are not following anyone yet. Tap Follow on a post under Everyone and their updates will show here.");box.dataset.loaded="1";return}
+      return Promise.all([postsQ(ids),actsQ(ids)]).then(function(b){if(mode===UM)render(b[0],b[1],ids)})}
+    render(a[2],a[3],ids)},function(){box.dataset.loaded="1"});
+  function render(r,ar,ids){
+    if(r.error){box.innerHTML=note("Updates are not set up yet. Run the posts SQL in Supabase first.");return}
+    var rows=(r.data||[]).filter(function(p){return !blocked(p.user_id)});
+    var acts=(ar&&!ar.error?ar.data||[]:[]).filter(function(a){return !blocked(a.user_id)});
+    var names={};
+    if(mode==="following"){rows.forEach(function(p){if(!names[p.user_id])names[p.user_id]=p.author_name});acts.forEach(function(a){if(!names[a.user_id])names[a.user_id]=a.actor_name})}
+    var items=rows.map(function(p){return{k:"p",d:p,t:p.created_at}}).concat(acts.map(function(a){return{k:"a",d:a,t:a.created_at}}));
+    items.sort(function(x,y){return new Date(y.t)-new Date(x.t)});items=items.slice(0,45);
+    var extra=(mode==="following"?ids:[]).concat(acts.map(function(a){return a.user_id}));
+    enrich(rows,function(){
+      if(mode!==UM)return;
+      ppl.innerHTML=mode==="following"?'<div class="hx-sec" style="margin:6px 0 8px"><h2 style="font-size:15px">People you follow</h2></div><div class="hx-chips">'+ids.map(function(i){var n=names[i]||"Member";return '<div class="chip"><span class="av" style="background:'+col(i)+'">'+avInner(i,n)+'</span><b>'+esc(n)+'</b><button type="button" class="fol on" data-follow="'+esc(i)+'">Following</button></div>'}).join("")+'</div>':"";
+      box.innerHTML=items.length?items.map(function(it){return it.k==="p"?postHTML(it.d,uid):actHTML(it.d)}).join(""):note(mode==="following"?"The people you follow have not posted yet.":"No updates yet. Be the first to share one.");
+      box.dataset.loaded="1";snapSet("upd-"+mode,box.innerHTML);
+      showFocus(uid)},extra)}
+}
 function showFocus(uid){
   if(!FOCUS)return;var id=FOCUS;
   db().from("posts").select("*").eq("id",id).then(function(r){
@@ -241,16 +253,20 @@ function actions(p){
   var on=S.mine[p.id],l=S.like[p.id]||0,c=S.cm[p.id]||0;
   return '<div class="pf"><button type="button" class="lk'+(on?" on":"")+'" data-like="'+esc(p.id)+'" aria-pressed="'+(on?"true":"false")+'" aria-label="Like">'+HEART+'<span>'+l+'</span>'+(p.kind==="prayer"?'<em>Praying</em>':"")+'</button><button type="button" class="cmb" data-cm="'+esc(p.id)+'" data-owner="'+esc(p.user_id)+'" aria-label="Comments">'+BUBBLE+'<span>'+c+'</span></button>'+sh+'</div><div class="cmbox" id="cm-'+esc(p.id)+'" hidden></div>'}
 function enrich(rows,done0,extra,keep){
-  var done=function(){loadAvatars(rows.map(function(p){return p.user_id}).concat(extra||[]),done0)};
   var ids=rows.map(function(p){return p.id});if(!keep){S.like={};S.mine={};S.cm={};S.off=false}
-  if(!ids.length||!db()||!me())return done();
+  var avP=new Promise(function(res){loadAvatars(rows.map(function(p){return p.user_id}).concat(extra||[]),res)});
+  if(!ids.length||!db()||!me()){avP.then(function(){done0()});return}
   var uid=me().id;
-  db().from("post_likes").select("post_id,user_id").in("post_id",ids).then(function(l){
-    if(l.error){S.off=true;return done()}
+  Promise.all([
+    db().from("post_likes").select("post_id,user_id").in("post_id",ids),
+    db().from("post_comments").select("post_id,user_id").in("post_id",ids),
+    avP
+  ]).then(function(a){
+    var l=a[0],c=a[1];
+    if(l.error||c.error){S.off=true;return done0()}
     (l.data||[]).forEach(function(x){S.like[x.post_id]=(S.like[x.post_id]||0)+1;if(x.user_id===uid)S.mine[x.post_id]=1});
-    db().from("post_comments").select("post_id,user_id").in("post_id",ids).then(function(c){
-      if(c.error){S.off=true;return done()}
-      (c.data||[]).forEach(function(x){if(!blocked(x.user_id))S.cm[x.post_id]=(S.cm[x.post_id]||0)+1});done()})})}
+    (c.data||[]).forEach(function(x){if(!blocked(x.user_id))S.cm[x.post_id]=(S.cm[x.post_id]||0)+1});
+    done0()},function(){S.off=true;done0()})}
 function toggleLike(btn){
   var id=btn.dataset.like,uid=me()&&me().id;if(!uid||btn.dataset.busy)return;btn.dataset.busy=1;
   var on=btn.classList.contains("on"),n=(S.like[id]||0)+(on?-1:1);
@@ -277,7 +293,7 @@ function bodyHTML(p){
   return b?'<p class="pb'+(long?" clamp":"")+'">'+esc(b)+'</p>'+(long?'<button type="button" class="more" data-more aria-expanded="false">Read more</button>':""):""}
 function imgsHTML(p){
   var u=(p.image_urls||[]).map(safeUrl).filter(Boolean).slice(0,4);if(!u.length)return "";
-  return '<div class="hx-imgs n'+u.length+'">'+u.map(function(x,i){return '<button type="button" class="ph" data-ph="'+esc(x)+'" aria-label="View photo '+(i+1)+' of '+u.length+'"><img src="'+esc(x)+'" alt="Photo shared by '+esc(p.author_name||"a member")+'" loading="lazy"></button>'}).join("")+'</div>'}
+  return '<div class="hx-imgs n'+u.length+'">'+u.map(function(x,i){return '<button type="button" class="ph" data-ph="'+esc(x)+'" aria-label="View photo '+(i+1)+' of '+u.length+'"><img src="'+esc(x)+'" alt="Photo shared by '+esc(p.author_name||"a member")+'" loading="lazy" decoding="async"></button>'}).join("")+'</div>'}
 function postHTML(p,uid,opts){
   var mine=p.user_id===uid;
   return '<article class="hx-post" data-imgs="'+esc(JSON.stringify(p.image_urls||[]))+'" data-vids="'+esc(JSON.stringify([p.video_url||"",p.video_poster||""]))+'"><span class="av" style="background:'+col(p.user_id)+'">'+avInner(p.user_id,p.author_name)+'</span><div class="tx"><div class="hd"><b>'+esc(p.author_name||"Member")+'</b><small>'+esc(ago(p.created_at))+'</small>'+
@@ -285,14 +301,20 @@ function postHTML(p,uid,opts){
    '</div>'+(p.kind&&KL[p.kind]?'<span class="kd k-'+esc(p.kind)+'">'+esc(KL[p.kind])+'</span>':"")+bodyHTML(p)+imgsHTML(p)+vidHTML(p)+actions(p)+'</div></article>'}
 function loadFeed(){
   var box=$("hx-feed");if(!box)return;
-  if(!db()||!me()){box.innerHTML=note("Sign in to see updates from the community.");return}
+  if(!db()||!me()){if(db()&&!window.FL_KNOWN){if(!box.dataset.loaded)box.innerHTML=skel(3);return}box.innerHTML=note("Sign in to see updates from the community.");return}
+  STAMP.feed=Date.now();
+  if(!box.dataset.loaded)box.innerHTML=snapGet("feed")||skel(3);
   var uid=me().id;
-  db().from("follows").select("following_id").eq("follower_id",uid).then(function(f){
-    following={};(f.data||[]).forEach(function(x){following[x.following_id]=1});
-    db().from("posts").select("*").order("created_at",{ascending:false}).limit(15).then(function(r){
-      if(r.error){box.innerHTML=note("Community updates are not set up yet. Run the posts SQL in Supabase first.");return}
-      var rows=(r.data||[]).filter(function(p){return !blocked(p.user_id)});
-      enrich(rows,function(){box.innerHTML=rows.length?rows.map(function(p){return postHTML(p,uid)}).join(""):note("No updates yet. Be the first to share one.")})})})
+  Promise.all([
+    db().from("follows").select("following_id").eq("follower_id",uid),
+    db().from("posts").select("*").order("created_at",{ascending:false}).limit(15)
+  ]).then(function(a){
+    var f=a[0],r=a[1];following={};(f.data||[]).forEach(function(x){following[x.following_id]=1});
+    if(r.error){box.innerHTML=note("Community updates are not set up yet. Run the posts SQL in Supabase first.");return}
+    var rows=(r.data||[]).filter(function(p){return !blocked(p.user_id)});
+    enrich(rows,function(){
+      box.innerHTML=rows.length?rows.map(function(p){return postHTML(p,uid)}).join(""):note("No updates yet. Be the first to share one.");
+      box.dataset.loaded="1";snapSet("feed",box.innerHTML)})},function(){box.dataset.loaded="1"})
 }
 function loadMyPosts(){
   var box=$("hx-myposts");if(!box)return;
@@ -329,7 +351,7 @@ function createPost(){
     function fin(r){
       if(r.error)return fail(vurl?"Could not post the video. Run the video SQL in Supabase, then try again.":urls.length?"Could not post. Run the photo SQL in Supabase, then try again.":"Could not post. Please try again.");
       PH.forEach(function(p){URL.revokeObjectURL(p.url)});PH=[];renderPH();if(VID){URL.revokeObjectURL(VID.url);VID=null;renderVID()}
-      m.textContent="";btn.disabled=false;$("np-text").value="";$("np-n").textContent="0";KIND="";$("np-tpls").innerHTML=tplChips("");window.show("updates");loadUpdates()}
+      m.textContent="";btn.disabled=false;$("np-text").value="";$("np-n").textContent="0";KIND="";STAMP={};$("np-tpls").innerHTML=tplChips("");var ub=$("hx-updates-feed");if(ub)ub.dataset.loaded="";window.show("updates");loadUpdates()}
     db().from("posts").insert(row).then(function(r){
       if(r.error&&row.kind){delete row.kind;return db().from("posts").insert(row).then(fin)}
       fin(r)})}
@@ -349,7 +371,7 @@ function setAvatar(file){
   shrink(file,480,true,function(bl){
     if(!bl){toast("That photo could not be read.");return}
     var path=u.id+"/avatar.jpg";toast("Uploading photo...");
-    db().storage.from("avatars").upload(path,bl,{contentType:"image/jpeg",upsert:true}).then(function(r){
+    db().storage.from("avatars").upload(path,bl,{contentType:"image/jpeg",upsert:true,cacheControl:"31536000"}).then(function(r){
       if(r.error){toast("Upload failed. Run the photo SQL in Supabase first.");return}
       var url=db().storage.from("avatars").getPublicUrl(path).data.publicUrl+"?v="+Date.now();
       db().from("member_avatars").upsert({user_id:u.id,avatar_url:url,updated_at:new Date().toISOString()},{onConflict:"user_id"}).then(function(q){
@@ -371,7 +393,7 @@ document.addEventListener("click",function(e){
     KIND=k;if(!inComposer)window.show("newpost");
     ta=$("np-text");if(isTpl){ta.value=tx.t;$("np-n").textContent=ta.value.length}
     $("np-tpls").innerHTML=tplChips(k);ta.focus();try{ta.setSelectionRange(ta.value.length,ta.value.length)}catch(e){}return}
-  if((b=T.closest("[data-umode]"))){UM=b.dataset.umode;return loadUpdates()}
+  if((b=T.closest("[data-umode]"))){UM=b.dataset.umode;var ub=$("hx-updates-feed");if(ub)ub.dataset.loaded="";return loadUpdates()}
   if((b=T.closest("[data-follow]"))){toggleFollow(b);if(visible("updates"))setTimeout(loadUpdates,600);return}
   if((b=T.closest("[data-share]")))return sharePost(b);
   if((b=T.closest("[data-ph]")))return lightbox(b.dataset.ph);
@@ -427,12 +449,15 @@ function checkHash(){
 var t=null;function soon(){clearTimeout(t);t=setTimeout(function(){
   if(!visible("updates"))FOCUS="";
   loadMine();applyMine();checkHash();
-  if(visible("home"))loadFeed();
-  if(visible("updates"))loadUpdates();
-  if(visible("profile"))loadStats();
-  if(visible("myposts"))loadMyPosts();
-  if(visible("explore")&&!$("hx-ex-events").hidden)loadEvents()},120)}
+  if(visible("home")&&!fresh("feed",25000))loadFeed();
+  if(visible("updates")&&!fresh("upd",25000))loadUpdates();
+  if(visible("profile")&&!fresh("stats",25000)){STAMP.stats=Date.now();loadStats()}
+  if(visible("myposts")&&!fresh("my",25000)){STAMP.my=Date.now();loadMyPosts()}
+  if(visible("explore")&&!$("hx-ex-events").hidden&&!fresh("ev",25000)){STAMP.ev=Date.now();loadEvents()}},25)}
+document.addEventListener("visibilitychange",function(){if(!document.hidden){STAMP={};soon()}});
+document.addEventListener("click",function(e){if(e.target.closest&&e.target.closest("#sign-out")){try{Object.keys(localStorage).filter(function(k){return k.indexOf("fl-snap-")===0}).forEach(function(k){localStorage.removeItem(k)})}catch(x){}}},true);
 function init(){build();
+  var po=window.FL_ONAUTH;window.FL_ONAUTH=function(u){if(po)po(u);STAMP={};soon()};
   var pv=setInterval(function(){if(me()){loadMine();checkHash()}},800);setTimeout(function(){clearInterval(pv)},180000);
   if(window.MutationObserver)new MutationObserver(function(ms){if(ms.some(function(m){return m.target.tagName==="SECTION"}))soon()}).observe($("app"),{attributes:true,attributeFilter:["hidden"],subtree:true});
   soon()}

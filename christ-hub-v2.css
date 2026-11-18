@@ -26,7 +26,7 @@
 #app .hx-empty{padding:26px 16px;text-align:center;color:var(--hx-muted);font-size:13px;line-height:1.5;border:1px dashed var(--hx-line);border-radius:16px}
 
 /* ---------- bottom tab bar ---------- */
-#app nav.hx-nav{display:flex;flex:none;background:rgba(11,16,38,.96)!important;border-top:1px solid var(--hx-line)!important;padding:6px 4px calc(env(safe-area-inset-bottom,0px) + 6px)!important;backdrop-filter:blur(14px)}
+#app nav.hx-nav{display:flex;flex:none;background:rgba(11,16,38,.96)!important;border-top:1px solid var(--hx-line)!important;padding:6px 4px calc(env(safe-area-inset-bottom,0px) + 6px)!important}
 #app nav.hx-nav button{flex:1;min-height:52px;border:0;background:none!important;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font:600 10.5px Inter,sans-serif!important;color:var(--hx-muted)!important;position:relative;padding:0;box-shadow:none!important}
 #app nav.hx-nav button svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 #app nav.hx-nav button.on{color:var(--hx-purple2)!important;font-weight:800!important}
