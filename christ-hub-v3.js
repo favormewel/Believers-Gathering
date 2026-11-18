@@ -177,7 +177,7 @@ function loadUpdates(){
     var extra=(mode==="following"?ids:[]).concat(acts.map(function(a){return a.user_id}));
     enrich(rows,function(){
       if(mode!==UM)return;
-      ppl.innerHTML=mode==="following"?'<div class="hx-sec" style="margin:6px 0 8px"><h2 style="font-size:15px">People you follow</h2></div><div class="hx-chips">'+ids.map(function(i){var n=names[i]||"Member";return '<div class="chip"><span class="av" style="background:'+col(i)+'">'+avInner(i,n)+'</span><b>'+esc(n)+'</b><button type="button" class="fol on" data-follow="'+esc(i)+'">Following</button></div>'}).join("")+'</div>':"";
+      ppl.innerHTML=mode==="following"?'<div class="hx-sec" style="margin:6px 0 8px"><h2 style="font-size:15px">People you follow</h2></div><div class="hx-chips">'+ids.map(function(i){var n=names[i]||"Member";return '<div class="chip"><span class="av" style="background:'+col(i)+'" data-person="'+esc(i)+'" data-pname="'+esc(n)+'">'+avInner(i,n)+'</span><b data-person="'+esc(i)+'" data-pname="'+esc(n)+'">'+esc(n)+'</b><button type="button" class="fol on" data-follow="'+esc(i)+'">Following</button></div>'}).join("")+'</div>':"";
       box.innerHTML=items.length?items.map(function(it){return it.k==="p"?postHTML(it.d,uid):actHTML(it.d)}).join(""):note(mode==="following"?"The people you follow have not posted yet.":"No updates yet. Be the first to share one.");
       box.dataset.loaded="1";snapSet("upd-"+mode,box.innerHTML);
       showFocus(uid)},extra)}
@@ -226,7 +226,7 @@ function createEvent(){
 }
 
 /* ---------- POSTS + FOLLOWS ---------- */
-var following={};
+var following={};window.CHEN_ISF=function(id){return !!following[id]};
 function blocked(id){return window.FLC_BLOCKED&&window.FLC_BLOCKED[id]}
 var TPL=[
  {k:"prayer",l:"Prayer request",t:"Please pray for "},
@@ -280,7 +280,7 @@ function loadComments(id,owner){
     var uid=me().id,rows=(r.data||[]).filter(function(c){return !blocked(c.user_id)});
     loadAvatars(rows.map(function(c){return c.user_id}),function(){
     box.innerHTML=(r.error?'<div class="cmrow note">Comments could not load.</div>':rows.length?rows.map(function(c){
-      return '<div class="cmrow"><span class="av sm" style="background:'+col(c.user_id)+'">'+avInner(c.user_id,c.author_name)+'</span><div class="cb"><b>'+esc(c.author_name||"Member")+'</b> <small>'+esc(ago(c.created_at))+'</small>'+((c.user_id===uid||owner===uid)?'<button type="button" class="cmdel" data-cmdel="'+esc(c.id)+'" data-post="'+esc(id)+'" data-owner="'+esc(owner)+'">Delete</button>':'')+'<p>'+esc(c.body)+'</p></div></div>'}).join(""):'<div class="cmrow note">No comments yet.</div>')+
+      return '<div class="cmrow"><span class="av sm" style="background:'+col(c.user_id)+'"'+(c.user_id!==uid?' data-person="'+esc(c.user_id)+'" data-pname="'+esc(c.author_name||"Member")+'"':"")+'>'+avInner(c.user_id,c.author_name)+'</span><div class="cb"><b'+(c.user_id!==uid?' data-person="'+esc(c.user_id)+'" data-pname="'+esc(c.author_name||"Member")+'"':"")+'>'+esc(c.author_name||"Member")+'</b> <small>'+esc(ago(c.created_at))+'</small>'+((c.user_id===uid||owner===uid)?'<button type="button" class="cmdel" data-cmdel="'+esc(c.id)+'" data-post="'+esc(id)+'" data-owner="'+esc(owner)+'">Delete</button>':'')+'<p>'+esc(c.body)+'</p></div></div>'}).join(""):'<div class="cmrow note">No comments yet.</div>')+
       '<div class="cmform"><textarea rows="2" placeholder="Write a comment..." aria-label="Write a comment"></textarea><button type="button" data-cmsend="'+esc(id)+'" data-owner="'+esc(owner)+'">Send</button></div>'})})}
 function sendComment(btn){
   var id=btn.dataset.cmsend,inp=btn.parentNode.querySelector("textarea"),t=inp.value.trim();
@@ -296,7 +296,8 @@ function imgsHTML(p){
   return '<div class="hx-imgs n'+u.length+'">'+u.map(function(x,i){return '<button type="button" class="ph" data-ph="'+esc(x)+'" aria-label="View photo '+(i+1)+' of '+u.length+'"><img src="'+esc(x)+'" alt="Photo shared by '+esc(p.author_name||"a member")+'" loading="lazy" decoding="async"></button>'}).join("")+'</div>'}
 function postHTML(p,uid,opts){
   var mine=p.user_id===uid;
-  return '<article class="hx-post" data-imgs="'+esc(JSON.stringify(p.image_urls||[]))+'" data-vids="'+esc(JSON.stringify([p.video_url||"",p.video_poster||""]))+'"><span class="av" style="background:'+col(p.user_id)+'">'+avInner(p.user_id,p.author_name)+'</span><div class="tx"><div class="hd"><b>'+esc(p.author_name||"Member")+'</b><small>'+esc(ago(p.created_at))+'</small>'+
+  var pp=(p.user_id&&uid&&p.user_id!==uid)?' data-person="'+esc(p.user_id)+'" data-pname="'+esc(p.author_name||"Member")+'"':"";
+  return '<article class="hx-post" data-imgs="'+esc(JSON.stringify(p.image_urls||[]))+'" data-vids="'+esc(JSON.stringify([p.video_url||"",p.video_poster||""]))+'"><span class="av" style="background:'+col(p.user_id)+'"'+pp+'>'+avInner(p.user_id,p.author_name)+'</span><div class="tx"><div class="hd"><b'+pp+'>'+esc(p.author_name||"Member")+'</b><small>'+esc(ago(p.created_at))+'</small>'+
    (mine?(opts&&opts.del?'<button type="button" class="fol" data-postdel="'+esc(p.id)+'">Delete</button>':""):'<button type="button" class="fol'+(following[p.user_id]?" on":"")+'" data-follow="'+esc(p.user_id)+'">'+(following[p.user_id]?"Following":"Follow")+'</button>')+
    '</div>'+(p.kind&&KL[p.kind]?'<span class="kd k-'+esc(p.kind)+'">'+esc(KL[p.kind])+'</span>':"")+bodyHTML(p)+imgsHTML(p)+vidHTML(p)+actions(p)+'</div></article>'}
 function loadFeed(){
@@ -337,7 +338,7 @@ function toggleFollow(btn){
   var id=btn.dataset.follow,uid=me()&&me().id;if(!uid||btn.dataset.busy)return;btn.dataset.busy=1;
   var on=!!following[id];
   var q=on?db().from("follows").delete().eq("follower_id",uid).eq("following_id",id):db().from("follows").insert({follower_id:uid,following_id:id});
-  q.then(function(r){delete btn.dataset.busy;if(r.error)return;if(on)delete following[id];else{following[id]=1;var nb=btn.closest(".chip")||btn.closest(".hx-post"),nm=nb&&nb.querySelector("b");logAct("follow","started following "+(nm?nm.textContent:"someone"),id)}
+  q.then(function(r){delete btn.dataset.busy;if(r.error)return;if(on)delete following[id];else{following[id]=1;var nb=btn.closest(".chip")||btn.closest(".hx-post"),nm=btn.dataset.name?{textContent:btn.dataset.name}:(nb&&nb.querySelector("b"));logAct("follow","started following "+(nm?nm.textContent:"someone"),id)}
     document.querySelectorAll('[data-follow="'+id+'"]').forEach(function(b){b.classList.toggle("on",!on);b.textContent=on?"Follow":"Following"})})
 }
 function createPost(){
@@ -439,7 +440,8 @@ function openFromPush(o){
   o=String(o||"");
   if(o.indexOf("post:")===0&&/^[0-9a-f-]{36}$/i.test(o.slice(5))){FOCUS=o.slice(5);window.show("updates");loadUpdates()}
   else if(o==="tab:updates"){window.show("updates");loadUpdates()}
-  else if(o==="tab:explore"){window.show("explore")}}
+  else if(o==="tab:explore"){window.show("explore")}
+  else if(o.indexOf("dm:")===0&&window.CHEN_OPENDM){window.CHEN_OPENDM(o.slice(3))}}
 if(navigator.serviceWorker)navigator.serviceWorker.addEventListener("message",function(e){if(e.data&&e.data.open)openFromPush(e.data.open)});
 (function(){var m=(location.search.match(/[?&]open=([^&]+)/)||[])[1];if(m){try{m=decodeURIComponent(m)}catch(x){m=""}
   if(m.indexOf("post:")===0&&/^[0-9a-f-]{36}$/i.test(m.slice(5)))HASHID=m.slice(5)}})();
