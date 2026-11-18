@@ -38,10 +38,45 @@ function shrink(file,max,square,cb){
     var c=document.createElement("canvas");c.width=cw;c.height=ch;var x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,cw,ch);x.drawImage(img,sx,sy,sw,sh,0,0,cw,ch);
     URL.revokeObjectURL(url);c.toBlob(function(b){cb(b)},"image/jpeg",.82)};
   img.onerror=function(){URL.revokeObjectURL(url);cb(null)};img.src=url}
-var PH=[];
+var PH=[],VID=null,MAXV=50*1048576;
+function renderVID(){
+  var b=$("np-video");if(!b)return;
+  b.innerHTML=VID?'<div class="vprev"><video src="'+VID.url+'" muted playsinline preload="metadata" aria-label="Selected video"></video><button type="button" data-vrm aria-label="Remove video">&times;</button><small>'+esc(VID.file.name||"video")+' &middot; '+(VID.file.size/1048576).toFixed(1)+' MB</small></div>':"";
+  var a=$("np-addv");if(a){a.hidden=!!VID||PH.length>0;if(a.parentNode)a.parentNode.hidden=PH.length>0}
+  var p=$("np-add");if(p){p.hidden=PH.length>=4||!!VID;if(p.parentNode)p.parentNode.hidden=!!VID}}
+function makePoster(file,cb){
+  var url=URL.createObjectURL(file),v=document.createElement("video"),done=false;
+  function fin(b){if(done)return;done=true;URL.revokeObjectURL(url);cb(b)}
+  v.muted=true;v.playsInline=true;v.preload="metadata";
+  v.onloadedmetadata=function(){try{v.currentTime=Math.min(1,(v.duration||2)/2)}catch(e){fin(null)}};
+  v.onseeked=function(){try{var w=v.videoWidth,h=v.videoHeight;if(!w||!h)return fin(null);var s=Math.min(1,720/Math.max(w,h)),c=document.createElement("canvas");c.width=Math.round(w*s);c.height=Math.round(h*s);c.getContext("2d").drawImage(v,0,0,c.width,c.height);c.toBlob(function(b){fin(b)},"image/jpeg",.8)}catch(e){fin(null)}};
+  v.onerror=function(){fin(null)};setTimeout(function(){fin(null)},6000);v.src=url}
+function xhrUpload(bucket,path,file,onp,cb){
+  var C=window.FAITHLINK_CONFIG||{},base=(C.SUPABASE_URL||"").replace(/\/$/,"");
+  function sdk(){db().storage.from(bucket).upload(path,file,{contentType:file.type||"video/mp4",upsert:false}).then(function(r){cb(r.error||null)},function(e){cb(e||true)})}
+  if(!db().auth||!db().auth.getSession||!base)return sdk();
+  db().auth.getSession().then(function(s){
+    var tok=s&&s.data&&s.data.session&&s.data.session.access_token;if(!tok)return sdk();
+    var x=new XMLHttpRequest();x.open("POST",base+"/storage/v1/object/"+bucket+"/"+path);
+    x.setRequestHeader("Authorization","Bearer "+tok);if(C.SUPABASE_ANON_KEY)x.setRequestHeader("apikey",C.SUPABASE_ANON_KEY);
+    x.setRequestHeader("Content-Type",file.type||"video/mp4");x.setRequestHeader("x-upsert","false");x.setRequestHeader("cache-control","max-age=31536000");
+    x.upload.onprogress=function(e){if(e.lengthComputable)onp(Math.round(e.loaded/e.total*100))};
+    x.onload=function(){cb(x.status>=200&&x.status<300?null:"status "+x.status)};x.onerror=function(){cb("network")};x.send(file)},function(){sdk()})}
+function uploadVid(cb){
+  var f=VID.file,uid=me().id,ext=((f.name||"").split(".").pop()||"mp4").toLowerCase().replace(/[^a-z0-9]/g,"").slice(0,5)||"mp4",path=uid+"/"+Date.now()+"."+ext,m=$("np-msg");
+  m.className="hx-msg ok";m.textContent="Uploading video 0%...";
+  xhrUpload("post-videos",path,f,function(pc){m.textContent="Uploading video "+pc+"%..."},function(err){
+    if(err)return cb(err);
+    var vurl=db().storage.from("post-videos").getPublicUrl(path).data.publicUrl;
+    if(!VID.poster)return cb(null,vurl,"");
+    var pp=uid+"/"+Date.now()+"-poster.jpg";
+    db().storage.from("post-images").upload(pp,VID.poster,{contentType:"image/jpeg",upsert:false}).then(function(r){cb(null,vurl,r.error?"":db().storage.from("post-images").getPublicUrl(pp).data.publicUrl)},function(){cb(null,vurl,"")})})}
+function vidHTML(p){
+  var u=safeUrl(p.video_url);if(!u)return "";var po=safeUrl(p.video_poster);
+  return '<div class="hx-vid"><video controls playsinline preload="'+(po?"none":"metadata")+'"'+(po?' poster="'+esc(po)+'"':"")+' src="'+esc(u)+(po?"":"#t=0.1")+'" aria-label="Video shared by '+esc(p.author_name||"a member")+'"></video></div>'}
 function renderPH(){var b=$("np-photos");if(!b)return;
   b.innerHTML=PH.map(function(p,i){return '<div class="phx"><img src="'+p.url+'" alt="Selected photo '+(i+1)+'"><button type="button" data-phrm="'+i+'" aria-label="Remove photo '+(i+1)+'">&times;</button></div>'}).join("");
-  var a=$("np-add");if(a)a.hidden=PH.length>=4}
+  var a=$("np-add");if(a){a.hidden=PH.length>=4||!!VID;if(a.parentNode)a.parentNode.hidden=!!VID}var v=$("np-addv");if(v){v.hidden=!!VID||PH.length>0;if(v.parentNode)v.parentNode.hidden=PH.length>0}}
 function uploadPhotos(cb){
   var urls=[],i=0,uid=me().id,m=$("np-msg");
   (function next(){
@@ -77,6 +112,7 @@ function build(){
    '<label class="hx-f"><span>What is on your heart?</span><textarea id="np-text" rows="7" placeholder="Share a testimony, a verse, or encouragement..."></textarea></label>'+
    '<div class="hx-count"><span id="np-n">0</span> characters</div>'+
    '<div class="hx-f"><span>Photos (optional, up to 4)</span><div id="np-photos" class="hx-photos"></div><button type="button" class="hx-addph" id="np-add">Add photos</button><input type="file" id="np-file" accept="image/*" multiple hidden></div>'+
+   '<div class="hx-f"><span>Video (optional, up to 50 MB)</span><div id="np-video"></div><button type="button" class="hx-addph" id="np-addv">Add a video</button><input type="file" id="np-vfile" accept="video/*" hidden></div>'+
    '<div id="np-msg" class="hx-msg" role="alert"></div><button class="hx-cta" id="np-btn" type="button">Post</button>');
   sec("myposts","My Posts","profile",'<div id="hx-myposts"></div>');
   /* events tab content */
@@ -244,9 +280,9 @@ function imgsHTML(p){
   return '<div class="hx-imgs n'+u.length+'">'+u.map(function(x,i){return '<button type="button" class="ph" data-ph="'+esc(x)+'" aria-label="View photo '+(i+1)+' of '+u.length+'"><img src="'+esc(x)+'" alt="Photo shared by '+esc(p.author_name||"a member")+'" loading="lazy"></button>'}).join("")+'</div>'}
 function postHTML(p,uid,opts){
   var mine=p.user_id===uid;
-  return '<article class="hx-post" data-imgs="'+esc(JSON.stringify(p.image_urls||[]))+'"><span class="av" style="background:'+col(p.user_id)+'">'+avInner(p.user_id,p.author_name)+'</span><div class="tx"><div class="hd"><b>'+esc(p.author_name||"Member")+'</b><small>'+esc(ago(p.created_at))+'</small>'+
+  return '<article class="hx-post" data-imgs="'+esc(JSON.stringify(p.image_urls||[]))+'" data-vids="'+esc(JSON.stringify([p.video_url||"",p.video_poster||""]))+'"><span class="av" style="background:'+col(p.user_id)+'">'+avInner(p.user_id,p.author_name)+'</span><div class="tx"><div class="hd"><b>'+esc(p.author_name||"Member")+'</b><small>'+esc(ago(p.created_at))+'</small>'+
    (mine?(opts&&opts.del?'<button type="button" class="fol" data-postdel="'+esc(p.id)+'">Delete</button>':""):'<button type="button" class="fol'+(following[p.user_id]?" on":"")+'" data-follow="'+esc(p.user_id)+'">'+(following[p.user_id]?"Following":"Follow")+'</button>')+
-   '</div>'+(p.kind&&KL[p.kind]?'<span class="kd k-'+esc(p.kind)+'">'+esc(KL[p.kind])+'</span>':"")+bodyHTML(p)+imgsHTML(p)+actions(p)+'</div></article>'}
+   '</div>'+(p.kind&&KL[p.kind]?'<span class="kd k-'+esc(p.kind)+'">'+esc(KL[p.kind])+'</span>':"")+bodyHTML(p)+imgsHTML(p)+vidHTML(p)+actions(p)+'</div></article>'}
 function loadFeed(){
   var box=$("hx-feed");if(!box)return;
   if(!db()||!me()){box.innerHTML=note("Sign in to see updates from the community.");return}
@@ -285,24 +321,25 @@ function toggleFollow(btn){
 function createPost(){
   var m=$("np-msg"),t=$("np-text").value.trim();m.className="hx-msg";m.textContent="";
   if(!db()||!me()){m.textContent="Please sign in to post.";return}
-  if(!t&&!PH.length){m.textContent="Write something or add a photo.";return}
+  if(!t&&!PH.length&&!VID){m.textContent="Write something, or add a photo or video.";return}
   var btn=$("np-btn");btn.disabled=true;
   function fail(msg){btn.disabled=false;m.className="hx-msg";m.textContent=msg}
-  function save(urls){
-    var row={body:t,author_name:myName()};if(KIND)row.kind=KIND;if(urls.length)row.image_urls=urls;
+  function save(urls,vurl,purl){
+    var row={body:t,author_name:myName()};if(KIND)row.kind=KIND;if(urls.length)row.image_urls=urls;if(vurl){row.video_url=vurl;if(purl)row.video_poster=purl}
     function fin(r){
-      if(r.error)return fail(urls.length?"Could not post. Run the photo SQL in Supabase, then try again.":"Could not post. Please try again.");
-      PH.forEach(function(p){URL.revokeObjectURL(p.url)});PH=[];renderPH();
+      if(r.error)return fail(vurl?"Could not post the video. Run the video SQL in Supabase, then try again.":urls.length?"Could not post. Run the photo SQL in Supabase, then try again.":"Could not post. Please try again.");
+      PH.forEach(function(p){URL.revokeObjectURL(p.url)});PH=[];renderPH();if(VID){URL.revokeObjectURL(VID.url);VID=null;renderVID()}
       m.textContent="";btn.disabled=false;$("np-text").value="";$("np-n").textContent="0";KIND="";$("np-tpls").innerHTML=tplChips("");window.show("updates");loadUpdates()}
     db().from("posts").insert(row).then(function(r){
       if(r.error&&row.kind){delete row.kind;return db().from("posts").insert(row).then(fin)}
       fin(r)})}
+  if(VID)return uploadVid(function(err,vurl,purl){if(err)return fail("Video upload failed. Check the video SQL ran in Supabase and the file is under 50 MB, then try again.");save([],vurl,purl)});
   if(!PH.length)return save([]);
   uploadPhotos(function(err,urls){if(err)return fail("Photo upload failed. Run the photo SQL in Supabase, then try again.");save(urls)})
 }
 function sharePost(b){
   var a=b.closest(".hx-post"),id=b.dataset.share,nm=a&&a.querySelector(".hd b"),pb=a&&a.querySelector(".pb"),tx=pb?pb.textContent:"";
-  var txt=(nm?nm.textContent:"A member")+" on Chen Network: "+(tx?tx.slice(0,180)+(tx.length>180?"\u2026":""):"shared a photo");
+  var txt=(nm?nm.textContent:"A member")+" on Chen Network: "+(tx?tx.slice(0,180)+(tx.length>180?"\u2026":""):(a&&a.querySelector("video")?"shared a video":"shared a photo"));
   var url=location.href.split("#")[0].split("?")[0]+"#post-"+id;
   if(navigator.share){navigator.share({title:"Chen Network",text:txt,url:url}).catch(function(){})}
   else if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(url).then(function(){toast("Link copied")},function(){window.prompt("Copy this link",url)})}
@@ -342,6 +379,8 @@ document.addEventListener("click",function(e){
   if((b=T.closest("[data-more]"))){var pp=b.previousElementSibling,on=pp.classList.toggle("clamp");b.textContent=on?"Read more":"Show less";b.setAttribute("aria-expanded",on?"false":"true");return}
   if((b=T.closest("[data-phrm]"))){var ph=PH.splice(+b.dataset.phrm,1)[0];if(ph)URL.revokeObjectURL(ph.url);renderPH();return}
   if(T.closest("#np-add")){$("np-file").click();return}
+  if(T.closest("#np-addv")){$("np-vfile").click();return}
+  if(T.closest("[data-vrm]")){if(VID){URL.revokeObjectURL(VID.url);VID=null}renderVID();renderPH();return}
   if(T.closest("#hx-av-change")||T.closest("#me-avatar")){$("av-file").click();return}
   if(T.closest("#hx-av-rm")){if(confirm("Remove your profile photo?"))removeAvatar();return}
   if((b=T.closest("[data-like]")))return toggleLike(b);
@@ -350,8 +389,10 @@ document.addEventListener("click",function(e){
   if((b=T.closest("[data-cmdel]"))){if(confirm("Delete this comment?"))db().from("post_comments").delete().eq("id",b.dataset.cmdel).then(function(){var id=b.dataset.post,c=document.querySelector('[data-cm="'+id+'"] span');if(c)c.textContent=Math.max(0,(S.cm[id]||1)-1),S.cm[id]=Math.max(0,(S.cm[id]||1)-1);loadComments(id,b.dataset.owner)});return}
   if((b=T.closest("[data-postdel]"))){
     if(confirm("Delete this post?")){var art=b.closest(".hx-post"),paths=[];
+      var vpaths=[];
       try{JSON.parse(art.dataset.imgs||"[]").forEach(function(u){var i=u.indexOf("/post-images/");if(i>-1)paths.push(decodeURIComponent(u.slice(i+13)))})}catch(e){}
-      db().from("posts").delete().eq("id",b.dataset.postdel).then(function(r){if(!r.error&&paths.length)db().storage.from("post-images").remove(paths);loadMyPosts();loadStats()})}
+      try{JSON.parse(art.dataset.vids||"[]").forEach(function(u){var i=u.indexOf("/post-videos/"),k=u.indexOf("/post-images/");if(i>-1)vpaths.push(decodeURIComponent(u.slice(i+13)));else if(k>-1)paths.push(decodeURIComponent(u.slice(k+13)))})}catch(e){}
+      db().from("posts").delete().eq("id",b.dataset.postdel).then(function(r){if(!r.error&&paths.length)db().storage.from("post-images").remove(paths);if(!r.error&&vpaths.length)db().storage.from("post-videos").remove(vpaths);loadMyPosts();loadStats()})}
     return}
   if(T.closest("#ne-btn"))return createEvent();
   if(T.closest("#np-btn"))return createPost();
@@ -360,10 +401,15 @@ document.addEventListener("click",function(e){
 document.addEventListener("keydown",function(e){
   if(e.key==="Escape")closeLb();
   if((e.key==="Enter"||e.key===" ")&&e.target.id==="me-avatar"){e.preventDefault();$("av-file").click()}});
+document.addEventListener("play",function(e){if(e.target&&e.target.tagName==="VIDEO")document.querySelectorAll(".hx-vid video").forEach(function(v){if(v!==e.target)v.pause()})},true);
 document.addEventListener("change",function(e){
   var T=e.target;
   if(T.id==="np-file"){var fs=Array.prototype.slice.call(T.files||[]).slice(0,4-PH.length);T.value="";var pend=fs.length;if(!pend)return;
     fs.forEach(function(f){shrink(f,1600,false,function(bl){if(bl)PH.push({blob:bl,url:URL.createObjectURL(bl)});else toast("One photo could not be read.");if(--pend===0)renderPH()})})}
+  if(T.id==="np-vfile"){var vf=T.files&&T.files[0];T.value="";if(!vf)return;
+    if(String(vf.type).indexOf("video/")!==0){toast("Please choose a video file.");return}
+    if(vf.size>MAXV){toast("That video is "+(vf.size/1048576).toFixed(0)+" MB. The limit is 50 MB. Trim it and try again.");return}
+    VID={file:vf,url:URL.createObjectURL(vf),poster:null};renderVID();renderPH();makePoster(vf,function(b){if(VID&&VID.file===vf)VID.poster=b})}
   if(T.id==="av-file"){var f=T.files&&T.files[0];T.value="";if(f)setAvatar(f)}});
 document.addEventListener("input",function(e){if(e.target.id==="np-text")$("np-n").textContent=e.target.value.length});
 

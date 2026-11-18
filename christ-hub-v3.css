@@ -129,3 +129,13 @@
 
 /* push row on Profile */
 #app #push-row{background:transparent!important;color:var(--hx-text)!important;border-bottom-color:var(--hx-line)!important}
+
+/* video */
+#app .hx-vid{margin-top:10px;border-radius:14px;overflow:hidden;background:#000}
+#app .hx-vid video{display:block;width:100%;max-height:480px;background:#000}
+#app .vprev{position:relative;border-radius:12px;overflow:hidden;background:#000;margin-bottom:8px}
+#app .vprev video{display:block;width:100%;max-height:260px}
+#app .vprev button{position:absolute;top:6px;right:6px;width:36px;height:36px;border:0;border-radius:18px;background:rgba(11,16,38,.85);color:#fff;font:700 20px/1 Inter,sans-serif}
+#app .vprev small{display:block;padding:6px 10px;font-size:12px;color:var(--hx-muted);background:rgba(255,255,255,.05)}
+
+#app .hx-f[hidden]{display:none}
