@@ -1,0 +1,24 @@
+/* analytics (admins) */
+#app .an-range{padding-top:0}
+#app .an-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+#app .an-kpi{padding:14px 14px 12px;border-radius:16px;background:linear-gradient(145deg,rgba(31,38,77,.96),rgba(21,27,56,.98));border:1px solid var(--hx-line)}
+#app .an-kpi .v{font:800 26px/1.1 Inter,sans-serif;color:var(--hx-gold)}
+#app .an-kpi .l{margin-top:4px;font:700 13px Inter,sans-serif;color:var(--hx-text)}
+#app .an-kpi .s{margin-top:2px;font:600 11.5px Inter,sans-serif;color:var(--hx-muted)}
+#app .an-card{margin-bottom:12px;padding:14px;border-radius:18px;background:linear-gradient(145deg,rgba(31,38,77,.96),rgba(21,27,56,.98));border:1px solid var(--hx-line)}
+#app .an-card h2{margin:0 0 4px;font:800 15px Inter,sans-serif}
+#app .an-sub{margin:0 0 8px;font-size:12px;color:var(--hx-muted)}
+#app .an-note{margin:4px 0 8px;padding:8px 10px;border-radius:10px;background:rgba(255,200,61,.1);font-size:12px;color:var(--hx-gold2)}
+#app .an-svg{display:block;width:100%;height:86px;margin-top:6px}
+#app .an-axis{display:flex;justify-content:space-between;margin-top:2px;font:600 11px Inter,sans-serif;color:var(--hx-muted)}
+#app .an-tab{width:100%;border-collapse:collapse;margin-top:6px}
+#app .an-tab th{text-align:left;font:600 13.5px Inter,sans-serif;color:var(--hx-text);padding:9px 0;border-bottom:1px solid var(--hx-line)}
+#app .an-tab td{text-align:right;font:800 14px Inter,sans-serif;color:var(--hx-gold);padding:9px 0;border-bottom:1px solid var(--hx-line)}
+#app .an-list{list-style:none;margin:6px 0 0;padding:0}
+#app .an-list li{display:flex;flex-direction:column;gap:2px;padding:9px 0;border-bottom:1px solid var(--hx-line)}
+#app .an-list b{font-size:14px}
+#app .an-list span{font-size:13px;color:var(--hx-muted);overflow-wrap:anywhere}
+#app .an-list em{font:700 12px Inter,sans-serif;color:var(--hx-gold2);font-style:normal}
+#app .an-btn{width:100%;min-height:50px;margin:4px 0 8px;border:0;border-radius:25px;background:linear-gradient(110deg,#7657D6,#9277F5);color:#fff;font:800 15px Inter,sans-serif}
+#app .an-foot{margin:0 0 20px;font-size:11.5px;color:var(--hx-muted);text-align:center;line-height:1.5}
+#app .an-load{padding:40px 16px;text-align:center;color:var(--hx-muted)}
