@@ -10,11 +10,11 @@ var deferred=null,banner=null,sheet=null;
 var base=location.href.split("#")[0].split("?")[0].replace(/[^\/]*$/,"");
 var IV="?v=21",ico=base+"apple-touch-icon.png"+IV;
 function dyn(){
-  var man={id:base,name:"Chen Network",short_name:"Chen Network",description:"A Christian community app to connect, pray, and grow together.",start_url:base,scope:base,display:"standalone",orientation:"portrait",background_color:"#0B1026",theme_color:"#0B1026",icons:[{src:base+"icon-192.png"+IV,sizes:"192x192",type:"image/png",purpose:"any"},{src:base+"icon-512.png"+IV,sizes:"512x512",type:"image/png",purpose:"any"},{src:base+"icon-maskable-512.png"+IV,sizes:"512x512",type:"image/png",purpose:"maskable"}]};
+  var man={id:base,name:"Chen Network",short_name:"Chen Network",description:"A Christian community app to connect, pray, and grow together.",start_url:base,scope:base,display:"standalone",orientation:"portrait",background_color:"#F3F4F8",theme_color:"#F3F4F8",icons:[{src:base+"icon-192.png"+IV,sizes:"192x192",type:"image/png",purpose:"any"},{src:base+"icon-512.png"+IV,sizes:"512x512",type:"image/png",purpose:"any"},{src:base+"icon-maskable-512.png"+IV,sizes:"512x512",type:"image/png",purpose:"maskable"}]};
   tag("link",{rel:"manifest",href:URL.createObjectURL(new Blob([JSON.stringify(man)],{type:"application/manifest+json"}))})}
 var ml=document.querySelector('link[rel="manifest"]');
 if(!ml)dyn();else fetch(ml.href,{cache:"no-store"}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){return fetch(new URL(j.icons[0].src,ml.href).href,{cache:"no-store"}).then(function(r){if(!r.ok)throw 0})}).catch(function(){ml.remove();dyn()});
-if(!document.querySelector('meta[name="theme-color"]'))tag("meta",{name:"theme-color",content:"#0B1026"});
+if(!document.querySelector('meta[name="theme-color"]'))tag("meta",{name:"theme-color",content:"#F3F4F8"});
 tag("meta",{name:"mobile-web-app-capable",content:"yes"});tag("meta",{name:"apple-mobile-web-app-capable",content:"yes"});
 tag("meta",{name:"apple-mobile-web-app-title",content:"Chen Network"});tag("meta",{name:"apple-mobile-web-app-status-bar-style",content:"default"});
 if(!document.querySelector('link[rel="apple-touch-icon"]'))tag("link",{rel:"apple-touch-icon",href:ico});

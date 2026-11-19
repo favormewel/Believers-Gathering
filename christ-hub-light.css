@@ -1,0 +1,121 @@
+/* CHEN NETWORK light theme (white and soft gray). Loaded last; only applies when <html data-theme="light"> */
+html[data-theme="light"]{color-scheme:light;
+  --hx-bg:#F3F4F8;--hx-card:#FFFFFF;--hx-card2:#F7F8FC;--hx-line:rgba(25,28,70,.12);
+  --hx-purple:#6544D8;--hx-purple2:#6544D8;--hx-gold:#A86F00;--hx-gold2:#8A5E00;
+  --hx-text:#171A33;--hx-muted:#5B5F7A;--hx-green:#1F9D5A;--hx-orange:#D9730D;--hx-blue:#2F6DE0;--hx-red:#D93659}
+html[data-theme="light"],html[data-theme="light"] body{min-height:100%;background:#E9EBF2!important;color:var(--hx-text)!important}
+html[data-theme="light"] body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important}
+html[data-theme="light"] #app{max-width:480px!important;background:var(--hx-bg)!important;box-shadow:0 0 40px rgba(20,25,60,.14)!important;overflow:hidden}
+html[data-theme="light"] #app section:not(#splash):not(#welcome1)>div{background:var(--hx-bg)!important;color:var(--hx-text)!important}
+html[data-theme="light"] #app section header{background:rgba(255,255,255,.94)!important;border-bottom:1px solid var(--hx-line)!important}
+html[data-theme="light"] #app h1,html[data-theme="light"] #app h2,html[data-theme="light"] #app h3{color:var(--hx-text)}
+html[data-theme="light"] #app button{font-family:inherit}
+html[data-theme="light"] #app a{color:#5B3FC4}
+html[data-theme="light"] #app input,html[data-theme="light"] #app textarea,html[data-theme="light"] #app select{background:#fff!important;color:#171A33!important;border:1px solid #CDD1E0!important;border-radius:14px!important}
+html[data-theme="light"] #app input::placeholder,html[data-theme="light"] #app textarea::placeholder{color:#8A8EA8!important;opacity:1}
+html[data-theme="light"] #app section[id="login"] button,html[data-theme="light"] #app section[id="signup"] button{border-radius:14px!important}
+/* original screens: warm cream becomes white and soft gray */
+html[data-theme="light"] #app [style*="background:#FFFAF2"],
+html[data-theme="light"] #app [style*="background: #FFFAF2"]{background:#FFFFFF!important}
+html[data-theme="light"] #app [style*="background: rgb(255, 250, 242)"]{background:#FFFFFF!important}
+html[data-theme="light"] #app [style*="background:#FDF3E3"],
+html[data-theme="light"] #app [style*="background: #FDF3E3"]{background:#F3F4F8!important}
+html[data-theme="light"] #app [style*="background: rgb(253, 243, 227)"]{background:#F3F4F8!important}
+html[data-theme="light"] #app [style*="background:#F8E7C6"],
+html[data-theme="light"] #app [style*="background: #F8E7C6"]{background:#F1F2F8!important}
+html[data-theme="light"] #app [style*="background: rgb(248, 231, 198)"]{background:#F1F2F8!important}
+html[data-theme="light"] #app [style*="background:#FBEBDD"],
+html[data-theme="light"] #app [style*="background: #FBEBDD"]{background:#F1F2F8!important}
+html[data-theme="light"] #app [style*="background: rgb(251, 235, 221)"]{background:#F1F2F8!important}
+html[data-theme="light"] #app [style*="background:#F1ECE4"],
+html[data-theme="light"] #app [style*="background: #F1ECE4"]{background:#F1F2F8!important}
+html[data-theme="light"] #app [style*="background: rgb(241, 236, 228)"]{background:#F1F2F8!important}
+html[data-theme="light"] #app [style*="background:#FCF3EA"],
+html[data-theme="light"] #app [style*="background: #FCF3EA"]{background:#F1F2F8!important}
+html[data-theme="light"] #app [style*="background: rgb(252, 243, 234)"]{background:#F1F2F8!important}
+html[data-theme="light"] #app [style*="background:#F8EBD6"],
+html[data-theme="light"] #app [style*="background: #F8EBD6"]{background:#F1F2F8!important}
+html[data-theme="light"] #app [style*="background: rgb(248, 235, 214)"]{background:#F1F2F8!important}
+html[data-theme="light"] #app [style*="background:#F3EEE6"],
+html[data-theme="light"] #app [style*="background: #F3EEE6"]{background:#F1F2F8!important}
+html[data-theme="light"] #app [style*="background: rgb(243, 238, 230)"]{background:#F1F2F8!important}
+html[data-theme="light"] #app [style*="background:#FBE3C2"],
+html[data-theme="light"] #app [style*="background: #FBE3C2"]{background:#ECEBFB!important}
+html[data-theme="light"] #app [style*="background: rgb(251, 227, 194)"]{background:#ECEBFB!important}
+html[data-theme="light"] #app [style*="background:#F8D9A8"],
+html[data-theme="light"] #app [style*="background: #F8D9A8"]{background:#ECEBFB!important}
+html[data-theme="light"] #app [style*="background: rgb(248, 217, 168)"]{background:#ECEBFB!important}
+html[data-theme="light"] #app [style*="background:#EFE3CE"],
+html[data-theme="light"] #app [style*="background: #EFE3CE"]{background:#E9EBF2!important}
+html[data-theme="light"] #app [style*="background: rgb(239, 227, 206)"]{background:#E9EBF2!important}
+html[data-theme="light"] #app [style*="background:#E4D9CC"],
+html[data-theme="light"] #app [style*="background: #E4D9CC"]{background:#E1E4EE!important}
+html[data-theme="light"] #app [style*="background: rgb(228, 217, 204)"]{background:#E1E4EE!important}
+html[data-theme="light"] #app [style*="background:#D5CCBE"],
+html[data-theme="light"] #app [style*="background: #D5CCBE"]{background:#D3D7E4!important}
+html[data-theme="light"] #app [style*="background: rgb(213, 204, 190)"]{background:#D3D7E4!important}
+html[data-theme="light"] #app [style*="background:#DAD3C8"],
+html[data-theme="light"] #app [style*="background: #DAD3C8"]{background:#E1E4EE!important}
+html[data-theme="light"] #app [style*="background: rgb(218, 211, 200)"]{background:#E1E4EE!important}
+html[data-theme="light"] #app [style*="border:1px solid #F0E2C8"],
+html[data-theme="light"] #app [style*="border: 1px solid #F0E2C8"]
+html[data-theme="light"] #app [style*="border-bottom:1px solid #F0E2C8"],
+html[data-theme="light"] #app [style*="border-bottom: 1px solid #F0E2C8"]
+html[data-theme="light"] #app [style*="border-top:1px solid #F0E2C8"],
+html[data-theme="light"] #app [style*="border-top: 1px solid #F0E2C8"]
+html[data-theme="light"] #app [style*="border:1px solid #E4D9CC"],
+html[data-theme="light"] #app [style*="border: 1px solid #E4D9CC"]
+html[data-theme="light"] #app [style*="border-bottom:1px solid #E4D9CC"],
+html[data-theme="light"] #app [style*="border-bottom: 1px solid #E4D9CC"]
+html[data-theme="light"] #app [style*="border-top:1px solid #E4D9CC"],
+html[data-theme="light"] #app [style*="border-top: 1px solid #E4D9CC"]
+html[data-theme="light"] #app [style*="border:1px solid #F0E2C8"],html[data-theme="light"] #app [style*="border: 1px solid #F0E2C8"],
+html[data-theme="light"] #app [style*="border-bottom:1px solid #F0E2C8"],html[data-theme="light"] #app [style*="border-bottom: 1px solid #F0E2C8"],
+html[data-theme="light"] #app [style*="border-top:1px solid #F0E2C8"],html[data-theme="light"] #app [style*="border:1px solid #E4D9CC"]{border-color:#E3E5EE!important}
+html[data-theme="light"] #app [style*="color:#6B6055"],html[data-theme="light"] #app [style*="color: #6B6055"],
+html[data-theme="light"] #app [style*="color:#6F6253"],html[data-theme="light"] #app [style*="color: #6F6253"]{color:#5B5F7A!important}
+html[data-theme="light"] #app [style*="color:#222"],html[data-theme="light"] #app [style*="color: #222"],
+html[data-theme="light"] #app [style*="color:#2B2118"],html[data-theme="light"] #app [style*="color: #2B2118"]{color:#171A33!important}
+/* newer screens */
+html[data-theme="light"] #app .hx-verse,html[data-theme="light"] #app .hx-row,html[data-theme="light"] #app .hx-set,html[data-theme="light"] #app .hx-ev,html[data-theme="light"] #app .hx-post,html[data-theme="light"] #app .an-kpi,html[data-theme="light"] #app .an-card{background:#fff!important;border-color:var(--hx-line)!important;box-shadow:0 1px 3px rgba(20,25,60,.07)}
+html[data-theme="light"] #app .hx-tabs button,html[data-theme="light"] #app .hx-umode,html[data-theme="light"] #app .hx-chips .chip,html[data-theme="light"] #app .tp,html[data-theme="light"] #app .hx-act,html[data-theme="light"] #app .hx-avact button,html[data-theme="light"] #app .vprev small,html[data-theme="light"] #app .dmday,html[data-theme="light"] #app #dm-att,html[data-theme="light"] #hx-ps .ps-x{background:rgba(23,26,51,.06)!important;color:var(--hx-text)}
+html[data-theme="light"] #app .hx-tabs button.on,html[data-theme="light"] #app .hx-umode button.on,html[data-theme="light"] #app .tp.on{background:linear-gradient(110deg,#7657D6,#9277F5)!important;color:#fff!important}
+html[data-theme="light"] #app .hx-umode button{color:var(--hx-muted)}
+html[data-theme="light"] #app .hx-skel{background:rgba(23,26,51,.04)}
+html[data-theme="light"] #app .hx-skel i{background:rgba(23,26,51,.09)}
+html[data-theme="light"] #app nav.hx-nav,html[data-theme="light"] #app .dmbar{background:rgba(255,255,255,.97)!important}
+html[data-theme="light"] #app nav.hx-nav button{color:#6B6F8C!important}
+html[data-theme="light"] #app nav.hx-nav button.on{color:#6544D8!important}
+html[data-theme="light"] #app .hx-map .tag,html[data-theme="light"] #app .phx button,html[data-theme="light"] #app .vprev button{background:rgba(255,255,255,.92);color:#171A33}
+html[data-theme="light"] #app .hx-imgs .ph,html[data-theme="light"] #app .phx,html[data-theme="light"] #app .dmi{background:#E3E6F0}
+html[data-theme="light"] #app .dmb.their{background:#fff;border-color:var(--hx-line);color:var(--hx-text)}
+html[data-theme="light"] #hx-ps .ps-card{background:#fff;color:#171A33;border-color:rgba(25,28,70,.12)}
+html[data-theme="light"] #hx-ps .ps-act button{color:#5B3FC4}
+html[data-theme="light"] #hx-ps .ps-act .fol.on{background:rgba(101,68,216,.12);color:#3F2A9A}
+html[data-theme="light"] #hx-ps .ps-act .msg{color:#1B1330}
+html[data-theme="light"] #hx-ps .ps-blk{color:#C2284B}
+html[data-theme="light"] #app .hx-chips .fol.on,html[data-theme="light"] #app .hx-post .fol.on{background:rgba(101,68,216,.12);color:#3F2A9A}
+html[data-theme="light"] #app .hx-ev .rsvp.on{background:rgba(31,157,90,.12);color:#17703F;border-color:rgba(31,157,90,.45)}
+html[data-theme="light"] #app .hx-ev .del,html[data-theme="light"] #app .hx-post .fol[data-postdel],html[data-theme="light"] #app .cmdel,html[data-theme="light"] #app .hx-msg{color:#C2284B}
+html[data-theme="light"] #app .hx-msg.ok{color:var(--hx-gold2)}
+html[data-theme="light"] #app .kd{background:rgba(101,68,216,.12);color:#5B3FC4}
+html[data-theme="light"] #app .kd.k-testimony{background:rgba(212,150,0,.16);color:#8A5E00}
+html[data-theme="light"] #app .kd.k-verse{background:rgba(31,157,90,.14);color:#17703F}
+html[data-theme="light"] #app .kd.k-encourage{background:rgba(47,109,224,.13);color:#1F52B5}
+html[data-theme="light"] #app .kd.k-thanks{background:rgba(217,115,13,.14);color:#B3560A}
+html[data-theme="light"] #app .kd.k-question{background:rgba(217,54,89,.12);color:#B3243F}
+html[data-theme="light"] #app .hx-quick .bdg{border-color:#F3F4F8}
+html[data-theme="light"] #app .hx-icon .dot{border-color:#fff}
+html[data-theme="light"] #app .hx-shared{background:rgba(212,150,0,.08)}
+html[data-theme="light"] #app .an-note{background:rgba(212,150,0,.12)}
+html[data-theme="light"] #app #rp-bar{background:rgba(101,68,216,.08)}
+html[data-theme="light"] #app .hx-map{background:#E5E9F6}
+html[data-theme="light"] #app .hx-map svg rect:first-child{fill:#E5E9F6}
+html[data-theme="light"] #app .hx-map svg g[stroke="#2B3678"]{stroke:#CBD3EE}
+html[data-theme="light"] #app .hx-map svg g[stroke="#33408A"]{stroke:#D7DDF2}
+html[data-theme="light"] #app .an-svg line,html[data-theme="light"] #app .an-svg [stroke="rgba(255,255,255,.18)"]{stroke:rgba(23,26,51,.18)}
+html[data-theme="light"] #app .hx-hero p{color:#E4DEFF!important}
+html[data-theme="light"] #app .hx-hero h2{color:#fff}
+html[data-theme="light"] #app .hx-pray h2,html[data-theme="light"] #app .hx-pray p{color:#fff!important}
+/* brand moments stay dark in both themes */
+#app .hx-welcome,#app .hx-splash{--hx-text:#F7F5FF;--hx-muted:#A9A7C8;--hx-gold:#FFC83D}
