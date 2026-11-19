@@ -1,0 +1,15 @@
+/* group chat: replies + reactions */
+#app #msgs .rq{margin:2px 0 6px;padding:5px 8px;border-left:3px solid #7657D6;border-radius:6px;background:rgba(0,0,0,.08);font-size:12px;line-height:1.35;color:inherit;opacity:.9;cursor:pointer;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+#app #msgs .rx{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+#app #msgs .rx:empty{display:none}
+#app #msgs .rxc{min-height:32px;padding:0 10px;border:1px solid rgba(118,87,214,.45);border-radius:16px;background:rgba(146,119,245,.14);color:inherit;font:700 13px system-ui,-apple-system,Roboto,Arial,sans-serif}
+#app #msgs .rxc.mine{background:rgba(146,119,245,.38);border-color:#9277F5}
+#app #msgs [data-mid].hl{outline:2px solid #FFC83D;outline-offset:2px;transition:outline-color .3s}
+#app #rp-bar{display:flex;align-items:center;gap:8px;margin-bottom:8px;padding:6px 6px 6px 12px;border-left:4px solid #7657D6;border-radius:10px;background:rgba(146,119,245,.16)}
+#app #rp-bar[hidden]{display:none}
+#app #rp-bar .rt{flex:1;min-width:0;display:flex;flex-direction:column;font-size:12px}
+#app #rp-bar .rt b{color:#9277F5}
+#app #rp-bar .rt span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:.85}
+#app #rp-bar button{width:44px;height:44px;border:0;border-radius:22px;background:none;color:inherit;font:700 22px/1 system-ui,sans-serif;flex:none}
+/* make the message menu's Close button readable */
+[data-ma="close"]{color:#222!important}

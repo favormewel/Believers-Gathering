@@ -30,10 +30,11 @@ function addMsg(m,quiet){
   else if(m.kind==="voice"){var d=m.duration_sec||0;b='<div style="display:flex;align-items:center;gap:10px"><button data-play="'+u+'" aria-label="Play voice note" style="width:44px;height:44px;border:0;border-radius:22px;background:#2F5BD8;color:#fff;font-size:16px">&#9654;</button><span><b>Voice note</b> &middot; '+Math.floor(d/60)+":"+("0"+d%60).slice(-2)+'</span></div>'}
   else if(m.kind==="verse")b='<div style="padding:8px;border:1.5px dashed #E2B04E;border-radius:10px;background:#F8EBD6">'+esc(m.body)+'<br><b>'+esc(m.file_name||"")+'</b></div>';
   else b='<div style="white-space:pre-wrap;word-wrap:break-word">'+esc(m.body)+'</div>';
-  w.innerHTML=h+b+'<div style="font-size:10px;color:#6B6055;text-align:right;margin-top:2px">'+tm(m.created_at||new Date())+'</div>';
+  var rq=m.reply_preview?'<div class="rq" data-rto="'+esc(m.reply_to||"")+'">'+esc(m.reply_preview)+'</div>':"";
+  w.innerHTML=h+rq+b+(m.id?'<div class="rx" data-rxfor="'+esc(m.id)+'"></div>':"")+'<div style="font-size:10px;color:#6B6055;text-align:right;margin-top:2px">'+tm(m.created_at||new Date())+'</div>';
   box.appendChild(w);if(!quiet)box.scrollTop=box.scrollHeight}
 function post(kind,o){
-  if(live()){db.from("messages").insert(Object.assign({group_id:gid,user_id:user.id,author_name:myName(),kind:kind},o)).select().single().then(function(r){if(r.error){alert("Could not send. Please try again.");return}addMsg(r.data);bump(r.data)})}
+  if(live()){db.from("messages").insert(Object.assign({group_id:gid,user_id:user.id,author_name:myName(),kind:kind},o,(window.CHEN_TAKEREPLY&&window.CHEN_TAKEREPLY())||{})).select().single().then(function(r){if(r.error){alert("Could not send. Please try again.");return}addMsg(r.data);bump(r.data)})}
   else addMsg(Object.assign({user_id:"me",author_name:"You",kind:kind,created_at:new Date().toISOString()},o))}
 window.FL_SEND=function(t){post("text",{body:t});return true};
 window.FL_SHARE=function(t,r){if(db&&user&&!gid)return false;post("verse",{body:t,file_name:r});return true};

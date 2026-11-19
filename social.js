@@ -57,7 +57,7 @@ function openMsg(el){
   if(k==="text"||k==="verse")h+=btn('data-ma="copy"',"Copy text");
   if(!mine)h+=btn('data-ma="report"',"Report this message")+btn('data-ma="block"',"Block "+nm,1);
   if(canDel)h+=btn('data-ma="delete"',"Delete message",1);
-  var s=sheetEl();s.innerHTML=panel("",h);s._m=el;s.querySelector("#ma-pre").textContent=(el.dataset.name?el.dataset.name+": ":"")+(el.dataset.text||k);s.hidden=false}
+  if(window.CHEN_MSGEXTRA)h=window.CHEN_MSGEXTRA(el)+h;var s=sheetEl();s.innerHTML=panel("",h);s._m=el;s.querySelector("#ma-pre").textContent=(el.dataset.name?el.dataset.name+": ":"")+(el.dataset.text||k);s.hidden=false}
 function reasons(){var s=sheetEl(),h="";["Harassment or bullying","Inappropriate or offensive","Spam or scam","Something else"].forEach(function(r){h+=btn('data-mr="'+r+'"',r)});s.innerHTML=panel("",h);s.querySelector("#ma-pre").textContent="Why are you reporting this message?"}
 function closeMsg(){if(sh)sh.hidden=true}
 function loadBlocks(cb){db.from("blocks").select("blocked_id,profiles!blocked_id(full_name)").then(function(r){Object.keys(blocked).forEach(function(k){delete blocked[k]});(r.data||[]).forEach(function(x){blocked[x.blocked_id]=(x.profiles&&x.profiles.full_name)||"Member"});if(cb)cb()})}
@@ -130,7 +130,7 @@ document.addEventListener("click",function(e){
     if(a2==="block"){var uid2=el.dataset.uid,nm2=el.dataset.name||"Member";if(!confirm("Block "+nm2+"? You will no longer see their messages."))return;closeMsg();
       db.from("blocks").insert({blocked_id:uid2}).then(function(r){if(r.error){alert("Could not block.");return}blocked[uid2]=nm2;document.querySelectorAll('#msgs [data-uid="'+uid2+'"]').forEach(function(n){n.remove()})});return}}
   if((x=t.closest("[data-mr]"))&&sh&&sh._m){var el2=sh._m,why=x.dataset.mr;closeMsg();db.from("reports").insert({message_id:el2.dataset.mid,group_id:G(),reason:why}).then(function(r){alert(r.error?"Could not send the report.":"Thank you. An admin will review this message.")});return}
-  if((x=t.closest("#msgs [data-mid]"))&&!t.closest("a,button,audio,input")&&x.dataset.mid){openMsg(x);return}
+  if((x=t.closest("#msgs [data-mid]"))&&!t.closest("a,button,audio,input,.rq")&&x.dataset.mid){openMsg(x);return}
   if(t.closest('[data-go="blocked"]'))renderBlocked();
   if((x=t.closest("[data-unblock]"))){var id3=x.dataset.uid;db.from("blocks").delete().eq("blocked_id",id3).then(function(r){if(r.error){alert("Could not unblock.");return}delete blocked[id3];renderBlocked()});return}
   if(t.closest('[data-go="notifications"]')){loadUpdates(function(){ls("fl-seen-upd",new Date().toISOString());renderUpdates();badge()});return}
