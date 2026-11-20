@@ -119,7 +119,7 @@ function build(){
    '<div class="hx-f"><span>Photos (optional, up to 4)</span><div id="np-photos" class="hx-photos"></div><button type="button" class="hx-addph" id="np-add">Add photos</button><input type="file" id="np-file" accept="image/*" multiple hidden></div>'+
    '<div class="hx-f"><span>Video (optional, up to 50 MB)</span><div id="np-video"></div><button type="button" class="hx-addph" id="np-addv">Add a video</button><input type="file" id="np-vfile" accept="video/*" hidden></div>'+
    '<div id="np-msg" class="hx-msg" role="alert"></div><button class="hx-cta" id="np-btn" type="button">Post</button>');
-  sec("myposts","My Posts","profile",'<div id="hx-myposts"></div>');
+  sec("myposts","My Posts","menu",'<div id="hx-myposts"></div>');
   /* events tab content */
   var ev=$("hx-ex-events");
   if(ev)ev.innerHTML='<button class="hx-cta slim" data-go="newevent" type="button">+ Create Event</button><div id="hx-ev-list" style="margin-top:14px"></div>';
@@ -144,7 +144,7 @@ function buildUpdates(){
   var s=document.createElement("section");s.id="updates";s.hidden=true;
   s.innerHTML='<div class="hx-screen"><header class="hx-top"><h1>Updates</h1><button class="hx-icon" aria-label="Share an update" data-go="newpost"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button></header>'+
    '<div class="hx-scroll" data-scroll style="padding-top:0"><div class="hx-sec" style="margin:4px 0 8px"><h2 style="font-size:15px">Share something</h2></div><div class="hx-tpls scroll">'+tplChips("")+'</div><div class="hx-umode" role="tablist"><button class="on" data-umode="all" role="tab">Everyone</button><button data-umode="following" role="tab">Following</button></div><div class="hx-ustats" id="hx-ustats"></div><div id="hx-ppl"></div><div id="hx-updates-feed"></div></div></div>';
-  var nv=document.querySelector("#groups nav.hx-nav");if(nv){var cn=nv.cloneNode(true);cn.querySelectorAll("button").forEach(function(b){var on=b.dataset.tab==="updates";b.classList.toggle("on",on);if(on)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current")});s.firstChild.appendChild(cn)}
+  var nv=document.querySelector("#groups nav.hx-nav");if(nv){var cn=nv.cloneNode(true);cn.querySelectorAll("button").forEach(function(b){var on=b.dataset.tab==="menu";b.classList.toggle("on",on);if(on)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current")});s.firstChild.appendChild(cn)}
   $("app").appendChild(s)}
 function loadUpdates(){
   var box=$("hx-updates-feed"),ppl=$("hx-ppl"),st=$("hx-ustats");if(!box)return;

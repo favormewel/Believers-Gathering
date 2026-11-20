@@ -90,12 +90,11 @@ function csv(){
 function build(){
   if($("analytics")||!$("app"))return;
   var s=document.createElement("section");s.id="analytics";s.hidden=true;
-  s.innerHTML='<div class="hx-screen"><header class="hx-top" style="padding-left:8px"><div style="display:flex;align-items:center;gap:2px"><button class="hx-icon" aria-label="Back" data-go="profile"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 5l-7 7 7 7"/></svg></button><h1 style="font-size:20px">Analytics</h1></div><button class="hx-icon" id="an-refresh" aria-label="Refresh"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5"/></svg></button></header>'+
+  s.innerHTML='<div class="hx-screen"><header class="hx-top" style="padding-left:8px"><div style="display:flex;align-items:center;gap:2px"><button class="hx-icon" aria-label="Back" data-go="menu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 5l-7 7 7 7"/></svg></button><h1 style="font-size:20px">Analytics</h1></div><button class="hx-icon" id="an-refresh" aria-label="Refresh"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5"/></svg></button></header>'+
    '<div class="hx-tabs an-range" role="tablist" aria-label="Time range"><button type="button" role="tab" data-anr="7">7 days</button><button type="button" role="tab" class="on" data-anr="30">30 days</button><button type="button" role="tab" data-anr="90">90 days</button></div>'+
    '<div class="hx-scroll" data-scroll style="padding-top:0"><div id="an-body"></div></div></div>';
   $("app").appendChild(s);
-  var ep=document.querySelector('#profile button[data-go="editprofile"]');
-  if(ep&&!$("hx-an-row")){var r=ep.cloneNode(true);r.id="hx-an-row";r.setAttribute("data-go","analytics");r.querySelector("span").textContent="Analytics";r.hidden=!window.FL_IS_ADMIN;ep.parentNode.insertBefore(r,ep)}}
+  }
 function syncRow(){var r=$("hx-an-row");if(r)r.hidden=!window.FL_IS_ADMIN}
 
 document.addEventListener("click",function(e){
