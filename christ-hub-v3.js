@@ -441,6 +441,7 @@ function openFromPush(o){
   if(o.indexOf("post:")===0&&/^[0-9a-f-]{36}$/i.test(o.slice(5))){FOCUS=o.slice(5);window.show("updates");loadUpdates()}
   else if(o==="tab:updates"){window.show("updates");loadUpdates()}
   else if(o==="tab:explore"){window.show("explore")}
+  else if(o==="tab:home"){window.show("home")}
   else if(o.indexOf("dm:")===0&&window.CHEN_OPENDM){window.CHEN_OPENDM(o.slice(3))}}
 if(navigator.serviceWorker)navigator.serviceWorker.addEventListener("message",function(e){if(e.data&&e.data.open)openFromPush(e.data.open)});
 (function(){var m=(location.search.match(/[?&]open=([^&]+)/)||[])[1];if(m){try{m=decodeURIComponent(m)}catch(x){m=""}

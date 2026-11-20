@@ -1,0 +1,47 @@
+/* live banner, verse cards, invite, birthdays */
+#app .v9-sub{margin:0 0 14px;font-size:13px;line-height:1.5;color:var(--hx-muted)}
+#app .v9-chk{display:flex;align-items:center;gap:10px;margin:2px 0 14px;min-height:44px;font:600 14px Inter,sans-serif;color:var(--hx-text)}
+#app .v9-chk input{width:22px;height:22px;min-height:0;flex:none;accent-color:#7657D6}
+/* live */
+#app .lv-banner{display:flex;align-items:center;gap:12px;margin:2px 0 12px;padding:12px 14px;border-radius:18px;background:linear-gradient(110deg,#D81B4F,#FF5A7A);color:#fff!important;text-decoration:none;box-shadow:0 8px 20px rgba(216,27,79,.28)}
+#app .lv-banner .tx{flex:1;min-width:0;display:flex;flex-direction:column}
+#app .lv-banner .tx b{font:800 12px Inter,sans-serif;letter-spacing:1.2px}
+#app .lv-banner .tx span{font:700 15px Inter,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#app .lv-banner .go{padding:9px 18px;border-radius:20px;background:#fff;color:#D81B4F;font:800 13.5px Inter,sans-serif;flex:none}
+#app .lv-dot{width:12px;height:12px;border-radius:6px;background:#fff;flex:none;box-shadow:0 0 0 0 rgba(255,255,255,.7)}
+@media (prefers-reduced-motion:no-preference){#app .lv-dot{animation:lvp 1.6s infinite}}
+@keyframes lvp{0%{box-shadow:0 0 0 0 rgba(255,255,255,.7)}70%{box-shadow:0 0 0 10px rgba(255,255,255,0)}100%{box-shadow:0 0 0 0 rgba(255,255,255,0)}}
+#app .gl-cur{display:flex;align-items:center;gap:12px;margin-bottom:14px;padding:12px 14px;border-radius:16px;background:linear-gradient(110deg,#D81B4F,#FF5A7A);color:#fff}
+#app .gl-cur .tx{flex:1;min-width:0;display:flex;flex-direction:column}
+#app .gl-cur .tx b{font:800 13px Inter,sans-serif}
+#app .gl-cur .tx span{font:600 14px Inter,sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#app .gl-cur button{min-height:40px;padding:0 16px;border:0;border-radius:20px;background:#fff;color:#D81B4F;font:800 13px Inter,sans-serif}
+/* verse cards */
+#app .vc-wrap{margin:2px 0 14px;border-radius:16px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.25);background:#111}
+#app #vc-canvas{display:block;width:100%;height:auto}
+#app .vc-sws{display:flex;gap:10px;flex-wrap:wrap}
+#app .vc-sw{width:48px;height:48px;border-radius:24px;border:3px solid transparent;box-shadow:0 0 0 1px var(--hx-line);padding:0}
+#app .vc-sw.on{border-color:var(--hx-purple2);box-shadow:0 0 0 2px var(--hx-purple2)}
+/* invite */
+#app .iv-hero{margin:4px 0 14px;padding:20px 18px;border-radius:20px;background:linear-gradient(130deg,#3A2A66,#6544D8);color:#fff}
+#app .iv-hero h2{margin:0 0 6px;font-size:21px;font-weight:800;color:#fff}
+#app .iv-hero p{margin:0;font-size:14px;line-height:1.5;color:#E8E2FF!important}
+#app .iv-stat{display:flex;align-items:baseline;gap:10px;margin-bottom:16px;padding:14px 16px;border-radius:16px;background:var(--hx-card);border:1px solid var(--hx-line)}
+#app .iv-stat b{font:800 30px Inter,sans-serif;color:var(--hx-gold)}
+#app .iv-stat span{font:600 13px Inter,sans-serif;color:var(--hx-muted)}
+#app a.iv-wa{display:flex;align-items:center;justify-content:center;margin-top:10px;text-decoration:none;box-sizing:border-box}
+/* birthdays */
+#app .bd-form{display:grid;grid-template-columns:2fr 1fr;gap:12px}
+#app .bd-me{margin:0 0 12px;padding:14px 16px;border-radius:18px;background:linear-gradient(120deg,#FFD35C,#F2B22E);color:#1B1330;display:flex;flex-direction:column;gap:2px}
+#app .bd-me b{font:800 17px Inter,sans-serif}
+#app .bd-me span{font:600 13px Inter,sans-serif}
+#app .bd-card{margin:0 0 12px;padding:14px;border-radius:18px;background:var(--hx-card);border:1px solid var(--hx-line)}
+#app .bd-card h2{margin:0 0 6px;font:800 15px Inter,sans-serif}
+#app .bd-list{list-style:none;margin:0;padding:0}
+#app .bd-list li{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--hx-line)}
+#app .bd-list li:last-child{border-bottom:0}
+#app .bd-list .tx{flex:1;min-width:0;display:flex;flex-direction:column}
+#app .bd-list b{font-size:14px}
+#app .bd-list small{font-size:12px;color:var(--hx-muted)}
+#app .bd-wish{min-height:40px;padding:0 16px;border:0;border-radius:20px;background:linear-gradient(110deg,#7657D6,#9277F5);color:#fff;font:700 13px Inter,sans-serif}
+html[data-theme="light"] #app .bd-card,html[data-theme="light"] #app .iv-stat{background:#fff;box-shadow:0 1px 3px rgba(20,25,60,.07)}

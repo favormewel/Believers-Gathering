@@ -179,7 +179,7 @@ function sendPhoto(file){
         afterSent(el,row)})},function(){if(el)el.remove();toast("Photo could not be sent.")})})}
 
 /* ---------- start a conversation ---------- */
-function startDm(otherId,name){
+function startDm(otherId,name,prefill){
   if(!db()||!me()){toast("Please sign in first.");return}
   if(otherId===me().id)return;
   db().rpc("start_dm",{p_other:otherId}).then(function(r){
@@ -187,7 +187,7 @@ function startDm(otherId,name){
       var m=(r.error&&r.error.message)||"";
       toast(/blocked/i.test(m)?"You can\u2019t message this person.":/function|schema cache|could not find/i.test(m)?"Direct messages are not set up yet. Run the messages SQL in Supabase.":"Could not start the chat. Please try again.");return}
     var t=TH.filter(function(x){return x.id===r.data})[0]||{id:r.data,otherId:otherId,name:name||"Member"};
-    openDm(t)},function(){toast("Could not start the chat. Please try again.")})}
+    openDm(t);if(prefill){var tb=$("dm-text");if(tb){tb.value=prefill;autoGrow()}}},function(){toast("Could not start the chat. Please try again.")})}
 var sT=null;
 function searchMembers(){
   var q=($("newdm-q").value||"").trim(),box=$("newdm-list");
@@ -230,6 +230,7 @@ function tryPending(){
   var t=TH.filter(function(x){return x.id===id})[0];
   if(t){PENDING="";openDm(t);return}
   loadThreads(function(){var t2=TH.filter(function(x){return x.id===id})[0];PENDING="";if(t2)openDm(t2);else window.show("messages")})}
+window.CHEN_STARTDM=function(id,name,pre){startDm(id,name,pre)};
 window.CHEN_OPENDM=function(id){if(/^[0-9a-f-]{36}$/i.test(String(id))){PENDING=String(id);tryPending()}};
 function refresh(){
   build();listen();
