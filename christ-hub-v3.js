@@ -273,21 +273,21 @@ function toggleLike(btn){
   btn.classList.toggle("on",!on);btn.setAttribute("aria-pressed",on?"false":"true");btn.querySelector("span").textContent=n;S.like[id]=n;S.mine[id]=on?0:1;
   var q=on?db().from("post_likes").delete().eq("post_id",id).eq("user_id",uid):db().from("post_likes").insert({post_id:id,user_id:uid});
   q.then(function(r){delete btn.dataset.busy;if(r.error){btn.classList.toggle("on",on);S.like[id]=n+(on?1:-1);btn.querySelector("span").textContent=S.like[id];S.mine[id]=on?1:0}})}
-function loadComments(id,owner){
-  var box=$("cm-"+id);if(!box)return;
+function loadComments(id,owner,box){
+  box=box||$("cm-"+id);if(!box)return;
   box.innerHTML='<div class="cmrow note">Loading...</div>';
   db().from("post_comments").select("*").eq("post_id",id).order("created_at",{ascending:true}).limit(100).then(function(r){
     var uid=me().id,rows=(r.data||[]).filter(function(c){return !blocked(c.user_id)});
     loadAvatars(rows.map(function(c){return c.user_id}),function(){
     box.innerHTML=(r.error?'<div class="cmrow note">Comments could not load.</div>':rows.length?rows.map(function(c){
-      return '<div class="cmrow"><span class="av sm" style="background:'+col(c.user_id)+'"'+(c.user_id!==uid?' data-person="'+esc(c.user_id)+'" data-pname="'+esc(c.author_name||"Member")+'"':"")+'>'+avInner(c.user_id,c.author_name)+'</span><div class="cb"><b'+(c.user_id!==uid?' data-person="'+esc(c.user_id)+'" data-pname="'+esc(c.author_name||"Member")+'"':"")+'>'+esc(c.author_name||"Member")+'</b> <small>'+esc(ago(c.created_at))+'</small>'+((c.user_id===uid||owner===uid)?'<button type="button" class="cmdel" data-cmdel="'+esc(c.id)+'" data-post="'+esc(id)+'" data-owner="'+esc(owner)+'">Delete</button>':'')+'<p>'+esc(c.body)+'</p></div></div>'}).join(""):'<div class="cmrow note">No comments yet.</div>')+
+      return '<div class="cmrow" data-uid="'+esc(c.user_id||"")+'"><span class="av sm" style="background:'+col(c.user_id)+'"'+(c.user_id!==uid?' data-person="'+esc(c.user_id)+'" data-pname="'+esc(c.author_name||"Member")+'"':"")+'>'+avInner(c.user_id,c.author_name)+'</span><div class="cb"><b'+(c.user_id!==uid?' data-person="'+esc(c.user_id)+'" data-pname="'+esc(c.author_name||"Member")+'"':"")+'>'+esc(c.author_name||"Member")+'</b> <small>'+esc(ago(c.created_at))+'</small>'+((c.user_id===uid||owner===uid)?'<button type="button" class="cmdel" data-cmdel="'+esc(c.id)+'" data-post="'+esc(id)+'" data-owner="'+esc(owner)+'">Delete</button>':'')+'<p>'+esc(c.body)+'</p></div></div>'}).join(""):'<div class="cmrow note">No comments yet.</div>')+
       '<div class="cmform"><textarea rows="2" placeholder="Write a comment..." aria-label="Write a comment"></textarea><button type="button" data-cmsend="'+esc(id)+'" data-owner="'+esc(owner)+'">Send</button></div>'})})}
 function sendComment(btn){
   var id=btn.dataset.cmsend,inp=btn.parentNode.querySelector("textarea"),t=inp.value.trim();
   if(!t||btn.disabled)return;btn.disabled=true;
   db().from("post_comments").insert({post_id:id,body:t,author_name:myName()}).then(function(r){
     btn.disabled=false;if(r.error){alert("Could not post your comment. Please try again.");return}
-    S.cm[id]=(S.cm[id]||0)+1;var c=document.querySelector('[data-cm="'+id+'"] span');if(c)c.textContent=S.cm[id];loadComments(id,btn.dataset.owner)})}
+    S.cm[id]=(S.cm[id]||0)+1;document.querySelectorAll('[data-cm="'+id+'"] span').forEach(function(c){c.textContent=S.cm[id]});loadComments(id,btn.dataset.owner,btn.closest(".cmbox"))})}
 function bodyHTML(p){
   var b=p.body||"",long=b.length>320||(b.match(/\n/g)||[]).length>5;
   return b?'<p class="pb'+(long?" clamp":"")+'">'+esc(b)+'</p>'+(long?'<button type="button" class="more" data-more aria-expanded="false">Read more</button>':""):""}
@@ -297,7 +297,7 @@ function imgsHTML(p){
 function postHTML(p,uid,opts){
   var mine=p.user_id===uid;
   var pp=(p.user_id&&uid&&p.user_id!==uid)?' data-person="'+esc(p.user_id)+'" data-pname="'+esc(p.author_name||"Member")+'"':"";
-  return '<article class="hx-post" data-imgs="'+esc(JSON.stringify(p.image_urls||[]))+'" data-vids="'+esc(JSON.stringify([p.video_url||"",p.video_poster||""]))+'"><span class="av" style="background:'+col(p.user_id)+'"'+pp+'>'+avInner(p.user_id,p.author_name)+'</span><div class="tx"><div class="hd"><b'+pp+'>'+esc(p.author_name||"Member")+'</b><small>'+esc(ago(p.created_at))+'</small>'+
+  return '<article class="hx-post" data-uid="'+esc(p.user_id||"")+'" data-imgs="'+esc(JSON.stringify(p.image_urls||[]))+'" data-vids="'+esc(JSON.stringify([p.video_url||"",p.video_poster||""]))+'"><span class="av" style="background:'+col(p.user_id)+'"'+pp+'>'+avInner(p.user_id,p.author_name)+'</span><div class="tx"><div class="hd"><b'+pp+'>'+esc(p.author_name||"Member")+'</b><small>'+esc(ago(p.created_at))+'</small>'+
    (mine?(opts&&opts.del?'<button type="button" class="fol" data-postdel="'+esc(p.id)+'">Delete</button>':""):'<button type="button" class="fol'+(following[p.user_id]?" on":"")+'" data-follow="'+esc(p.user_id)+'">'+(following[p.user_id]?"Following":"Follow")+'</button>')+
    '</div>'+(p.kind&&KL[p.kind]?'<span class="kd k-'+esc(p.kind)+'">'+esc(KL[p.kind])+'</span>':"")+bodyHTML(p)+imgsHTML(p)+vidHTML(p)+actions(p)+'</div></article>'}
 function loadFeed(){
@@ -407,9 +407,9 @@ document.addEventListener("click",function(e){
   if(T.closest("#hx-av-change")||T.closest("#me-avatar")){$("av-file").click();return}
   if(T.closest("#hx-av-rm")){if(confirm("Remove your profile photo?"))removeAvatar();return}
   if((b=T.closest("[data-like]")))return toggleLike(b);
-  if((b=T.closest("[data-cm]"))){var bx=$("cm-"+b.dataset.cm);if(bx){bx.hidden=!bx.hidden;if(!bx.hidden)loadComments(b.dataset.cm,b.dataset.owner)}return}
+  if((b=T.closest("[data-cm]"))){var pc=b.closest(".hx-post"),bx=(pc&&pc.querySelector(".cmbox"))||$("cm-"+b.dataset.cm);if(bx){bx.hidden=!bx.hidden;if(!bx.hidden)loadComments(b.dataset.cm,b.dataset.owner,bx)}return}
   if((b=T.closest("[data-cmsend]")))return sendComment(b);
-  if((b=T.closest("[data-cmdel]"))){if(confirm("Delete this comment?"))db().from("post_comments").delete().eq("id",b.dataset.cmdel).then(function(){var id=b.dataset.post,c=document.querySelector('[data-cm="'+id+'"] span');if(c)c.textContent=Math.max(0,(S.cm[id]||1)-1),S.cm[id]=Math.max(0,(S.cm[id]||1)-1);loadComments(id,b.dataset.owner)});return}
+  if((b=T.closest("[data-cmdel]"))){if(confirm("Delete this comment?"))db().from("post_comments").delete().eq("id",b.dataset.cmdel).then(function(){var id=b.dataset.post,bx=b.closest(".cmbox"),n=Math.max(0,(S.cm[id]||1)-1);S.cm[id]=n;document.querySelectorAll('[data-cm="'+id+'"] span').forEach(function(c){c.textContent=n});loadComments(id,b.dataset.owner,bx)});return}
   if((b=T.closest("[data-postdel]"))){
     if(confirm("Delete this post?")){var art=b.closest(".hx-post"),paths=[];
       var vpaths=[];

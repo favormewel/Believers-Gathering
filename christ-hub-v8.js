@@ -17,6 +17,8 @@ var P={
  chart:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
  verse:'<path d="M10 11H6a4 4 0 0 1 4-4M18 11h-4a4 4 0 0 1 4-4"/><path d="M6 11v4h4v-4M14 11v4h4v-4"/>',
  invite:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.5 3-5.5 6.5-5.5s6.5 2 6.5 5.5M19 8v6M16 11h6"/>',
+ megaphone:'<path d="M3 11v2a1 1 0 0 0 1 1h3l6 4V6L7 10H4a1 1 0 0 0-1 1z"/><path d="M17 9a4 4 0 0 1 0 6"/>',
+ toolbox:'<rect x="3" y="8" width="18" height="12" rx="2.5"/><path d="M9 8V6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M3 13h18"/>',
  live:'<circle cx="12" cy="12" r="2.2"/><path d="M7.5 7.5a6.4 6.4 0 0 0 0 9M16.5 7.5a6.4 6.4 0 0 1 0 9M4.7 4.7a10.4 10.4 0 0 0 0 14.6M19.3 4.7a10.4 10.4 0 0 1 0 14.6"/>'};
 function ico(k,bg){return '<i style="background:'+bg+'"><svg viewBox="0 0 24 24" aria-hidden="true">'+P[k]+'</svg></i>'}
 function tile(k,label,attrs,bg,extra){return '<button type="button" class="mn-t" '+attrs+'>'+ico(k,bg)+'<span class="lb">'+esc(label)+'</span>'+(extra||"")+'</button>'}
@@ -31,6 +33,7 @@ function build(){
     tile("posts","My posts",'data-go="myposts"',G.pu)+
     tile("groups","My groups",'data-go="groups"',G.gr)+
     tile("explore","Explore",'data-go="explore"',G.tl)+
+    tile("megaphone","Announcements",'data-go="announcements"',G.or,'<em class="bdg" id="mn-ann" hidden></em>')+
     tile("events","Events",'data-mn="events"',G.rd)+
     tile("verse","Verse cards",'data-go="versecard"',G.go)+
     tile("invite","Invite friends",'data-go="invite"',G.pu)+
@@ -40,11 +43,12 @@ function build(){
     tile("install","Install app",'data-mn="install" id="mn-install" hidden',G.bl)+
     '<a class="mn-t" href="admin.html" data-adm hidden>'+ico("shield",G.rd)+'<span class="lb">Admin panel</span></a>'+
     tile("chart","Analytics",'data-go="analytics" data-adm hidden',G.gr)+
-    tile("live","Go live",'data-go="golive" data-adm hidden',G.rd);
+    tile("live","Go live",'data-go="golive" data-adm hidden',G.rd)+
+    tile("toolbox","Admin tools",'data-go="admintools" data-adm hidden',G.pu);
   s.innerHTML='<div class="hx-screen"><header class="hx-top"><h1>Menu</h1></header><div class="hx-scroll" data-scroll>'+
     '<button type="button" class="mn-prof" data-go="profile"><span class="mn-av" id="mn-av" aria-hidden="true">G</span><span class="tx"><b id="mn-name">Guest</b><small id="mn-bio">View your profile</small></span><span class="ch" aria-hidden="true">&rsaquo;</span></button>'+
     '<div class="mn-grid" id="mn-grid" role="list">'+tiles+'</div>'+
-    '<button type="button" class="hx-logout" id="mn-out">Log out</button><p class="an-foot">Chen Network &middot; version 35</p></div></div>';
+    '<button type="button" class="hx-logout" id="mn-out">Log out</button><p class="an-foot">Chen Network &middot; version 36</p></div></div>';
   $("app").appendChild(s);
   var nv=document.querySelector("#groups nav.hx-nav");
   if(nv){var cn=nv.cloneNode(true);cn.querySelectorAll("button").forEach(function(b){var on=b.dataset.tab==="menu";b.classList.toggle("on",on);if(on)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current")});s.firstChild.appendChild(cn)}

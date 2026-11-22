@@ -1,0 +1,45 @@
+/* announcements, admin tools, verified badge */
+#app .vf{width:16px;height:16px;margin-left:5px;vertical-align:-3px;flex:none}
+#app .an-item{margin-bottom:12px;padding:14px 16px;border-radius:18px;background:var(--hx-card);border:1px solid var(--hx-line)}
+#app .an-item h3{margin:0 0 6px;font:800 16px Inter,sans-serif}
+#app .an-item p{margin:0 0 8px;font-size:14px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere}
+#app .an-item small{font-size:12px;color:var(--hx-muted)}
+#app .bc-card{margin:0 0 12px;padding:14px 16px;border-radius:18px;background:linear-gradient(135deg,#FFE9B0,#FFD35C);color:#1B1330}
+#app .bc-h{display:flex;align-items:center;justify-content:space-between}
+#app .bc-h b{font:800 12px Inter,sans-serif;letter-spacing:1px;text-transform:uppercase}
+#app .bc-h button{width:44px;height:44px;margin:-8px -10px -8px 0;border:0;background:none;color:#1B1330;font:700 24px/1 Inter,sans-serif}
+#app .bc-card h3{margin:2px 0 4px;font:800 16px Inter,sans-serif;color:#1B1330}
+#app .bc-card p{margin:0 0 10px;font-size:14px;line-height:1.5;color:#1B1330!important;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;white-space:pre-wrap}
+#app .bc-go{min-height:40px;padding:0 18px;border:0;border-radius:20px;background:#1B1330;color:#fff;font:700 13px Inter,sans-serif}
+#app .sus-card{margin:0 0 12px;padding:12px 14px;border-radius:16px;background:rgba(217,54,89,.14);border:1px solid rgba(217,54,89,.5);display:flex;flex-direction:column;gap:2px}
+#app .sus-card b{font:800 14px Inter,sans-serif;color:var(--hx-red)}
+#app .sus-card span{font-size:13px;color:var(--hx-text)}
+#app .ab-aud{margin:0 0 14px;padding:0;border:0}
+#app .ab-aud legend{padding:0;margin-bottom:6px;font:700 13px Inter,sans-serif}
+#app .ab-aud label{display:flex;align-items:center;gap:10px;min-height:44px;font:600 14.5px Inter,sans-serif}
+#app .ab-aud input{width:22px;height:22px;min-height:0;flex:none;accent-color:#7657D6}
+#app .sp-item,#app .mm-item{margin-bottom:10px;padding:12px 14px;border-radius:16px;background:var(--hx-card);border:1px solid var(--hx-line)}
+#app .sp-h{display:flex;align-items:center;justify-content:space-between;gap:8px}
+#app .sp-h b{font:700 13.5px Inter,sans-serif}
+#app .sp-st{padding:3px 10px;border-radius:12px;font:800 11px Inter,sans-serif;background:rgba(146,119,245,.2);color:var(--hx-purple2)}
+#app .sp-st.s-published{background:rgba(31,157,90,.18);color:var(--hx-green)}
+#app .sp-st.s-cancelled{background:rgba(120,120,140,.2);color:var(--hx-muted)}
+#app .sp-item p{margin:6px 0 4px;font-size:13.5px;line-height:1.45;overflow-wrap:anywhere}
+#app .sp-x{min-height:40px;padding:0 4px;border:0;background:none;color:var(--hx-red);font:700 13px Inter,sans-serif}
+#app .mm-h{margin:18px 0 8px;font:800 15px Inter,sans-serif}
+#app .mm-top{display:flex;align-items:center;gap:12px}
+#app .mm-top .av{width:42px;height:42px;border-radius:21px;color:#fff;display:flex;align-items:center;justify-content:center;font:800 13px Inter,sans-serif;flex:none}
+#app .mm-top .tx{flex:1;min-width:0}
+#app .mm-top b{display:block;font-size:14.5px}
+#app .mm-top small{display:block;font-size:12px;color:var(--hx-muted)}
+#app .mm-tag{padding:3px 10px;border-radius:12px;font:800 11px Inter,sans-serif;background:rgba(146,119,245,.2);color:var(--hx-purple2)}
+#app .mm-tag.bad{background:rgba(217,54,89,.16);color:var(--hx-red)}
+#app .mm-act{display:flex;gap:8px;margin-top:10px}
+#app .mm-act button{flex:1;min-height:44px;border-radius:22px;border:1.5px solid var(--hx-purple2);background:transparent;color:var(--hx-purple2);font:700 13px Inter,sans-serif}
+#app .mm-act button.warn{border-color:var(--hx-red);color:var(--hx-red)}
+#app .mm-ul{list-style:none;margin:0;padding:0}
+#app .mm-ul li{padding:8px 0;border-bottom:1px solid var(--hx-line);font-size:13px;line-height:1.4}
+#app .mm-ul small{color:var(--hx-muted)}
+html[data-theme="light"] #app .an-item,html[data-theme="light"] #app .sp-item,html[data-theme="light"] #app .mm-item{background:#fff;box-shadow:0 1px 3px rgba(20,25,60,.07)}
+#app .bc-card *{background:transparent!important}
+#app .hx-f select{width:100%;box-sizing:border-box;min-height:50px;padding:0 12px;font:16px Inter,sans-serif}
