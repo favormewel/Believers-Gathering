@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Chen Network speed test</title>
+<style>
+  body{margin:0;background:#F3F4F8;color:#171A33;font:16px/1.5 system-ui,-apple-system,Roboto,Arial,sans-serif;padding:20px 16px 60px}
+  main{max-width:520px;margin:0 auto}
+  h1{font-size:22px;margin:0 0 4px} p{margin:6px 0;color:#5B5F7A}
+  button{min-height:52px;padding:0 24px;border:0;border-radius:26px;font-weight:800;font-size:16px;cursor:pointer}
+  #go{width:100%;margin:16px 0;background:linear-gradient(110deg,#FFD35C,#F2B22E);color:#1B1330}
+  #go:disabled{opacity:.6}
+  .card{margin:12px 0;padding:14px 16px;border-radius:16px;background:#fff;border:1px solid #E1E4EE}
+  .card h2{margin:0 0 2px;font-size:16px}
+  .big{font-size:30px;font-weight:800}
+  .tag{display:inline-block;margin-left:8px;padding:2px 10px;border-radius:12px;font-size:12px;font-weight:800}
+  .good{background:#DDF5E8;color:#17703F}.ok{background:#FFF0C9;color:#8A5E00}.bad{background:#FFDDE4;color:#B3243F}
+  small{color:#5B5F7A} #copy{width:100%;background:#6544D8;color:#fff;margin-top:8px}
+  #info{white-space:pre-wrap;font-size:13px}
+</style>
+</head>
+<body>
+<main>
+  <h1>Chen Network speed test</h1>
+  <p>This measures how long your phone takes to reach the app files and the database. It takes about 15 seconds. Use your normal mobile data or Wi-Fi.</p>
+  <button id="go" type="button">Start the test</button>
+  <div id="out" aria-live="polite"></div>
+  <button id="copy" type="button" hidden>Copy results to send</button>
+  <p id="info"></p>
+</main>
+<script src="config.js"></script>
+<script>
+(function(){
+  var $=function(i){return document.getElementById(i)};
+  var C=window.FAITHLINK_CONFIG||{};
+  function median(a){a=a.slice().sort(function(x,y){return x-y});return a[Math.floor(a.length/2)]}
+  function time(url,opts){var t=performance.now();return fetch(url,opts).then(function(r){return r.arrayBuffer().then(function(b){return{ms:performance.now()-t,status:r.status,bytes:b.byteLength}})}).catch(function(){return{ms:null}})}
+  function runN(n,mk){var res=[],p=Promise.resolve();for(var i=0;i<n;i++)(function(i){p=p.then(function(){return mk(i)}).then(function(r){res.push(r)})})(i);return p.then(function(){return res})}
+  function verdict(ms){return ms<150?['Fast','good']:ms<350?['OK','ok']:['Slow','bad']}
+  function card(title,sub,ms,fails){
+    if(ms==null)return '<div class="card"><h2>'+title+'</h2><p>Could not reach it. '+sub+'</p></div>';
+    var v=verdict(ms);return '<div class="card"><h2>'+title+'</h2><span class="big">'+Math.round(ms)+' ms</span><span class="tag '+v[1]+'">'+v[0]+'</span><br><small>'+sub+(fails?' ('+fails+' failed)':'')+'</small></div>'}
+  var lines=[];
+  $("go").onclick=function(){
+    var b=$("go");b.disabled=true;b.textContent="Testing...";$("out").innerHTML="";$("copy").hidden=true;lines=[];
+    var site=location.origin+location.pathname.replace(/[^\/]*$/,"")+"config.js";
+    var sb=(C.SUPABASE_URL||"").replace(/\/$/,"");
+    var hdr={headers:{apikey:C.SUPABASE_ANON_KEY||""},cache:"no-store"};
+    runN(6,function(i){return time(site+"?t="+Date.now()+i,{cache:"no-store"})}).then(function(r){
+      var ok=r.filter(function(x){return x.ms!=null}).map(function(x){return x.ms}).slice(1);
+      var m=ok.length?median(ok):null;lines.push("Website: "+(m==null?"failed":Math.round(m)+" ms"));
+      var f1=r.filter(function(x){return x.ms==null}).length;
+      $("out").insertAdjacentHTML("beforeend",card("Your website (GitHub)","Time to fetch a small file",m,f1));
+      if(!sb){$("out").insertAdjacentHTML("beforeend",'<div class="card"><h2>Database</h2><p>No database address found in config.js.</p></div>');return}
+      return runN(6,function(i){return time(sb+"/auth/v1/health?t="+Date.now()+i,hdr)}).then(function(r2){
+        var ok2=r2.filter(function(x){return x.ms!=null}).map(function(x){return x.ms}).slice(1);
+        var m2=ok2.length?median(ok2):null;lines.push("Database: "+(m2==null?"failed":Math.round(m2)+" ms"));
+        $("out").insertAdjacentHTML("beforeend",card("Your database (Supabase)","Time for one request to get an answer",m2,r2.filter(function(x){return x.ms==null}).length));
+        var shown=m2==null?"":(m2<150?"Your database is close and quick. Slowness would come from how many requests a screen makes.":m2<350?"Each request takes a noticeable moment. Screens that make several requests in a row will feel slow, so we should cut or combine them.":"Each request is slow on your connection. We should make the app show saved data first and load fresh data quietly.");
+        if(shown)$("out").insertAdjacentHTML("beforeend",'<div class="card"><h2>What this means</h2><p>'+shown+'</p></div>');
+      })}).then(function(){
+      var con=navigator.connection;
+      var info="Connection: "+(con&&con.effectiveType?con.effectiveType+(con.downlink?", about "+con.downlink+" Mbps":""):"not reported")+"\nTime: "+new Date().toLocaleString();
+      $("info").textContent=info;lines.push(info.replace(/\n/g," | "));
+      $("copy").hidden=false;b.disabled=false;b.textContent="Run it again"})};
+  $("copy").onclick=function(){var t=lines.join("\n");if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(function(){$("copy").textContent="Copied"},function(){window.prompt("Copy this",t)});else window.prompt("Copy this",t)};
+})();
+</script>
+</body>
+</html>
