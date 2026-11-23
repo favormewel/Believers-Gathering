@@ -78,13 +78,16 @@ function badge(){
   var b=document.querySelector('#home .hx-quick [data-go="messages"] .bdg');
   if(b){b.hidden=!n;b.textContent=n>99?"99+":n}
   var tile=document.querySelector('#home .hx-quick [data-go="messages"]');if(tile)tile.setAttribute("aria-label","Messages"+(n?", "+n+" unread":""))}
+function thKey(){var u=me();return u?"fl-dml-"+u.id:""}
 function loadThreads(cb){
   if(!db()||!me()){TH=[];renderList();badge();if(cb)cb();return}
   STAMPT=Date.now();
+  if(!TH.length){try{var c=JSON.parse(localStorage.getItem(thKey())||"null");if(c&&c.length){TH=c;renderList();badge()}}catch(e){}}
   db().rpc("my_dms").then(function(r){
     if(r.error){DMOFF=true;TH=[];renderList();badge();if(cb)cb();return}
     DMOFF=false;
     TH=(r.data||[]).map(function(x){return{id:x.thread_id,otherId:x.other_id,name:x.other_name||"Member",body:x.last_body,at:x.last_at,sender:x.last_sender,unread:+x.unread||0}});
+    try{localStorage.setItem(thKey(),JSON.stringify(TH))}catch(e){}
     loadAvatars(TH.map(function(t){return t.otherId}),function(){renderList();badge();if(cb)cb()})},function(){DMOFF=true;renderList();if(cb)cb()})}
 
 /* ---------- conversation ---------- */
@@ -125,6 +128,7 @@ function fetchMsgs(initial){
     if(!CUR||CUR.id!==id)return;
     if(r.error){box.innerHTML='<div class="dm-note">Could not load messages. Run the messages SQL in Supabase if this is new.</div>';return}
     var rows=(r.data||[]).slice().reverse();
+    if(initial){try{localStorage.setItem("fl-dmm-"+id,JSON.stringify(rows.slice(-40)))}catch(e){}}
     if(initial){box.innerHTML="";LASTDAY="";SEEN={};LAST=""}
     var added=0,fromOther=false;
     rows.forEach(function(m){if(addMsg(m)){added++;if(m.sender_id!==me().id)fromOther=true}});
@@ -133,8 +137,10 @@ function fetchMsgs(initial){
 function openDm(t){
   if(!t)return;CUR={id:t.id,otherId:t.otherId,name:t.name};
   $("dm-name").textContent=t.name;$("dm-av").innerHTML=avHTML(t.otherId,t.name);
+  var cachedMsgs=null;try{cachedMsgs=JSON.parse(localStorage.getItem("fl-dmm-"+t.id)||"null")}catch(e){}
   $("dm-list").innerHTML='<div class="dm-note">Loading...</div>';$("dm-text").value="";autoGrow();
   window.show("dm");
+  if(cachedMsgs&&cachedMsgs.length){$("dm-list").innerHTML="";LASTDAY="";SEEN={};LAST="";cachedMsgs.forEach(function(m){addMsg(m)})}
   loadAvatars([t.otherId],function(){if(CUR&&CUR.id===t.id)$("dm-av").innerHTML=avHTML(t.otherId,t.name)});
   fetchMsgs(true)}
 function autoGrow(){var t=$("dm-text");if(!t)return;t.style.height="auto";t.style.height=Math.min(120,t.scrollHeight)+"px"}

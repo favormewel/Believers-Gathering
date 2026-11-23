@@ -46,6 +46,7 @@ function loadVer(){
   if(!db()||!me())return;ST.ver=Date.now();
   db().from("verified_leaders").select("user_id").then(function(r){if(r.error)return;VER={};(r.data||[]).forEach(function(x){VER[x.user_id]=1});VERLOADED=true;decorate()},function(){});
   db().from("profiles").select("suspended").eq("id",me().id).then(function(r){var x=r.data&&r.data[0];SUSP=!!(x&&x.suspended);susBanner()},function(){})}
+window.CHEN_SETVER=function(arr){VER={};(arr||[]).forEach(function(i){VER[i]=1});VERLOADED=true;ST.ver=Date.now();decorate()};
 function decorate(){
   if(!VERLOADED)return;
   document.querySelectorAll(".hx-post[data-uid] .hd b, .cmrow[data-uid] .cb b").forEach(function(b){

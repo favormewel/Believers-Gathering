@@ -47,7 +47,7 @@ function toggle(mid,i){
 var tL=null;
 function loadVisible(){
   if(RXOFF||!db()||!me())return;
-  var els=Array.prototype.slice.call(document.querySelectorAll("#msgs [data-mid]")).filter(function(x){return x.dataset.mid&&!LOADED[x.dataset.mid]});
+  var els=Array.prototype.slice.call(document.querySelectorAll("#msgs [data-mid]")).filter(function(x){return /^[0-9a-f-]{36}$/i.test(x.dataset.mid||"")&&!LOADED[x.dataset.mid]});
   if(!els.length)return;
   var ids=els.map(function(x){return x.dataset.mid});ids.forEach(function(i){LOADED[i]=1});
   for(var k=0;k<ids.length;k+=100)(function(chunk){
@@ -77,7 +77,7 @@ function change(x,n){
 
 /* ---------- long-press sheet additions (called by the existing message menu) ---------- */
 window.CHEN_MSGEXTRA=function(el){
-  if(!el||!el.dataset.mid)return "";
+  if(!el||!/^[0-9a-f-]{36}$/i.test(el.dataset.mid||""))return "";
   var mid=el.dataset.mid,mine=mineOf(mid),h="";
   if(!RXOFF&&db()){
     h+='<div role="group" aria-label="React" style="display:flex;justify-content:space-between;gap:4px;padding:6px 0 10px">';

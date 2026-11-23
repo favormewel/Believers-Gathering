@@ -34,7 +34,17 @@ function addMsg(m,quiet){
   w.innerHTML=h+rq+b+(m.id?'<div class="rx" data-rxfor="'+esc(m.id)+'"></div>':"")+'<div style="font-size:10px;color:#6B6055;text-align:right;margin-top:2px">'+tm(m.created_at||new Date())+'</div>';
   box.appendChild(w);if(!quiet)box.scrollTop=box.scrollHeight}
 function post(kind,o){
-  if(live()){db.from("messages").insert(Object.assign({group_id:gid,user_id:user.id,author_name:myName(),kind:kind},o,(window.CHEN_TAKEREPLY&&window.CHEN_TAKEREPLY())||{})).select().single().then(function(r){if(r.error){alert("Could not send. Please try again.");return}addMsg(r.data);bump(r.data)})}
+  if(live()){
+    var payload=Object.assign({group_id:gid,user_id:user.id,author_name:myName(),kind:kind},o,(window.CHEN_TAKEREPLY&&window.CHEN_TAKEREPLY())||{}),tmpEl=null;
+    if(kind==="text"||kind==="verse"){
+      var tid="tmp-"+Date.now()+Math.random().toString(36).slice(2,6);
+      addMsg(Object.assign({},payload,{id:tid,created_at:new Date().toISOString()}));
+      tmpEl=document.querySelector('#msgs [data-mid="'+tid+'"]');if(tmpEl)tmpEl.style.opacity=".6"}
+    db.from("messages").insert(payload).select().single().then(function(r){
+      if(r.error||!r.data){if(tmpEl)tmpEl.remove();alert("Could not send. Please try again.");return}
+      if(tmpEl){if(seen[r.data.id]){tmpEl.remove()}else{seen[r.data.id]=1;tmpEl.setAttribute("data-mid",r.data.id);tmpEl.style.opacity="";var rx=tmpEl.querySelector(".rx");if(rx)rx.setAttribute("data-rxfor",r.data.id)}}
+      else addMsg(r.data);
+      bump(r.data)})}
   else addMsg(Object.assign({user_id:"me",author_name:"You",kind:kind,created_at:new Date().toISOString()},o))}
 window.FL_SEND=function(t){post("text",{body:t});return true};
 window.FL_SHARE=function(t,r){if(db&&user&&!gid)return false;post("verse",{body:t,file_name:r});return true};
@@ -105,21 +115,30 @@ function nearRow(g,n){
   c.innerHTML='<div style="width:52px;height:52px;border-radius:26px;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:17px;flex:none"></div><div style="flex:1;min-width:0"><div style="font-size:15px;font-weight:700"></div><div style="font-size:13px;color:#6B6055"></div></div>';
   c.firstChild.style.background=col(g.id);c.firstChild.textContent=ini(g.name);c.childNodes[1].firstChild.textContent=g.name;c.childNodes[1].lastChild.textContent=n+(n===1?" member":" members")+(g.description?" \u00b7 "+g.description:"");
   var j=document.createElement("button");j.setAttribute("data-join","");j.dataset.gid=g.id;j.textContent="Join";j.style.cssText="min-height:44px;padding:0 18px;border-radius:22px;font:700 13px system-ui,sans-serif;border:0;background:#E2B04E;color:#222";c.appendChild(j);return c}
+function renderGroups(o,cb){
+  var gl=$("group-list"),nl=$("nearby-list");if(!gl)return;
+  gl.querySelectorAll("[data-group],.fl-empty").forEach(rm);if(nl)nl.querySelectorAll("[data-nb],.fl-empty").forEach(rm);
+  o.mine.forEach(function(c){if(!c.n){var g=o.all.filter(function(x){return x.id===c.id})[0];c.n=g&&g.group_members&&g.group_members[0]?g.group_members[0].count:0}gl.appendChild(groupRow(c))});
+  if(!o.mine.length)gl.appendChild(note("You are not in any group yet.","",[["Create a group","newgroup"],["Find groups","nearby"]]));
+  var k=0;o.all.forEach(function(g){if(o.have[g.id])return;k++;nl.appendChild(nearRow(g,g.group_members&&g.group_members[0]?g.group_members[0].count:0))});
+  if(!k&&nl)nl.appendChild(note("No other groups to join right now."));
+  if(cb)cb()}
 function loadGroups(cb){
   var gl=$("group-list"),nl=$("nearby-list");if(!gl)return;
-  db.rpc("my_chats").then(function(r){
+  var ck="fl-gl-"+(user&&user.id);
+  /* show the last saved list straight away, then refresh it quietly */
+  if(user&&!gl.querySelector("[data-group]")){try{var cached=JSON.parse(localStorage.getItem(ck)||"null");if(cached&&cached.mine&&cached.all)renderGroups(cached)}catch(e){}}
+  var allQ=db.from("groups").select("id,name,description,group_members(count)").order("created_at");
+  var mineP=db.rpc("my_chats").then(function(r){
     if(!r.error&&r.data)return r.data.map(function(x){return{id:x.chat_id,name:x.chat_name,desc:x.chat_desc,n:+x.member_count||0,lastBody:x.last_body,lastKind:x.last_kind,lastFile:x.last_file,lastAuthor:x.last_author,lastUser:x.last_user,lastAt:x.last_at,unread:+x.unread||0}});
     return db.from("group_members").select("group_id,groups(id,name,description)").eq("user_id",user.id).then(function(q){return(q.data||[]).filter(function(x){return x.groups}).map(function(x){return{id:x.groups.id,name:x.groups.name,desc:x.groups.description,n:0,unread:0}})})
-  }).then(function(mine){
-    var have={};mine.forEach(function(c){have[c.id]=1});
-    return db.from("groups").select("id,name,description,group_members(count)").order("created_at").then(function(r2){return{mine:mine,have:have,all:r2.data||[]}})
+  });
+  Promise.all([mineP,allQ]).then(function(a){
+    var mine=a[0],r2=a[1],have={};mine.forEach(function(c){have[c.id]=1});
+    return{mine:mine,have:have,all:r2.data||[]}
   }).then(function(o){
-    gl.querySelectorAll("[data-group],.fl-empty").forEach(rm);if(nl)nl.querySelectorAll("[data-nb],.fl-empty").forEach(rm);
-    o.mine.forEach(function(c){if(!c.n){var g=o.all.filter(function(x){return x.id===c.id})[0];c.n=g&&g.group_members&&g.group_members[0]?g.group_members[0].count:0}gl.appendChild(groupRow(c))});
-    if(!o.mine.length)gl.appendChild(note("You are not in any group yet.","",[["Create a group","newgroup"],["Find groups","nearby"]]));
-    var k=0;o.all.forEach(function(g){if(o.have[g.id])return;k++;nl.appendChild(nearRow(g,g.group_members&&g.group_members[0]?g.group_members[0].count:0))});
-    if(!k&&nl)nl.appendChild(note("No other groups to join right now."));
-    if(cb)cb()}).catch(function(){var gl2=$("group-list");if(gl2){gl2.querySelectorAll(".fl-empty").forEach(rm);gl2.appendChild(note("Could not load your groups. Check your internet and reopen the app."))}})}
+    try{localStorage.setItem(ck,JSON.stringify(o))}catch(e){}
+    renderGroups(o,cb)}).catch(function(){var gl2=$("group-list");if(gl2&&!gl2.querySelector("[data-group]")){gl2.querySelectorAll(".fl-empty").forEach(rm);gl2.appendChild(note("Could not load your groups. Check your internet and reopen the app."))}})}
 function rowOf(id){return document.querySelector('#group-list [data-gid="'+id+'"][data-group]')}
 function bump(m){
   var row=rowOf(m.group_id);if(!row){loadGroups();return}
@@ -159,10 +178,21 @@ function openGroup(c){
   var mr=document.querySelector('#settings [data-go="members"]');setSub(mr,c.dataset.members||"");
   members(gid,parseInt(c.dataset.members,10)||0);media(gid);markRead(gid);
   if(window.FLC_ON_OPEN)window.FLC_ON_OPEN(c,gid);
-  db.from("messages").select("*").eq("group_id",gid).order("created_at",{ascending:false}).limit(100).then(function(r){
-    if(r.error){box.appendChild(note("Could not load messages."));return}
-    var list=(r.data||[]).slice().reverse();list.forEach(function(m){addMsg(m,true)});
-    if(!list.length)box.appendChild(note("No messages yet. Say hello!"));box.scrollTop=box.scrollHeight})}
+  var thisGid=gid,ck="fl-gc-"+thisGid,cached=null;
+  try{cached=JSON.parse(localStorage.getItem(ck)||"null")}catch(e){}
+  if(cached&&cached.length){cached.forEach(function(m){addMsg(m,true)});box.scrollTop=box.scrollHeight}
+  db.from("messages").select("*").eq("group_id",thisGid).order("created_at",{ascending:false}).limit(100).then(function(r){
+    if(gid!==thisGid)return;
+    if(r.error){if(!box.querySelector("[data-mid]"))box.appendChild(note("Could not load messages."));return}
+    var list=(r.data||[]).slice().reverse();
+    try{localStorage.setItem(ck,JSON.stringify(list.slice(-40)))}catch(e){}
+    if(cached&&cached.length){
+      var first=cached[0].created_at,older=list.some(function(m){return !seen[m.id]&&m.created_at<first});
+      if(older){box.innerHTML="";seen={};lastDay=""}
+      var ids={};list.forEach(function(m){ids[m.id]=1});
+      cached.forEach(function(m){if(!ids[m.id]&&m.created_at>=(list[0]?list[0].created_at:"")){var g=box.querySelector('[data-mid="'+m.id+'"]');if(g)g.remove()}})}
+    list.forEach(function(m){addMsg(m,true)});
+    if(!list.length&&!box.querySelector("[data-mid]"))box.appendChild(note("No messages yet. Say hello!"));box.scrollTop=box.scrollHeight})}
 document.addEventListener("click",function(e){
   var c=e.target.closest("[data-gid][data-group]");if(c&&user)openGroup(c);
   var j=e.target.closest("[data-join][data-gid]");
