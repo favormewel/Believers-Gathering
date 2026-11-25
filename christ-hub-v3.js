@@ -194,6 +194,7 @@ function takeBundle(d,uid){
   (d.following||[]).forEach(function(i){AV[i]=av[i]||""});
   Object.keys(av).forEach(function(k){AV[k]=av[k]||""});
   if(window.CHEN_SETVER)window.CHEN_SETVER(d.verified||[])}
+window.CHEN_POSTS_HTML=function(d){var u=me();if(!u)return "";takeBundle(d,u.id);return (d.posts||[]).filter(function(p){return !blocked(p.user_id)}).map(function(p){return postHTML(p,u.id)}).join("")};
 function getBundle(mode,limit,cb){
   if(BUNDLE_OFF||!db()||!me())return cb(null);
   db().rpc("feed_bundle",{p_mode:mode,p_limit:limit}).then(function(r){
@@ -298,10 +299,13 @@ function actHTML(a){
   return '<article class="hx-act"><span class="ai"><svg viewBox="0 0 24 24" aria-hidden="true">'+(AICON[a.type]||AICON.event)+'</svg></span><p><b>'+esc(a.actor_name||"Member")+'</b> '+esc(a.text)+'</p><small>'+esc(ago(a.created_at))+'</small></article>'}
 var S={like:{},mine:{},cm:{},off:false};
 var SHARE='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7M16 6l-4-4-4 4M12 2v14"/></svg>';
+var BOOKMARK='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5h12a1 1 0 0 1 1 1V21l-7-4.6L5 21V4.5a1 1 0 0 1 1-1z"/></svg>';
 var HEART='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-8-5.2-8-11a4.6 4.6 0 0 1 8-3 4.6 4.6 0 0 1 8 3c0 5.8-8 11-8 11z"/></svg>';
 var BUBBLE='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>';
 function actions(p){
-  var sh='<button type="button" class="shb" data-share="'+esc(p.id)+'" aria-label="Share post">'+SHARE+'</button>';
+  var isv=!!(window.CHEN_SAVED&&window.CHEN_SAVED(p.id));
+  var sv='<button type="button" class="svb'+(isv?" on":"")+'" data-save="'+esc(p.id)+'" aria-pressed="'+(isv?"true":"false")+'" aria-label="Save post">'+BOOKMARK+'</button>';
+  var sh=sv+'<button type="button" class="shb" data-share="'+esc(p.id)+'" aria-label="Share post">'+SHARE+'</button>';
   if(S.off)return '<div class="pf">'+sh+'</div>';
   var on=S.mine[p.id],l=S.like[p.id]||0,c=S.cm[p.id]||0;
   return '<div class="pf"><button type="button" class="lk'+(on?" on":"")+'" data-like="'+esc(p.id)+'" aria-pressed="'+(on?"true":"false")+'" aria-label="Like">'+HEART+'<span>'+l+'</span>'+(p.kind==="prayer"?'<em>Praying</em>':"")+'</button><button type="button" class="cmb" data-cm="'+esc(p.id)+'" data-owner="'+esc(p.user_id)+'" aria-label="Comments">'+BUBBLE+'<span>'+c+'</span></button>'+sh+'</div><div class="cmbox" id="cm-'+esc(p.id)+'" hidden></div>'}
