@@ -95,3 +95,29 @@ html:not([data-theme="light"]) .hx-cmp{background:linear-gradient(145deg,#241660
 html:not([data-theme="light"]) #group-list [data-group]{background:linear-gradient(145deg,#241660,#1A1048)!important;border-color:rgba(255,255,255,.12)!important}
 html:not([data-theme="light"]) #group-list [data-group] div{color:#F1EEFF!important}
 html:not([data-theme="light"]) #group-list [data-group] div div:last-child{color:#B9B3E6!important}
+
+/* ===== v11d: More menu = list with plain purple icons, new order, banner ===== */
+#menu .mn-t i{background:none!important;box-shadow:none!important;width:30px!important;height:30px!important;border-radius:0!important;flex:none}
+#menu .mn-t i svg{stroke:#5B2BE0!important;width:26px!important;height:26px!important}
+html:not([data-theme="light"]) #menu .mn-t i svg{stroke:#B9A5FF!important}
+#menu .mn-t .lb{flex:1;font-size:16px!important;font-weight:600!important;text-align:left}
+#menu .mn-t .st{display:none}
+#menu .mn-t .bdg{position:static!important;margin-left:auto;background:#E5173F;color:#fff;border-radius:12px;min-width:22px;height:22px;display:grid;place-items:center;font:800 12px Inter,sans-serif;padding:0 6px}
+#menu .mn-t .bdg[hidden]{display:none}
+#menu .mn-grid>*::after{margin-left:6px!important}
+#menu .mn-grid>*{order:50}
+#menu .mn-grid [data-go="groups"]{order:1}
+#menu .mn-grid [data-go="messages"]{order:2}
+#menu .mn-grid [data-go="notifications"]{order:3}
+#menu .mn-grid [data-go="updates"]{order:4}
+#menu .mn-grid [data-go="myposts"]{order:5}
+#menu .mn-grid [data-go="explore"]{order:6}
+#menu .mn-grid [data-mn="events"]{order:7}
+#menu .mn-grid [data-go="announcements"]{order:8}
+#menu .mn-grid [data-go="versecard"]{order:9}
+#menu .mn-grid [data-go="invite"]{order:10}
+#menu .mn-grid [data-mn="push"]{order:11}
+#menu .mn-grid [data-mn="install"]{order:12}
+#menu .mn-grid [data-go="appsettings"]{order:13}
+#menu .an-foot{font-size:0!important;margin:14px 12px 10px!important;padding:16px;border-radius:18px;background:linear-gradient(135deg,#3A12A8,#1A0B4D);border-bottom:3px solid var(--hx-gold);text-align:center}
+#menu .an-foot::before{content:"Grow in Faith Together";font:italic 900 24px Georgia,serif;color:var(--hx-gold)}

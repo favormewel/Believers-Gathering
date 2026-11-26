@@ -16,6 +16,8 @@ document.addEventListener("click",function(e){if(e.target.closest("nav.hx-nav"))
 function place(){var f=document.getElementById("hx-feed"),c=document.querySelector("#home .hx-cmp");
 if(!f||!c||f.dataset.moved)return;var h=f.previousElementSibling;
 if(h&&h.classList.contains("hx-sec")){c.after(h);h.after(f)}else c.after(f);f.dataset.moved="1"}
-function av(){place();var a=document.getElementById("hx-av"),c=document.getElementById("cmp-av");if(a&&c&&a.textContent)c.textContent=a.textContent}
+function lab(){var m={groups:"My Communities",myposts:"My Posts",appsettings:"Settings"};
+Object.keys(m).forEach(function(k){var l=document.querySelector('#menu .mn-t[data-go="'+k+'"] .lb');if(l&&l.textContent!==m[k])l.textContent=m[k]})}
+function av(){place();lab();var a=document.getElementById("hx-av"),c=document.getElementById("cmp-av");if(a&&c&&a.textContent)c.textContent=a.textContent}
 setInterval(av,1500);av();place();sync();
 })();
