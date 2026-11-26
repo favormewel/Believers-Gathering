@@ -146,3 +146,20 @@ html:not([data-theme="light"]) .dmb.their{background:#2a1f66!important;color:#F1
 .pf-stats{margin:10px 14px!important;border-radius:18px!important;background:#fff!important;color:#1b1340!important;border:1px solid #e4e2f0!important;box-shadow:0 2px 10px rgba(40,20,120,.08)}
 .pf-stats div{color:inherit!important}
 html:not([data-theme="light"]) .pf-stats{background:linear-gradient(145deg,#241660,#1A1048)!important;color:#F1EEFF!important;border-color:rgba(255,255,255,.12)!important}
+
+/* ===== v11f: Saved Posts, Help, About ===== */
+#menu .mn-grid [data-go="saved"]{order:6}
+#menu .mn-grid [data-go="help"]{order:14}
+#menu .mn-grid [data-go="about"]{order:15}
+.hx-post .pf .bm,.pr-card .bm{background:none;border:0;color:#7a77a0;min-width:40px;min-height:40px;margin-left:auto;display:grid;place-items:center;cursor:pointer}
+.bm svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.bm.on{color:#5B2BE0}.bm.on svg{fill:currentColor}
+html:not([data-theme="light"]) .bm.on{color:#B9A5FF}
+.hp details{background:#fff;color:#1b1340;border:1px solid #e4e2f0;border-radius:16px;padding:14px;margin-bottom:10px}
+.hp summary{font-weight:700;cursor:pointer;min-height:24px}
+.hp details p{margin:10px 0 0;line-height:1.5;font-size:14.5px}
+html:not([data-theme="light"]) .hp details{background:linear-gradient(145deg,#241660,#1A1048);color:#F1EEFF;border-color:rgba(255,255,255,.12)}
+.ab{text-align:center;padding:30px 16px}
+.ab-logo{font:900 44px Georgia,serif;font-style:italic;color:var(--hx-gold)}
+.ab b{display:block;font-size:20px;letter-spacing:6px;margin-bottom:14px}
+.ab p{line-height:1.5;margin:6px 0}.ab small{display:block;margin-top:18px;opacity:.6}
