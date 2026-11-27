@@ -39,7 +39,7 @@ app.appendChild(s);s.firstChild.appendChild(g.cloneNode(true))}
 function mkMore(){
 mkScr("saved","Saved Posts",'<div id="sv-list"></div>');
 mkScr("help","Help &amp; Support",'<div class="hp"><details open><summary>How do I join a community?</summary><p>Open Communities, tap Nearby to find groups, or ask a leader to invite you.</p></details><details><summary>How do I share a prayer request?</summary><p>Tap the + button or Prayer on Home, write your request, then tap Post.</p></details><details><summary>How do I let someone know I am praying?</summary><p>Tap Praying on their prayer request.</p></details><details><summary>How do I save a post?</summary><p>Tap the bookmark on any post. Find it later under More, Saved Posts.</p></details><details><summary>How do I change my photo or name?</summary><p>Open Profile, then Edit profile.</p></details><details><summary>How do I manage notifications and blocked members?</summary><p>Open More, then Settings.</p></details><p class="pr-note">Still stuck? Ask your group leader or message the CHEN NETWORK team.</p></div>');
-mkScr("about","About CHEN NETWORK",'<div class="ab"><div class="ab-logo">CHEN</div><b>NETWORK</b><p>Faith. Fellowship. Connection.</p><p>A Christian community app to connect, pray, and grow together.</p><small>Version 41</small></div>')}
+mkScr("about","About CHEN NETWORK",'<div class="ab"><div class="ab-logo">CHEN</div><b>NETWORK</b><p>Faith. Fellowship. Connection.</p><p>A Christian community app to connect, pray, and grow together.</p><small>Version 43</small></div>')}
 function svTile(id,label,path){var g=document.getElementById("mn-grid");if(!g||g.querySelector('[data-go="'+id+'"]'))return;
 var b=document.createElement("button");b.type="button";b.className="mn-t";b.setAttribute("data-go",id);
 b.innerHTML='<i><svg viewBox="0 0 24 24" aria-hidden="true">'+path+'</svg></i><span class="lb">'+label+'</span>';g.appendChild(b)}
@@ -68,6 +68,19 @@ var ids=Object.keys(SAVED);if(!ids.length){box.innerHTML='<p class="pr-note">Not
 db.from("posts").select("*").in("id",ids).order("created_at",{ascending:false}).then(function(r){
 var rows=(r.data||[]).filter(function(p){return !(window.FLC_BLOCKED&&window.FLC_BLOCKED[p.user_id])});
 box.innerHTML=rows.length?rows.map(function(p){var n=p.author_name||"Member";return '<article class="pr-card"><div class="pr-hd"><span class="pr-av">'+esc(n.charAt(0).toUpperCase())+'</span><div style="flex:1"><b>'+esc(n)+'</b><small>'+ago(p.created_at)+'</small></div><button type="button" class="bm on" data-save="'+esc(p.id)+'" aria-pressed="true" aria-label="Remove from saved">'+BM+'</button></div><p>'+esc(p.body||"")+'</p></article>'}).join(""):'<p class="pr-note">Nothing saved yet.</p>'},function(){})})}
+
+/* Social sign-in: turn on after enabling each provider in Supabase (Authentication, Providers). */
+var SOCIAL=[]; /* for example ["google","facebook","apple"] */
+var SNAME={google:"Google",facebook:"Facebook",apple:"Apple"};
+function social(){if(!SOCIAL.length)return;
+[["li-btn","login"],["su-btn","signup"]].forEach(function(x){var b=document.getElementById(x[0]);
+if(!b||document.getElementById("so-"+x[1]))return;
+var d=document.createElement("div");d.id="so-"+x[1];d.className="so-row";
+d.innerHTML='<div class="so-or"><span>or</span></div>'+SOCIAL.map(function(k){return '<button type="button" class="so-b so-'+k+'" data-prov="'+k+'">Continue with '+SNAME[k]+'</button>'}).join("");
+b.parentNode.insertBefore(d,b.nextSibling)})}
+document.addEventListener("click",function(e){var b=e.target.closest("[data-prov]");if(!b||!window.FL_DBC)return;
+b.disabled=true;window.FL_DBC.auth.signInWithOAuth({provider:b.getAttribute("data-prov"),options:{redirectTo:location.origin+location.pathname}}).then(function(r){
+if(r&&r.error){b.disabled=false;var m=document.getElementById("li-msg")||document.getElementById("su-msg");if(m)m.textContent="Could not sign in with "+SNAME[b.getAttribute("data-prov")]+". Try again."}},function(){b.disabled=false})});
 function sync(){var sv=document.getElementById("saved");if(sv&&!sv.hidden)showSaved();decorate();var pr=document.getElementById("prayers");if(pr&&!pr.hidden)loadPrayers();busy=0;var t=cur();if(!t)return;
 document.querySelectorAll("nav.hx-nav button").forEach(function(b){var on=b.dataset.tab===t;b.classList.toggle("on",on);if(on)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current")})}
 function queue(){if(!busy){busy=1;requestAnimationFrame(sync)}}
@@ -78,6 +91,6 @@ if(!f||!c||f.dataset.moved)return;var h=f.previousElementSibling;
 if(h&&h.classList.contains("hx-sec")){c.after(h);h.after(f)}else c.after(f);f.dataset.moved="1"}
 function lab(){var m={groups:"My Communities",myposts:"My Posts",appsettings:"Settings"};
 Object.keys(m).forEach(function(k){var l=document.querySelector('#menu .mn-t[data-go="'+k+'"] .lb');if(l&&l.textContent!==m[k])l.textContent=m[k]})}
-function av(){mkPrayers();mkMore();tile();svTile("saved","Saved Posts",'<path d="M6 3h12v18l-6-4-6 4z"/>');svTile("help","Help &amp; Support",'<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7M12 17h.01"/>');svTile("about","About CHEN NETWORK",'<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/>');if(!SLOAD)loadSaved(decorate);place();lab();var a=document.getElementById("hx-av"),c=document.getElementById("cmp-av");if(a&&c&&a.textContent)c.textContent=a.textContent}
+function av(){social();mkPrayers();mkMore();tile();svTile("saved","Saved Posts",'<path d="M6 3h12v18l-6-4-6 4z"/>');svTile("help","Help &amp; Support",'<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7M12 17h.01"/>');svTile("about","About CHEN NETWORK",'<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/>');if(!SLOAD)loadSaved(decorate);place();lab();var a=document.getElementById("hx-av"),c=document.getElementById("cmp-av");if(a&&c&&a.textContent)c.textContent=a.textContent}
 setInterval(av,1500);av();place();sync();
 })();
