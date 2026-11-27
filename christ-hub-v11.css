@@ -260,3 +260,16 @@ html:not([data-theme="light"]) .st-add{background:#241660;color:#B9A5FF;border-c
 .st-sw button{width:38px;height:38px;border-radius:50%;border:3px solid #fff;cursor:pointer}
 .st-new #st-e{font:600 14px Inter,sans-serif;min-height:20px;margin:0}
 .st-go{border:0;border-radius:26px;padding:13px 34px;background:var(--hx-gold);color:#241500;font:800 15px Inter,sans-serif;cursor:pointer}
+
+/* ===== v11l: About CHEN NETWORK on the first screen + About page ===== */
+.hx-welcome{overflow-y:auto}
+.wl-about{margin:14px auto 16px;max-width:360px;padding:14px 16px;border-radius:18px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;text-align:left}
+.wl-about p{margin:0 0 10px;font-size:14.5px;line-height:1.45;text-align:center}
+.wl-about ul,.ab-ul{list-style:none;padding:0;margin:0;display:grid;gap:8px}
+.wl-about li,.ab-ul li{position:relative;padding-left:26px;font-size:14px;line-height:1.4}
+.wl-about li::before,.ab-ul li::before{content:"";position:absolute;left:4px;top:5px;width:10px;height:10px;border-radius:50%;background:var(--hx-gold)}
+.wl-about b{color:var(--hx-gold)}
+.ab-ul{text-align:left;max-width:320px;margin:14px auto 0}
+.ab-ul b{color:#5B2BE0}
+html:not([data-theme="light"]) .ab-ul b{color:#FFC21A}
+@media (max-height:720px){.hx-welcome .scene{display:none}}
