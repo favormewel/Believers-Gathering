@@ -47,11 +47,12 @@ function loadSaved(cb){var db=window.FL_DBC,u=window.FL_USER;if(!db||!u||SOFF||D
 SLOAD=Date.now();db.from("saved_posts").select("post_id").then(function(r){
 if(r.error){SOFF=true}else{SAVED={};(r.data||[]).forEach(function(x){SAVED[x.post_id]=1})}if(cb)cb()},function(){SOFF=true;if(cb)cb()})}
 var BM='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18l-6-4-6 4z"/></svg>';
-function decorate(){if(SOFF)return;document.querySelectorAll(".hx-post .pf").forEach(function(pf){
-if(pf.querySelector(".bm"))return;var a=pf.querySelector("[data-like],[data-share]");if(!a)return;
+function decorate(){if(SOFF)return;document.querySelectorAll(".hx-post").forEach(function(post){
+if(post.querySelector(".bm"))return;var a=post.querySelector("[data-like],[data-share]");if(!a||!a.parentElement)return;
 var id=a.getAttribute("data-like")||a.getAttribute("data-share");
 var b=document.createElement("button");b.type="button";b.className="bm"+(SAVED[id]?" on":"");b.setAttribute("data-save",id);
-b.setAttribute("aria-label","Save post");b.setAttribute("aria-pressed",SAVED[id]?"true":"false");b.innerHTML=BM;pf.appendChild(b)})}
+b.setAttribute("aria-label","Save post");b.setAttribute("aria-pressed",SAVED[id]?"true":"false");b.innerHTML=BM;a.parentElement.appendChild(b)})}
+document.addEventListener("click",function(e){var t=e.target.closest("[data-to]");if(t&&window.show){e.preventDefault();window.show(t.getAttribute("data-to"))}});
 function toggleSave(b){var db=window.FL_DBC,u=window.FL_USER,id=b.getAttribute("data-save");if(!db||!u)return;
 var on=!SAVED[id];if(on)SAVED[id]=1;else delete SAVED[id];
 document.querySelectorAll('[data-save="'+id+'"]').forEach(function(x){x.classList.toggle("on",on);x.setAttribute("aria-pressed",on?"true":"false")});
