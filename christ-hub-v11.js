@@ -39,7 +39,7 @@ app.appendChild(s);s.firstChild.appendChild(g.cloneNode(true))}
 function mkMore(){
 mkScr("saved","Saved Posts",'<div id="sv-list"></div>');
 mkScr("help","Help &amp; Support",'<div class="hp"><details open><summary>How do I join a community?</summary><p>Open Communities, tap Nearby to find groups, or ask a leader to invite you.</p></details><details><summary>How do I share a prayer request?</summary><p>Tap the + button or Prayer on Home, write your request, then tap Post.</p></details><details><summary>How do I let someone know I am praying?</summary><p>Tap Praying on their prayer request.</p></details><details><summary>How do I save a post?</summary><p>Tap the bookmark on any post. Find it later under More, Saved Posts.</p></details><details><summary>How do I change my photo or name?</summary><p>Open Profile, then Edit profile.</p></details><details><summary>How do I manage notifications and blocked members?</summary><p>Open More, then Settings.</p></details><p class="pr-note">Still stuck? Ask your group leader or message the CHEN NETWORK team.</p></div>');
-mkScr("about","About CHEN NETWORK",'<div class="ab"><div class="ab-logo">CHEN</div><b>NETWORK</b><p>Faith. Fellowship. Connection.</p><p>A Christian community app to connect, pray, and grow together.</p><small>Version 43</small></div>')}
+mkScr("about","About CHEN NETWORK",'<div class="ab"><div class="ab-logo">CHEN</div><b>NETWORK</b><p>Faith. Fellowship. Connection.</p><p>A Christian community app to connect, pray, and grow together.</p><small>Version 45</small></div>')}
 function svTile(id,label,path){var g=document.getElementById("mn-grid");if(!g||g.querySelector('[data-go="'+id+'"]'))return;
 var b=document.createElement("button");b.type="button";b.className="mn-t";b.setAttribute("data-go",id);
 b.innerHTML='<i><svg viewBox="0 0 24 24" aria-hidden="true">'+path+'</svg></i><span class="lb">'+label+'</span>';g.appendChild(b)}
@@ -81,6 +81,43 @@ b.parentNode.insertBefore(d,b.nextSibling)})}
 document.addEventListener("click",function(e){var b=e.target.closest("[data-prov]");if(!b||!window.FL_DBC)return;
 b.disabled=true;window.FL_DBC.auth.signInWithOAuth({provider:b.getAttribute("data-prov"),options:{redirectTo:location.origin+location.pathname}}).then(function(r){
 if(r&&r.error){b.disabled=false;var m=document.getElementById("li-msg")||document.getElementById("su-msg");if(m)m.textContent="Could not sign in with "+SNAME[b.getAttribute("data-prov")]+". Try again."}},function(){b.disabled=false})});
+
+/* ---- Stories: short text stories that disappear after 24 hours ---- */
+var STB={purple:"linear-gradient(150deg,#3A12A8,#7A3BFF)",sunset:"linear-gradient(150deg,#c0398b,#ff9a3c)",ocean:"linear-gradient(150deg,#0f4c81,#1f9d8f)",gold:"linear-gradient(150deg,#b8860b,#ffc21a)"};
+var STR=[],stAt=0,stBy={};
+function renderStories(){var row=document.getElementById("st-row");if(!row)return;
+stBy={};var order=[];STR.forEach(function(x){if(window.FLC_BLOCKED&&window.FLC_BLOCKED[x.user_id])return;if(!stBy[x.user_id]){stBy[x.user_id]=[];order.push(x.user_id)}stBy[x.user_id].push(x)});
+var h='<button type="button" class="st-b" data-st-add><span class="st-c st-add">+</span><small>Your story</small></button>';
+order.forEach(function(id){var n=stBy[id][0].author_name||"Member";h+='<button type="button" class="st-b" data-st-view="'+esc(id)+'" aria-label="View story by '+esc(n)+'"><span class="st-c st-ring">'+esc(n.charAt(0).toUpperCase())+'</span><small>'+esc(n.split(" ")[0])+'</small></button>'});
+row.innerHTML=h}
+function loadStories(){var db=window.FL_DBC;if(!db||!window.FL_USER||Date.now()<stAt)return;
+stAt=Date.now()+20000;var since=new Date(Date.now()-864e5).toISOString();
+db.from("stories").select("*").gte("created_at",since).order("created_at",{ascending:false}).limit(60).then(function(r){
+if(r.error){stAt=Date.now()+240000;return}STR=r.data||[];renderStories()},function(){stAt=Date.now()+240000})}
+function closeSt(){document.querySelectorAll(".st-ov").forEach(function(o){o.remove()})}
+function openStory(list,i){closeSt();var x=list[i],o=document.createElement("div");o.className="st-ov";o.setAttribute("role","dialog");o.setAttribute("aria-modal","true");o.setAttribute("aria-label","Story");
+o.style.background=STB[x.bg]||STB.purple;
+o.innerHTML='<div class="st-bars">'+list.map(function(_,k){return '<i class="'+(k<=i?"on":"")+'"></i>'}).join("")+'</div><div class="st-who">'+esc(x.author_name||"Member")+' &middot; '+ago(x.created_at)+'</div><button type="button" class="st-x" aria-label="Close">&times;</button><p>'+esc(x.body)+'</p>';
+document.body.appendChild(o);var t=setTimeout(nx,6000);
+function nx(){clearTimeout(t);o.remove();if(i+1<list.length)openStory(list,i+1)}
+o.addEventListener("click",function(e){if(e.target.closest(".st-x")){clearTimeout(t);o.remove();return}nx()});
+o.querySelector(".st-x").focus()}
+function openNewStory(){closeSt();var bg="purple",o=document.createElement("div");o.className="st-ov st-new";o.setAttribute("role","dialog");o.setAttribute("aria-modal","true");o.setAttribute("aria-label","New story");o.style.background=STB.purple;
+o.innerHTML='<button type="button" class="st-x" aria-label="Close">&times;</button><textarea id="st-t" maxlength="280" placeholder="Share an encouragement, a verse, or a praise report" aria-label="Story text"></textarea><div class="st-sw">'+Object.keys(STB).map(function(k){return '<button type="button" data-bg="'+k+'" aria-label="'+k+' background" style="background:'+STB[k]+'"></button>'}).join("")+'</div><p id="st-e" role="alert"></p><button type="button" class="st-go">Share story</button>';
+document.body.appendChild(o);var ta=o.querySelector("#st-t");ta.focus();
+o.addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;
+if(b.classList.contains("st-x")){o.remove();return}
+if(b.dataset.bg){bg=b.dataset.bg;o.style.background=STB[bg];return}
+if(b.classList.contains("st-go")){var v=ta.value.trim(),er=o.querySelector("#st-e"),db=window.FL_DBC,u=window.FL_USER;
+if(!v){er.textContent="Write something first.";return}
+if(!db||!u){er.textContent="Sign in to share a story.";return}
+b.disabled=true;var nm=((document.getElementById("me-name")||{}).textContent||"").trim();
+db.from("stories").insert({user_id:u.id,author_name:nm||null,body:v,bg:bg}).then(function(r){
+if(r.error){b.disabled=false;er.textContent="Stories are not set up yet.";return}
+o.remove();stAt=0;loadStories()},function(){b.disabled=false;er.textContent="Could not share. Try again."})}})}
+document.addEventListener("click",function(e){var a=e.target.closest("[data-st-add]");if(a){openNewStory();return}
+var v=e.target.closest("[data-st-view]");if(v){var l=(stBy[v.getAttribute("data-st-view")]||[]).slice().reverse();if(l.length)openStory(l,0)}});
+document.addEventListener("keydown",function(e){if(e.key==="Escape")closeSt()});
 function sync(){var sv=document.getElementById("saved");if(sv&&!sv.hidden)showSaved();decorate();var pr=document.getElementById("prayers");if(pr&&!pr.hidden)loadPrayers();busy=0;var t=cur();if(!t)return;
 document.querySelectorAll("nav.hx-nav button").forEach(function(b){var on=b.dataset.tab===t;b.classList.toggle("on",on);if(on)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current")})}
 function queue(){if(!busy){busy=1;requestAnimationFrame(sync)}}
@@ -91,6 +128,6 @@ if(!f||!c||f.dataset.moved)return;var h=f.previousElementSibling;
 if(h&&h.classList.contains("hx-sec")){c.after(h);h.after(f)}else c.after(f);f.dataset.moved="1"}
 function lab(){var m={groups:"My Communities",myposts:"My Posts",appsettings:"Settings"};
 Object.keys(m).forEach(function(k){var l=document.querySelector('#menu .mn-t[data-go="'+k+'"] .lb');if(l&&l.textContent!==m[k])l.textContent=m[k]})}
-function av(){social();mkPrayers();mkMore();tile();svTile("saved","Saved Posts",'<path d="M6 3h12v18l-6-4-6 4z"/>');svTile("help","Help &amp; Support",'<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7M12 17h.01"/>');svTile("about","About CHEN NETWORK",'<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/>');if(!SLOAD)loadSaved(decorate);place();lab();var a=document.getElementById("hx-av"),c=document.getElementById("cmp-av");if(a&&c&&a.textContent)c.textContent=a.textContent}
+function av(){loadStories();social();mkPrayers();mkMore();tile();svTile("saved","Saved Posts",'<path d="M6 3h12v18l-6-4-6 4z"/>');svTile("help","Help &amp; Support",'<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7M12 17h.01"/>');svTile("about","About CHEN NETWORK",'<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/>');if(!SLOAD)loadSaved(decorate);place();lab();var a=document.getElementById("hx-av"),c=document.getElementById("cmp-av");if(a&&c&&a.textContent)c.textContent=a.textContent}
 setInterval(av,1500);av();place();sync();
 })();

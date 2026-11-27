@@ -238,3 +238,25 @@ html:not([data-theme="light"]) #bible #bb-list>button{background:linear-gradient
 #bible #bb-list>div{color:#5B2BE0!important;font-weight:800!important;letter-spacing:.4px}
 html:not([data-theme="light"]) #bible #bb-list>div{color:#B9A5FF!important}
 #np-tpls button{border:0!important;border-radius:20px!important;background:rgba(91,43,224,.12)!important;color:inherit!important;font-weight:700!important}
+
+/* ===== v11k: stories ===== */
+.st-row{display:flex;gap:12px;overflow-x:auto;padding:2px 0 12px;scrollbar-width:none}
+.st-row::-webkit-scrollbar{display:none}
+.st-b{flex:none;background:none;border:0;padding:0;text-align:center;cursor:pointer;color:inherit;width:62px}
+.st-b small{display:block;margin-top:4px;font-size:12px;color:#6b6890;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.st-c{display:grid;place-items:center;width:58px;height:58px;border-radius:50%;margin:0 auto;font:800 20px Inter,sans-serif;color:#fff;background:#5B2BE0}
+.st-ring{border:3px solid var(--hx-gold);box-shadow:0 0 0 2px #5B2BE0 inset}
+.st-add{background:#fff;color:#5B2BE0;border:2px dashed #5B2BE0;font-size:28px}
+html:not([data-theme="light"]) .st-add{background:#241660;color:#B9A5FF;border-color:#B9A5FF}
+.st-ov{position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:70px 24px 40px;color:#fff;text-align:center;font-family:Inter,sans-serif}
+.st-ov p{font:italic 700 26px/1.4 Georgia,serif;overflow-wrap:anywhere;max-width:420px}
+.st-bars{position:absolute;top:14px;left:14px;right:14px;display:flex;gap:4px}
+.st-bars i{flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,.35)}.st-bars i.on{background:#fff}
+.st-who{position:absolute;top:30px;left:16px;font-weight:700;font-size:14px}
+.st-x{position:absolute;top:22px;right:12px;background:rgba(0,0,0,.25);border:0;color:#fff;width:42px;height:42px;border-radius:50%;font-size:26px;cursor:pointer}
+.st-new textarea{width:100%;max-width:420px;min-height:200px;background:rgba(255,255,255,.14);border:0;border-radius:18px;padding:16px;color:#fff;font:italic 700 22px/1.4 Georgia,serif;text-align:center;resize:none}
+.st-new textarea::placeholder{color:rgba(255,255,255,.7)}
+.st-sw{display:flex;gap:12px;margin:16px 0 8px}
+.st-sw button{width:38px;height:38px;border-radius:50%;border:3px solid #fff;cursor:pointer}
+.st-new #st-e{font:600 14px Inter,sans-serif;min-height:20px;margin:0}
+.st-go{border:0;border-radius:26px;padding:13px 34px;background:var(--hx-gold);color:#241500;font:800 15px Inter,sans-serif;cursor:pointer}
