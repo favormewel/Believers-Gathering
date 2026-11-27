@@ -291,3 +291,16 @@ html:not([data-theme="light"]) #newpost #np-add,html:not([data-theme="light"]) #
 
 /* ===== v11n: Profile now lives in the Menu tab ===== */
 #menu .mn-grid [data-go="profile"]{order:0}
+
+/* ===== v11o: Home cards (Groups, Bible, Bible Study) ===== */
+.hm-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.hm-card{display:flex;flex-direction:column;align-items:flex-start;gap:3px;min-height:104px;padding:12px 10px;border:0;border-radius:18px;color:#fff;text-align:left;cursor:pointer;box-shadow:0 4px 12px rgba(40,20,120,.18)}
+.hm-card b{font:800 15px Inter,sans-serif;margin-top:auto}
+.hm-card small{font:600 11.5px Inter,sans-serif;opacity:.92;line-height:1.25}
+.hm-ic{display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.22);margin-bottom:6px}
+.hm-ic svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.hm-card.c1{background:linear-gradient(135deg,#5B2BE0,#3A12A8)}
+.hm-card.c2{background:linear-gradient(135deg,#ffc21a,#ff9a3c);color:#241500}
+.hm-card.c2 .hm-ic{background:rgba(36,21,0,.12)}
+.hm-card.c3{background:linear-gradient(135deg,#c0398b,#7a3bff)}
+.hm-card:focus-visible{outline:3px solid var(--hx-gold);outline-offset:2px}
