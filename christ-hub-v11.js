@@ -39,7 +39,7 @@ app.appendChild(s);s.firstChild.appendChild(g.cloneNode(true))}
 function mkMore(){
 mkScr("saved","Saved Posts",'<div id="sv-list"></div>');
 mkScr("help","Help &amp; Support",'<div class="hp"><details open><summary>How do I join a community?</summary><p>Open Communities, tap Nearby to find groups, or ask a leader to invite you.</p></details><details><summary>How do I share a prayer request?</summary><p>Tap the + button or Prayer on Home, write your request, then tap Post.</p></details><details><summary>How do I let someone know I am praying?</summary><p>Tap Praying on their prayer request.</p></details><details><summary>How do I save a post?</summary><p>Tap the bookmark on any post. Find it later under More, Saved Posts.</p></details><details><summary>How do I change my photo or name?</summary><p>Open Profile, then Edit profile.</p></details><details><summary>How do I manage notifications and blocked members?</summary><p>Open More, then Settings.</p></details><p class="pr-note">Still stuck? Ask your group leader or message the CHEN NETWORK team.</p></div>');
-mkScr("about","About CHEN NETWORK",'<div class="ab"><div class="ab-logo">CHEN</div><b>NETWORK</b><p>Faith. Fellowship. Connection.</p><p>CHEN NETWORK is a Christian community app to connect, pray, and grow together.</p><ul class="ab-ul"><li><b>Connect</b> with believers in groups and chats</li><li><b>Pray</b> together with shared prayer requests</li><li><b>Grow</b> in the Word with the Bible in your pocket</li></ul><small>Version 47</small></div>')}
+mkScr("about","About CHEN NETWORK",'<div class="ab"><div class="ab-logo">CHEN</div><b>NETWORK</b><p>Faith. Fellowship. Connection.</p><p>CHEN NETWORK is a Christian community app to connect, pray, and grow together.</p><ul class="ab-ul"><li><b>Connect</b> with believers in groups and chats</li><li><b>Pray</b> together with shared prayer requests</li><li><b>Grow</b> in the Word with the Bible in your pocket</li></ul><small>Version 48</small></div>')}
 function svTile(id,label,path){var g=document.getElementById("mn-grid");if(!g||g.querySelector('[data-go="'+id+'"]'))return;
 var b=document.createElement("button");b.type="button";b.className="mn-t";b.setAttribute("data-go",id);
 b.innerHTML='<i><svg viewBox="0 0 24 24" aria-hidden="true">'+path+'</svg></i><span class="lb">'+label+'</span>';g.appendChild(b)}
@@ -118,6 +118,13 @@ o.remove();stAt=0;loadStories()},function(){b.disabled=false;er.textContent="Cou
 document.addEventListener("click",function(e){var a=e.target.closest("[data-st-add]");if(a){openNewStory();return}
 var v=e.target.closest("[data-st-view]");if(v){var l=(stBy[v.getAttribute("data-st-view")]||[]).slice().reverse();if(l.length)openStory(l,0)}});
 document.addEventListener("keydown",function(e){if(e.key==="Escape")closeSt()});
+
+function npHead(){var sc=document.querySelector("#newpost [data-scroll]");if(!sc)return;
+var nm=((document.getElementById("me-name")||{}).textContent||"").trim()||"Member";
+var w=document.getElementById("np-who");
+if(!w){w=document.createElement("div");w.id="np-who";w.className="np-who";w.innerHTML='<span class="cmp-av"></span><div><b></b><small>Public</small></div>';sc.insertBefore(w,sc.firstChild)}
+w.querySelector("b").textContent=nm;w.querySelector(".cmp-av").textContent=nm.charAt(0).toUpperCase();
+var h=document.querySelector("#newpost header h1");if(h&&h.textContent!=="Create Post")h.textContent="Create Post"}
 function sync(){var sv=document.getElementById("saved");if(sv&&!sv.hidden)showSaved();decorate();var pr=document.getElementById("prayers");if(pr&&!pr.hidden)loadPrayers();busy=0;var t=cur();if(!t)return;
 document.querySelectorAll("nav.hx-nav button").forEach(function(b){var on=b.dataset.tab===t;b.classList.toggle("on",on);if(on)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current")})}
 function queue(){if(!busy){busy=1;requestAnimationFrame(sync)}}
@@ -128,6 +135,6 @@ if(!f||!c||f.dataset.moved)return;var h=f.previousElementSibling;
 if(h&&h.classList.contains("hx-sec")){c.after(h);h.after(f)}else c.after(f);f.dataset.moved="1"}
 function lab(){var m={groups:"My Communities",myposts:"My Posts",appsettings:"Settings"};
 Object.keys(m).forEach(function(k){var l=document.querySelector('#menu .mn-t[data-go="'+k+'"] .lb');if(l&&l.textContent!==m[k])l.textContent=m[k]})}
-function av(){loadStories();social();mkPrayers();mkMore();tile();svTile("saved","Saved Posts",'<path d="M6 3h12v18l-6-4-6 4z"/>');svTile("help","Help &amp; Support",'<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7M12 17h.01"/>');svTile("about","About CHEN NETWORK",'<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/>');if(!SLOAD)loadSaved(decorate);place();lab();var a=document.getElementById("hx-av"),c=document.getElementById("cmp-av");if(a&&c&&a.textContent)c.textContent=a.textContent}
+function av(){npHead();loadStories();social();mkPrayers();mkMore();tile();svTile("saved","Saved Posts",'<path d="M6 3h12v18l-6-4-6 4z"/>');svTile("help","Help &amp; Support",'<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7M12 17h.01"/>');svTile("about","About CHEN NETWORK",'<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/>');if(!SLOAD)loadSaved(decorate);place();lab();var a=document.getElementById("hx-av"),c=document.getElementById("cmp-av");if(a&&c&&a.textContent)c.textContent=a.textContent}
 setInterval(av,1500);av();place();sync();
 })();

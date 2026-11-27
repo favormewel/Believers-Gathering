@@ -273,3 +273,18 @@ html:not([data-theme="light"]) .st-add{background:#241660;color:#B9A5FF;border-c
 .ab-ul b{color:#5B2BE0}
 html:not([data-theme="light"]) .ab-ul b{color:#FFC21A}
 @media (max-height:720px){.hx-welcome .scene{display:none}}
+
+/* ===== v11m: Create Post ===== */
+.np-who{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.np-who .cmp-av{width:46px;height:46px;border-radius:50%;background:#5B2BE0;color:#fff;display:grid;place-items:center;font-weight:800;border:2px solid var(--hx-gold);flex:none}
+.np-who b{display:block;font-size:16px}
+.np-who small{display:inline-block;margin-top:2px;padding:2px 10px;border-radius:12px;background:rgba(91,43,224,.12);color:#5B2BE0;font-weight:700;font-size:12px}
+html:not([data-theme="light"]) .np-who small{color:#B9A5FF}
+#newpost #np-text{background:#fff!important;color:#1b1340!important;border:1px solid #e4e2f0!important;border-radius:18px!important;padding:16px!important;font-size:17px!important;min-height:160px;box-shadow:0 2px 10px rgba(40,20,120,.08)}
+html:not([data-theme="light"]) #newpost #np-text{background:linear-gradient(145deg,#241660,#1A1048)!important;color:#F1EEFF!important;border-color:rgba(255,255,255,.12)!important}
+#newpost #np-add,#newpost #np-addv{display:flex!important;align-items:center;justify-content:center;gap:10px;width:100%;border:0!important;border-radius:16px!important;padding:14px!important;background:rgba(91,43,224,.12)!important;color:#5B2BE0!important;font-weight:800!important}
+html:not([data-theme="light"]) #newpost #np-add,html:not([data-theme="light"]) #newpost #np-addv{color:#D4C8FF!important}
+#newpost #np-add::before,#newpost #np-addv::before{content:"";width:24px;height:24px;background-size:contain;background-repeat:no-repeat}
+#newpost #np-add::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235B2BE0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='5' width='18' height='14' rx='2'/%3E%3Ccircle cx='9' cy='11' r='2'/%3E%3Cpath d='M21 16l-5-5-8 8'/%3E%3C/svg%3E")}
+#newpost #np-addv::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23DC2626' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='6' width='12' height='12' rx='2'/%3E%3Cpath d='M15 10l6-3v10l-6-3z'/%3E%3C/svg%3E")}
+#newpost #np-btn{position:sticky;bottom:10px;border-radius:26px!important;background:linear-gradient(135deg,#5B2BE0,#3A12A8)!important;color:#fff!important;font-weight:800!important;box-shadow:0 6px 18px rgba(58,18,168,.4)}
