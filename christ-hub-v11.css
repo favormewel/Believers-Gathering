@@ -220,3 +220,21 @@ html:not([data-theme="light"]) #app .hx-row .tx small{color:#B9B3E6}
 .so-facebook{background:#1877F2;color:#fff}
 .so-apple{background:#000;color:#fff}
 .so-b:disabled{opacity:.6}
+
+/* ===== v11j: Bible screen ===== */
+#bible #bb-search{border-radius:26px!important;border:1px solid #e4e2f0!important}
+#bible [data-scroll]>div:nth-child(2){background:linear-gradient(150deg,#3A12A8,#7A3BFF)!important;color:#fff!important;border:0!important;border-radius:20px!important}
+#bible [data-scroll]>div:nth-child(2) *{color:#fff!important}
+#bible [data-scroll]>div:nth-child(2) p{font-family:Georgia,serif!important;font-size:18px!important;line-height:1.45!important}
+#bible [data-scroll]>div:nth-child(2) button{background:var(--hx-gold)!important;color:#241500!important;border-radius:18px!important;border:0!important;font-weight:800!important}
+#bible [data-scroll]>div:nth-child(3){background:#fff!important;color:#1b1340!important;border:1px solid #e4e2f0!important;border-radius:18px!important;box-shadow:0 2px 10px rgba(40,20,120,.08)}
+html:not([data-theme="light"]) #bible [data-scroll]>div:nth-child(3){background:linear-gradient(145deg,#241660,#1A1048)!important;color:#F1EEFF!important;border-color:rgba(255,255,255,.12)!important}
+#bible [data-scroll]>div:nth-child(3) button{background:#5B2BE0!important;color:#fff!important;border:0!important;border-radius:18px!important;font-weight:800!important}
+#bible [data-bt]{border:0!important;border-radius:20px!important;background:#fff!important;color:#1b1340!important;box-shadow:0 1px 5px rgba(40,20,120,.12);font-weight:700!important}
+html:not([data-theme="light"]) #bible [data-bt]{background:#241660!important;color:#F1EEFF!important}
+#bible [data-bt].on,#bible [data-bt][aria-selected="true"],#bible [data-bt][aria-pressed="true"]{background:linear-gradient(135deg,#5B2BE0,#3A12A8)!important;color:#fff!important}
+#bible #bb-list>button{background:#fff!important;color:#1b1340!important;border:1px solid #e4e2f0!important;border-radius:14px!important;margin-bottom:8px!important}
+html:not([data-theme="light"]) #bible #bb-list>button{background:linear-gradient(145deg,#241660,#1A1048)!important;color:#F1EEFF!important;border-color:rgba(255,255,255,.12)!important}
+#bible #bb-list>div{color:#5B2BE0!important;font-weight:800!important;letter-spacing:.4px}
+html:not([data-theme="light"]) #bible #bb-list>div{color:#B9A5FF!important}
+#np-tpls button{border:0!important;border-radius:20px!important;background:rgba(91,43,224,.12)!important;color:inherit!important;font-weight:700!important}
