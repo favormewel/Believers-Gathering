@@ -39,7 +39,7 @@ app.appendChild(s);s.firstChild.appendChild(g.cloneNode(true))}
 function mkMore(){
 mkScr("saved","Saved Posts",'<div id="sv-list"></div>');
 mkScr("help","Help &amp; Support",'<div class="hp"><details open><summary>How do I join a community?</summary><p>Open Communities, tap Nearby to find groups, or ask a leader to invite you.</p></details><details><summary>How do I share a prayer request?</summary><p>Tap the + button or Prayer on Home, write your request, then tap Post.</p></details><details><summary>How do I let someone know I am praying?</summary><p>Tap Praying on their prayer request.</p></details><details><summary>How do I save a post?</summary><p>Tap the bookmark on any post. Find it later under More, Saved Posts.</p></details><details><summary>How do I change my photo or name?</summary><p>Open Profile, then Edit profile.</p></details><details><summary>How do I manage notifications and blocked members?</summary><p>Open More, then Settings.</p></details><p class="pr-note">Still stuck? Ask your group leader or message the CHEN NETWORK team.</p></div>');
-mkScr("about","About CHEN NETWORK",'<div class="ab"><div class="ab-logo">CHEN</div><b>NETWORK</b><p>Faith. Fellowship. Connection.</p><p>CHEN NETWORK is a Christian community app to connect, pray, and grow together.</p><ul class="ab-ul"><li><b>Connect</b> with believers in groups and chats</li><li><b>Pray</b> together with shared prayer requests</li><li><b>Grow</b> in the Word with the Bible in your pocket</li></ul><small>Version 52</small></div>')}
+mkScr("about","About CHEN NETWORK",'<div class="ab"><div class="ab-logo">CHEN</div><b>NETWORK</b><p>Faith. Fellowship. Connection.</p><p>CHEN NETWORK is a Christian community app to connect, pray, and grow together.</p><ul class="ab-ul"><li><b>Connect</b> with believers in groups and chats</li><li><b>Pray</b> together with shared prayer requests</li><li><b>Grow</b> in the Word with the Bible in your pocket</li></ul><small>Version 53</small></div>')}
 function svTile(id,label,path){var g=document.getElementById("mn-grid");if(!g||g.querySelector('[data-go="'+id+'"]'))return;
 var b=document.createElement("button");b.type="button";b.className="mn-t";b.setAttribute("data-go",id);
 b.innerHTML='<i><svg viewBox="0 0 24 24" aria-hidden="true">'+path+'</svg></i><span class="lb">'+label+'</span>';g.appendChild(b)}
@@ -133,7 +133,7 @@ function canPost(c){var u=window.FL_USER;return !!(u&&c&&(window.FL_IS_ADMIN||c.
 function curCh(){for(var i=0;i<CHS.length;i++)if(CHS[i].id===CUR)return CHS[i];return null}
 function mkChannels(){
 mkScr("channels","Channels",'<button type="button" class="pr-new" id="ch-new" hidden>New channel</button><div id="ch-list"></div>',"home");
-mkScr("channel","Channel",'<div id="ch-info"></div><div id="ch-comp"></div><div id="ch-posts"></div>',"channels")}
+mkScr("channel","Channel",'<div id="ch-live"></div><div id="ch-info"></div><div id="ch-comp"></div><div id="ch-posts"></div>',"channels")}
 function loadChannels(force){var db=window.FL_DBC,box=document.getElementById("ch-list");if(!box)return;
 if(!db||!window.FL_USER){box.innerHTML='<p class="pr-note">Sign in to see channels.</p>';return}
 if(!force&&Date.now()<chAt)return;chAt=Date.now()+15000;
@@ -141,23 +141,24 @@ db.from("channels").select("*").order("created_at",{ascending:true}).then(functi
 if(r.error){chAt=Date.now()+60000;box.innerHTML='<p class="pr-note">Channels are not set up yet. Run the channels SQL in Supabase first.</p>';return}
 CHS=r.data||[];
 db.from("channel_follows").select("channel_id").then(function(f){CFOL={};((f&&f.data)||[]).forEach(function(x){CFOL[x.channel_id]=1});
-db.rpc("channel_follower_counts").then(function(c){CCNT={};((c&&c.data)||[]).forEach(function(x){CCNT[x.channel_id]=Number(x.n)});renderChannels()},function(){renderChannels()})},function(){renderChannels()})},function(){chAt=Date.now()+60000})}
+db.rpc("channel_follower_counts").then(function(c){CCNT={};((c&&c.data)||[]).forEach(function(x){CCNT[x.channel_id]=Number(x.n)});loadLives(renderChannels)},function(){loadLives(renderChannels)})},function(){renderChannels()})},function(){chAt=Date.now()+60000})}
 function renderChannels(){var box=document.getElementById("ch-list");if(!box)return;
 var nb=document.getElementById("ch-new");if(nb)nb.hidden=!window.FL_IS_ADMIN;
 if(!CHS.length){box.innerHTML='<p class="pr-note">No channels yet.'+(window.FL_IS_ADMIN?' Tap New channel to start one.':' Check back soon.')+'</p>';return}
 box.innerHTML=CHS.map(function(c){var f=CFOL[c.id],n=CCNT[c.id];
-return '<div class="ch-card"><button type="button" class="ch-main" data-ch="'+esc(c.id)+'"><span class="ch-ic" style="background:'+(STB[c.color]||STB.purple)+'">'+esc((c.name||"C").charAt(0).toUpperCase())+'</span><span class="ch-tx"><b>'+esc(c.name)+'</b><small>'+esc(c.description||"")+'</small>'+(n?'<em>'+n+(n===1?" follower":" followers")+'</em>':"")+'</span></button><button type="button" class="ch-fol'+(f?" on":"")+'" data-chf="'+esc(c.id)+'" aria-pressed="'+(f?"true":"false")+'">'+(f?"Following":"Follow")+'</button></div>'}).join("")}
+return '<div class="ch-card"><button type="button" class="ch-main" data-ch="'+esc(c.id)+'"><span class="ch-ic" style="background:'+(STB[c.color]||STB.purple)+'">'+esc((c.name||"C").charAt(0).toUpperCase())+'</span><span class="ch-tx"><b>'+esc(c.name)+(CLIVE[c.id]?' <span class="live-pill">LIVE</span>':'')+'</b><small>'+esc(c.description||"")+'</small>'+(n?'<em>'+n+(n===1?" follower":" followers")+'</em>':"")+'</span></button><button type="button" class="ch-fol'+(f?" on":"")+'" data-chf="'+esc(c.id)+'" aria-pressed="'+(f?"true":"false")+'">'+(f?"Following":"Follow")+'</button></div>'}).join("")}
 function renderTop(){var t=document.getElementById("ch-info"),c=curCh();if(!t||!c)return;
 var h=document.querySelector("#channel header h1");if(h)h.textContent=c.name;
 var f=CFOL[c.id],n=CCNT[c.id];
-t.innerHTML='<div class="ch-infoc"><p>'+esc(c.description||"Updates from our leaders.")+'</p><div class="ch-row"><small>'+(n?n+(n===1?" follower":" followers"):"")+'</small><button type="button" class="ch-fol'+(f?" on":"")+'" data-chf="'+esc(c.id)+'" aria-pressed="'+(f?"true":"false")+'">'+(f?"Following":"Follow")+'</button></div></div>';
+t.innerHTML='<div class="ch-infoc"><p>'+esc(c.description||"Updates from our leaders.")+'</p><div class="ch-row"><small>'+(n?n+(n===1?" follower":" followers"):"")+'</small><button type="button" class="ch-fol'+(f?" on":"")+'" data-chf="'+esc(c.id)+'" aria-pressed="'+(f?"true":"false")+'">'+(f?"Following":"Follow")+'</button></div>'+(window.FL_IS_ADMIN&&!CLIVE[c.id]?'<button type="button" class="live-go" id="ch-golive">Go live</button>':"")+'</div>';
 var cp=document.getElementById("ch-comp");
 if(cp&&compFor!==CUR){compFor=CUR;cp.innerHTML=canPost(c)?'<div class="ch-compc"><textarea id="ch-t" maxlength="1000" placeholder="Share an update with followers" aria-label="Channel post"></textarea><p id="ch-e" role="alert"></p><button type="button" class="pr-new" id="ch-post">Post to channel</button></div>':""}}
-function openChannel(id){CUR=id;cpAt=0;compFor=null;renderTop();var b=document.getElementById("ch-posts");if(b)b.innerHTML="";if(window.show)window.show("channel");loadChannelPosts(true)}
+function openChannel(id){CUR=id;cpAt=0;compFor=null;renderLive();renderTop();var b=document.getElementById("ch-posts");if(b)b.innerHTML="";if(window.show)window.show("channel");loadChannelPosts(true)}
 function loadChannelPosts(force){var box=document.getElementById("ch-posts"),db=window.FL_DBC;if(!box||!CUR||!db)return;
 if(!force&&Date.now()-cpAt<8000)return;cpAt=Date.now();var id=CUR;
 db.from("channel_posts").select("*").eq("channel_id",id).order("created_at",{ascending:false}).limit(50).then(function(r){if(id!==CUR)return;
 if(r.error){cpAt=0;box.innerHTML='<p class="pr-note">Posts could not load right now.</p>';return}
+loadLives(function(){renderLive();renderTop()});
 var rows=(r.data||[]).filter(function(p){return !(window.FLC_BLOCKED&&window.FLC_BLOCKED[p.user_id])});
 box.innerHTML=rows.length?rows.map(function(p){var n=p.author_name||"Leader",u=window.FL_USER,del=(window.FL_IS_ADMIN||(u&&p.user_id===u.id))?'<button type="button" class="bm" data-chdel="'+esc(p.id)+'" aria-label="Delete post">'+TRASH+'</button>':"";
 return '<article class="pr-card"><div class="pr-hd"><span class="pr-av">'+esc(n.charAt(0).toUpperCase())+'</span><div style="flex:1"><b>'+esc(n)+'</b><small>'+ago(p.created_at)+'</small></div>'+del+'</div><p>'+esc(p.body||"")+'</p></article>'}).join(""):'<p class="pr-note">No posts yet.</p>'},function(){cpAt=0})}
@@ -187,6 +188,27 @@ if(e.target.closest("#ch-new")){openNewChannel();return}
 if(e.target.closest("#ch-post")){postChannel();return}
 var d=e.target.closest("[data-chdel]");if(d&&window.FL_DBC&&confirm("Delete this post?")){var id=d.getAttribute("data-chdel");
 window.FL_DBC.from("channel_posts").delete().eq("id",id).then(function(){loadChannelPosts(true)},function(){})}});
+
+/* ---- Channel live: an admin pastes a YouTube/Facebook live link; the channel shows LIVE ---- */
+var CLIVE={};
+function safeUrl(u){try{var x=new URL(u);return(x.protocol==="https:"||x.protocol==="http:")?x.href:""}catch(e){return""}}
+function loadLives(cb){var db=window.FL_DBC;if(!db){cb();return}var since=new Date(Date.now()-432e5).toISOString();
+db.from("channel_lives").select("*").is("ended_at",null).gt("started_at",since).order("started_at",{ascending:false}).limit(50).then(function(r){
+CLIVE={};if(!r.error)(r.data||[]).forEach(function(x){if(!CLIVE[x.channel_id])CLIVE[x.channel_id]=x});cb()},function(){cb()})}
+function renderLive(){var b=document.getElementById("ch-live");if(!b)return;var l=CLIVE[CUR];
+if(!l){b.innerHTML="";return}var u=safeUrl(l.url);
+b.innerHTML='<div class="live-card"><span class="live-pill">LIVE</span><b>'+esc(l.title)+'</b><div class="live-row">'+(u?'<a class="live-watch" href="'+esc(u)+'" target="_blank" rel="noopener noreferrer">Watch live</a>':"")+(window.FL_IS_ADMIN?'<button type="button" class="live-end" data-liveend="'+esc(l.id)+'">End live</button>':"")+'</div></div>'}
+function openGoLive(){closeSt();var o=document.createElement("div");o.className="md-ov";o.setAttribute("role","dialog");o.setAttribute("aria-modal","true");o.setAttribute("aria-label","Go live");
+o.innerHTML='<div class="md-card"><h2>Go live</h2><p class="md-sub">Start your live video on YouTube, Facebook or another site, then paste the link here. Members will see LIVE on this channel.</p><label>Title<input id="gl2-t" maxlength="120" placeholder="Sunday Service" autocomplete="off"></label><label>Live link<input id="gl2-u" type="url" inputmode="url" placeholder="https://..." autocomplete="off"></label><p id="gl2-e" role="alert"></p><div class="md-row"><button type="button" class="md-x">Cancel</button><button type="button" class="md-go">Go live</button></div></div>';
+document.body.appendChild(o);o.querySelector("#gl2-t").focus();
+o.addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;
+if(b.classList.contains("md-x")){o.remove();return}
+if(b.classList.contains("md-go")){var t=o.querySelector("#gl2-t").value.trim(),u=safeUrl(o.querySelector("#gl2-u").value.trim()),er=o.querySelector("#gl2-e"),db=window.FL_DBC,me=window.FL_USER;
+if(!t){er.textContent="Add a title.";return}if(!u){er.textContent="Paste a valid link that starts with https://";return}if(!db||!me||!CUR){er.textContent="Sign in first.";return}
+b.disabled=true;db.from("channel_lives").insert({channel_id:CUR,title:t,url:u,started_by:me.id}).then(function(r){
+if(r.error){b.disabled=false;er.textContent="Could not start. Only admins can go live.";return}o.remove();loadLives(function(){renderLive();renderTop()})},function(){b.disabled=false;er.textContent="Could not start. Try again."})}})}
+document.addEventListener("click",function(e){if(e.target.closest("#ch-golive")){openGoLive();return}
+var d=e.target.closest("[data-liveend]");if(d&&window.FL_DBC){d.disabled=true;window.FL_DBC.from("channel_lives").update({ended_at:new Date().toISOString()}).eq("id",d.getAttribute("data-liveend")).then(function(){loadLives(function(){renderLive();renderTop()})},function(){d.disabled=false})}});
 function sync(){var chs=document.getElementById("channels");if(chs&&!chs.hidden)loadChannels();var c1=document.getElementById("channel");if(c1&&!c1.hidden)loadChannelPosts();var sv=document.getElementById("saved");if(sv&&!sv.hidden)showSaved();decorate();var pr=document.getElementById("prayers");if(pr&&!pr.hidden)loadPrayers();busy=0;var t=cur();if(!t)return;
 document.querySelectorAll("nav.hx-nav button").forEach(function(b){var on=b.dataset.tab===t;b.classList.toggle("on",on);if(on)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current")})}
 function queue(){if(!busy){busy=1;requestAnimationFrame(sync)}}
