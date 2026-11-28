@@ -350,3 +350,15 @@ html:not([data-theme="light"]) .md-card{background:#1A1048;color:#F1EEFF}
 .live-go{display:block;width:100%;margin-top:12px;min-height:46px;border:0;border-radius:23px;background:#E5173F;color:#fff;font:800 15px Inter,sans-serif;cursor:pointer}
 .md-sub{margin:0 0 12px;font-size:13.5px;line-height:1.45;opacity:.85}
 #gl2-e{min-height:18px;margin:6px 0;color:#E5173F;font-size:13px;font-weight:600}
+
+/* ===== v11r: channel videos ===== */
+.ch-adm{display:flex;gap:10px;margin-top:12px}
+.ch-adm .live-go{margin-top:0;width:auto;flex:1}
+.vd-up{flex:1;min-height:46px;border:0;border-radius:23px;background:#5B2BE0;color:#fff;font:800 15px Inter,sans-serif;cursor:pointer}
+.ch-h{margin:6px 2px 10px;font:800 17px Inter,sans-serif}
+.vd-card{background:#fff;color:#1b1340;border:1px solid #e4e2f0;border-radius:18px;overflow:hidden;margin-bottom:12px;box-shadow:0 2px 10px rgba(40,20,120,.08)}
+html:not([data-theme="light"]) .vd-card{background:linear-gradient(145deg,#241660,#1A1048);color:#F1EEFF;border-color:rgba(255,255,255,.12)}
+.vd-card video{display:block;width:100%;max-height:60vh;background:#000}
+.vd-hd{display:flex;align-items:center;gap:8px;padding:10px 12px}
+.vd-hd b{display:block;font-size:15px}
+.vd-hd small{color:#7a77a0}
